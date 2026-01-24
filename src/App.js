@@ -3,10 +3,10 @@ import { Calendar, Home, Utensils, Activity, User, MessageCircle } from 'lucide-
 
 // Farbschema (Pastell)
 const COLORS = {
-  menstruation: '#E6B89C',    // Warmes Orange/Terracotta
-  follicular: '#B8E6D5',      // Helles Mint/Salbeigrün
-  ovulation: '#F5C2C7',       // Zartes Rosé/Pfirsich
-  luteal: '#F9E4B7',          // Weiches Gelb/Vanille
+  menstruation: '#E6B89C',
+  follicular: '#B8E6D5',
+  ovulation: '#F5C2C7',
+  luteal: '#F9E4B7',
   background: '#FEFEFE',
   cardBg: '#FFFFFF',
   text: '#2D3748',
@@ -18,30 +18,33 @@ const CYCLE_PHASES = {
   menstruation: {
     name: 'Menstruationsphase',
     color: COLORS.menstruation,
+    gradient: 'linear-gradient(135deg, #E6B89C 0%, #F5D5C0 100%)',
     info: 'Die Gebärmutterschleimhaut wird abgestoßen. Niedriger Östrogen- und Progesteronspiegel führt oft zu Müdigkeit.',
     days: [1, 2, 3, 4, 5]
   },
   follicular: {
     name: 'Follikelphase',
     color: COLORS.follicular,
+    gradient: 'linear-gradient(135deg, #B8E6D5 0%, #D4F1E8 100%)',
     info: 'Nach der Blutung reifen neue Eibläschen heran. Der Östrogenspiegel steigt, was Energie und Wohlbefinden steigern kann.',
     days: [6, 7, 8, 9, 10, 11, 12, 13]
   },
   ovulation: {
     name: 'Ovulationsphase',
     color: COLORS.ovulation,
+    gradient: 'linear-gradient(135deg, #F5C2C7 0%, #FFE0E5 100%)',
     info: 'Ein reifer Follikel platzt, die Eizelle wandert in den Eileiter. Dies ist der Zeitpunkt maximaler Fruchtbarkeit.',
     days: [14]
   },
   luteal: {
     name: 'Lutealphase',
     color: COLORS.luteal,
+    gradient: 'linear-gradient(135deg, #F9E4B7 0%, #FFF4D6 100%)',
     info: 'Der geplatzte Follikel produziert Progesteron. Die Schleimhaut verdickt sich weiter. Energie sinkt oft, PMS kann auftreten.',
     days: [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28]
   }
 };
 
-// Funktion um aktuelle Phase zu bestimmen
 const getCurrentPhase = (cycleDay) => {
   for (const [key, phase] of Object.entries(CYCLE_PHASES)) {
     if (phase.days.includes(cycleDay)) {
@@ -113,11 +116,12 @@ const DailyTrackingModal = ({ isOpen, onClose, onSave }) => {
                   flex: 1,
                   padding: '16px',
                   fontSize: '32px',
-                  backgroundColor: mood === idx + 1 ? m.color : COLORS.cardBg,
-                  border: `2px solid ${mood === idx + 1 ? m.color : '#E2E8F0'}`,
+                  backgroundColor: mood === idx + 1 ? m.color : 'transparent',
+                  border: `2px solid ${mood === idx + 1 ? m.color : 'rgba(226, 232, 240, 0.5)'}`,
                   borderRadius: '12px',
                   cursor: 'pointer',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.3s ease',
+                  boxShadow: mood === idx + 1 ? `0 0 20px ${m.color}60` : 'none'
                 }}
               >
                 {m.emoji}
@@ -137,12 +141,14 @@ const DailyTrackingModal = ({ isOpen, onClose, onSave }) => {
                   display: 'flex',
                   alignItems: 'center',
                   padding: '12px',
-                  backgroundColor: symptoms[symptom] ? COLORS.follicular : COLORS.cardBg,
-                  border: `2px solid ${symptoms[symptom] ? COLORS.follicular : '#E2E8F0'}`,
+                  backgroundColor: symptoms[symptom] ? `${COLORS.follicular}40` : 'transparent',
+                  border: `1.5px solid ${symptoms[symptom] ? COLORS.follicular : 'rgba(226, 232, 240, 0.5)'}`,
                   borderRadius: '8px',
                   cursor: 'pointer',
                   fontSize: '14px',
-                  color: COLORS.text
+                  color: COLORS.text,
+                  transition: 'all 0.3s ease',
+                  boxShadow: symptoms[symptom] ? `0 0 15px ${COLORS.follicular}40` : 'none'
                 }}
               >
                 <input
@@ -160,7 +166,7 @@ const DailyTrackingModal = ({ isOpen, onClose, onSave }) => {
         {/* Gewicht */}
         <div style={{ marginBottom: '32px' }}>
           <h3 style={{ color: COLORS.text, marginBottom: '8px', fontSize: '18px' }}>Gewicht (optional)</h3>
-          <p style={{ color: COLORS.textLight, fontSize: '12px', marginBottom: '12px' }}>
+          <p style={{ color: COLORS.textLight, fontSize: '12px', marginBottom: '12px', opacity: 0.7 }}>
             Hinweis: Zu regelmäßige Gewichtskontrolle kann zu einem ungesunden Verhältnis zum Körper führen.
           </p>
           <input
@@ -173,9 +179,10 @@ const DailyTrackingModal = ({ isOpen, onClose, onSave }) => {
               width: '100%',
               padding: '12px',
               fontSize: '16px',
-              border: '2px solid #E2E8F0',
+              border: '1.5px solid rgba(226, 232, 240, 0.5)',
               borderRadius: '8px',
-              backgroundColor: COLORS.cardBg
+              backgroundColor: 'transparent',
+              color: COLORS.text
             }}
           />
         </div>
@@ -183,7 +190,7 @@ const DailyTrackingModal = ({ isOpen, onClose, onSave }) => {
         {/* Basaltemperatur */}
         <div style={{ marginBottom: '32px' }}>
           <h3 style={{ color: COLORS.text, marginBottom: '8px', fontSize: '18px' }}>Basaltemperatur (optional)</h3>
-          <p style={{ color: COLORS.textLight, fontSize: '12px', marginBottom: '12px' }}>
+          <p style={{ color: COLORS.textLight, fontSize: '12px', marginBottom: '12px', opacity: 0.7 }}>
             Für NFP-Verhütung
           </p>
           <input
@@ -196,9 +203,10 @@ const DailyTrackingModal = ({ isOpen, onClose, onSave }) => {
               width: '100%',
               padding: '12px',
               fontSize: '16px',
-              border: '2px solid #E2E8F0',
+              border: '1.5px solid rgba(226, 232, 240, 0.5)',
               borderRadius: '8px',
-              backgroundColor: COLORS.cardBg
+              backgroundColor: 'transparent',
+              color: COLORS.text
             }}
           />
         </div>
@@ -211,12 +219,13 @@ const DailyTrackingModal = ({ isOpen, onClose, onSave }) => {
               flex: 1,
               padding: '16px',
               fontSize: '16px',
-              backgroundColor: COLORS.cardBg,
-              border: '2px solid #E2E8F0',
+              backgroundColor: 'transparent',
+              border: '1.5px solid rgba(226, 232, 240, 0.5)',
               borderRadius: '12px',
               cursor: 'pointer',
               fontWeight: '600',
-              color: COLORS.text
+              color: COLORS.text,
+              transition: 'all 0.3s ease'
             }}
           >
             Abbrechen
@@ -227,12 +236,14 @@ const DailyTrackingModal = ({ isOpen, onClose, onSave }) => {
               flex: 1,
               padding: '16px',
               fontSize: '16px',
-              backgroundColor: COLORS.follicular,
+              background: COLORS.follicular,
               border: 'none',
               borderRadius: '12px',
               cursor: 'pointer',
               fontWeight: '600',
-              color: COLORS.text
+              color: COLORS.text,
+              boxShadow: `0 0 25px ${COLORS.follicular}60`,
+              transition: 'all 0.3s ease'
             }}
           >
             Speichern
@@ -243,77 +254,135 @@ const DailyTrackingModal = ({ isOpen, onClose, onSave }) => {
   );
 };
 
-// Screen Components
-const HomeScreen = ({ currentPhase, cycleDay, onOpenTracking }) => (
-  <div style={{ padding: '20px', paddingBottom: '100px' }}>
-    {/* Phase Visualisierung */}
-    <div style={{
-      backgroundColor: currentPhase.color,
-      borderRadius: '24px',
-      padding: '32px',
-      marginBottom: '24px',
-      textAlign: 'center'
-    }}>
-      <div style={{
-        width: '120px',
-        height: '120px',
-        margin: '0 auto 24px',
-        backgroundColor: 'rgba(255,255,255,0.5)',
-        borderRadius: '50%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '48px'
-      }}>
-        🌸
-      </div>
-      <h2 style={{ color: COLORS.text, marginBottom: '8px', fontSize: '24px', fontWeight: '600' }}>
-        {currentPhase.name}
-      </h2>
-      <p style={{ color: COLORS.text, fontSize: '14px', opacity: 0.8 }}>
-        Tag {cycleDay} deines Zyklus
-      </p>
-    </div>
-
-    {/* Phase Info */}
-    <div style={{
-      backgroundColor: COLORS.cardBg,
-      borderRadius: '16px',
-      padding: '24px',
-      marginBottom: '24px',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-    }}>
-      <h3 style={{ color: COLORS.text, marginBottom: '12px', fontSize: '18px', fontWeight: '600' }}>
-        Was geht gerade ab
-      </h3>
-      <p style={{ color: COLORS.textLight, lineHeight: '1.6', fontSize: '15px' }}>
-        {currentPhase.info}
-      </p>
-    </div>
-
-    {/* Daily Tracking Button */}
+// Floating Action Button with breathing animation
+const FloatingButton = ({ onClick }) => {
+  return (
     <button
-      onClick={onOpenTracking}
+      onClick={onClick}
       style={{
-        width: '100%',
-        padding: '20px',
-        backgroundColor: COLORS.follicular,
+        position: 'fixed',
+        bottom: '90px',
+        right: '20px',
+        width: '64px',
+        height: '64px',
+        borderRadius: '50%',
+        background: COLORS.follicular,
         border: 'none',
-        borderRadius: '16px',
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '12px',
-        fontSize: '16px',
-        fontWeight: '600',
-        color: COLORS.text,
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+        boxShadow: `0 8px 32px ${COLORS.follicular}60`,
+        zIndex: 100,
+        animation: 'breathe 3s ease-in-out infinite',
+        transition: 'transform 0.2s ease'
       }}
+      onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+      onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
     >
-      <MessageCircle size={24} />
-      Erzähl mir von deinem Tag
+      <MessageCircle size={28} color={COLORS.text} />
+      <style>
+        {`
+          @keyframes breathe {
+            0%, 100% { 
+              transform: scale(1);
+              box-shadow: 0 8px 32px ${COLORS.follicular}60;
+            }
+            50% { 
+              transform: scale(1.05);
+              box-shadow: 0 12px 40px ${COLORS.follicular}80;
+            }
+          }
+        `}
+      </style>
     </button>
+  );
+};
+
+// Screen Components
+const HomeScreen = ({ currentPhase, cycleDay, onOpenTracking }) => (
+  <div style={{
+    minHeight: '100vh',
+    background: currentPhase.gradient,
+    padding: '40px 24px 100px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative'
+  }}>
+    {/* Phase Icon/Visual */}
+    <div style={{
+      width: '160px',
+      height: '160px',
+      marginBottom: '32px',
+      background: 'rgba(255, 255, 255, 0.3)',
+      borderRadius: '50%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '72px',
+      backdropFilter: 'blur(10px)',
+      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+    }}>
+      🌸
+    </div>
+
+    {/* Phase Name */}
+    <h1 style={{
+      color: COLORS.text,
+      fontSize: '32px',
+      fontWeight: '700',
+      marginBottom: '8px',
+      textAlign: 'center',
+      textShadow: '0 2px 8px rgba(255, 255, 255, 0.5)'
+    }}>
+      {currentPhase.name}
+    </h1>
+
+    {/* Cycle Day */}
+    <p style={{
+      color: COLORS.text,
+      fontSize: '16px',
+      opacity: 0.8,
+      marginBottom: '48px',
+      textAlign: 'center'
+    }}>
+      Tag {cycleDay} deines Zyklus
+    </p>
+
+    {/* Phase Info - direkt auf Hintergrund */}
+    <div style={{
+      maxWidth: '500px',
+      padding: '32px',
+      background: 'rgba(255, 255, 255, 0.2)',
+      borderRadius: '24px',
+      border: '1px solid rgba(255, 255, 255, 0.4)',
+      backdropFilter: 'blur(10px)',
+      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)'
+    }}>
+      <h3 style={{
+        color: COLORS.text,
+        fontSize: '20px',
+        fontWeight: '600',
+        marginBottom: '16px',
+        textAlign: 'center'
+      }}>
+        Was geht gerade ab
+      </h3>
+      <p style={{
+        color: COLORS.text,
+        lineHeight: '1.7',
+        fontSize: '16px',
+        textAlign: 'center',
+        opacity: 0.9
+      }}>
+        {currentPhase.info}
+      </p>
+    </div>
+
+    {/* Floating Button */}
+    <FloatingButton onClick={onOpenTracking} />
   </div>
 );
 
@@ -349,13 +418,12 @@ const ProfileScreen = () => (
 function App() {
   const [currentScreen, setCurrentScreen] = useState('home');
   const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
-  const [cycleDay, setCycleDay] = useState(14); // Beispiel: Tag 14 (Ovulation)
+  const [cycleDay, setCycleDay] = useState(14);
   
   const currentPhase = getCurrentPhase(cycleDay);
 
   const handleSaveTracking = (data) => {
     console.log('Tracking gespeichert:', data);
-    // TODO: Später in State/Storage speichern
     alert('Daten gespeichert! (Schau in die Console für Details)');
   };
 
@@ -394,12 +462,14 @@ function App() {
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: COLORS.cardBg,
-        borderTop: '1px solid #E2E8F0',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        backdropFilter: 'blur(10px)',
+        borderTop: '1px solid rgba(226, 232, 240, 0.3)',
         display: 'flex',
         justifyContent: 'space-around',
         padding: '12px 0',
-        boxShadow: '0 -2px 10px rgba(0,0,0,0.05)'
+        boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.05)',
+        zIndex: 50
       }}>
         {navItems.map(item => (
           <button
@@ -416,7 +486,8 @@ function App() {
               cursor: 'pointer',
               padding: '8px',
               color: currentScreen === item.id ? COLORS.follicular : COLORS.textLight,
-              transition: 'color 0.2s'
+              transition: 'all 0.3s ease',
+              filter: currentScreen === item.id ? `drop-shadow(0 0 8px ${COLORS.follicular}80)` : 'none'
             }}
           >
             <item.icon size={24} />
