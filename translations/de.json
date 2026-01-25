@@ -1,0 +1,98 @@
+{
+  "navigation": {
+    "home": "Home",
+    "calendar": "Kalender",
+    "nutrition": "Ernährung",
+    "activity": "Bewegung",
+    "profile": "Profil"
+  },
+  "phases": {
+    "menstruation": {
+      "name": "Menstruationsphase",
+      "info": "Die Gebärmutterschleimhaut wird abgestoßen. Niedriger Östrogen- und Progesteronspiegel führt oft zu Müdigkeit."
+    },
+    "follicular": {
+      "name": "Follikelphase",
+      "info": "Nach der Blutung reifen neue Eibläschen heran. Der Östrogenspiegel steigt, was Energie und Wohlbefinden steigern kann."
+    },
+    "ovulation": {
+      "name": "Ovulationsphase",
+      "info": "Ein reifer Follikel platzt, die Eizelle wandert in den Eileiter. Dies ist der Zeitpunkt maximaler Fruchtbarkeit."
+    },
+    "luteal": {
+      "name": "Lutealphase",
+      "info": "Der geplatzte Follikel produziert Progesteron. Die Schleimhaut verdickt sich weiter. Energie sinkt oft, PMS kann auftreten."
+    }
+  },
+  "home": {
+    "cycleDay": "Tag {{day}} deines Zyklus",
+    "whatIsHappening": "Was geht gerade ab",
+    "tellMeAboutDay": "Erzähl mir von deinem Tag"
+  },
+  "tracking": {
+    "title": "Erzähl mir von deinem Tag",
+    "mood": {
+      "title": "Wie fühlst du dich heute?",
+      "veryBad": "Sehr schlecht",
+      "bad": "Schlecht",
+      "neutral": "Neutral",
+      "good": "Gut",
+      "veryGood": "Sehr gut"
+    },
+    "symptoms": {
+      "title": "Symptome",
+      "headache": "Kopfschmerzen",
+      "backPain": "Rückenschmerzen",
+      "shoulderPain": "Schulterschmerzen",
+      "abdominalPain": "Unterleibsschmerzen",
+      "cramps": "Krämpfe",
+      "cold": "Kalt",
+      "hot": "Heiß",
+      "sweaty": "Schwitzig",
+      "bloated": "Aufgebläht",
+      "listless": "Antriebslos",
+      "cravings": "Heißhunger"
+    },
+    "weight": {
+      "title": "Gewicht (optional)",
+      "placeholder": "kg",
+      "warning": "Hinweis: Zu regelmäßige Gewichtskontrolle kann zu einem ungesunden Verhältnis zum Körper führen."
+    },
+    "temperature": {
+      "title": "Basaltemperatur (optional)",
+      "placeholder": "°C",
+      "info": "Für NFP-Verhütung"
+    },
+    "buttons": {
+      "cancel": "Abbrechen",
+      "save": "Speichern"
+    }
+  },
+  "onboarding": {
+    "welcome": "Willkommen bei MyCycleCoach",
+    "name": "Dein Name",
+    "age": "Dein Alter",
+    "height": "Deine Größe (cm)",
+    "weight": "Dein Gewicht (kg)",
+    "motivation": {
+      "title": "Was möchtest du erreichen?",
+      "loseWeight": "Abnehmen",
+      "gainWeight": "Zunehmen",
+      "getFit": "Fit werden",
+      "knowBody": "Körper besser kennenlernen",
+      "contraception": "Verhütung"
+    },
+    "contraceptionWarning": "Wichtig: Alle Prognosen sind keine sichere Verhütungsmethode. Die App hilft dir jedoch, deinen Körper besser kennenzulernen.",
+    "lastPeriod": {
+      "title": "Deine letzte Periode",
+      "startDate": "Startdatum",
+      "duration": "Dauer (Tage)"
+    },
+    "buttons": {
+      "next": "Weiter",
+      "start": "Los geht's!"
+    }
+  },
+  "comingSoon": "Coming soon...",
+  "dataSaved": "Daten gespeichert! (Schau in die Console für Details)"
+}

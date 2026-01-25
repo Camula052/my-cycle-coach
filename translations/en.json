@@ -1,0 +1,98 @@
+{
+  "navigation": {
+    "home": "Home",
+    "calendar": "Calendar",
+    "nutrition": "Nutrition",
+    "activity": "Activity",
+    "profile": "Profile"
+  },
+  "phases": {
+    "menstruation": {
+      "name": "Menstruation Phase",
+      "info": "The uterine lining is being shed. Low estrogen and progesterone levels often lead to fatigue."
+    },
+    "follicular": {
+      "name": "Follicular Phase",
+      "info": "After bleeding, new follicles mature. Rising estrogen levels can increase energy and wellbeing."
+    },
+    "ovulation": {
+      "name": "Ovulation Phase",
+      "info": "A mature follicle ruptures, releasing the egg into the fallopian tube. This is the time of maximum fertility."
+    },
+    "luteal": {
+      "name": "Luteal Phase",
+      "info": "The ruptured follicle produces progesterone. The lining thickens further. Energy often decreases, PMS may occur."
+    }
+  },
+  "home": {
+    "cycleDay": "Day {{day}} of your cycle",
+    "whatIsHappening": "What's happening now",
+    "tellMeAboutDay": "Tell me about your day"
+  },
+  "tracking": {
+    "title": "Tell me about your day",
+    "mood": {
+      "title": "How do you feel today?",
+      "veryBad": "Very bad",
+      "bad": "Bad",
+      "neutral": "Neutral",
+      "good": "Good",
+      "veryGood": "Very good"
+    },
+    "symptoms": {
+      "title": "Symptoms",
+      "headache": "Headache",
+      "backPain": "Back pain",
+      "shoulderPain": "Shoulder pain",
+      "abdominalPain": "Abdominal pain",
+      "cramps": "Cramps",
+      "cold": "Cold",
+      "hot": "Hot",
+      "sweaty": "Sweaty",
+      "bloated": "Bloated",
+      "listless": "Listless",
+      "cravings": "Cravings"
+    },
+    "weight": {
+      "title": "Weight (optional)",
+      "placeholder": "kg",
+      "warning": "Note: Too frequent weight monitoring can lead to an unhealthy relationship with your body."
+    },
+    "temperature": {
+      "title": "Basal temperature (optional)",
+      "placeholder": "°C",
+      "info": "For NFP contraception"
+    },
+    "buttons": {
+      "cancel": "Cancel",
+      "save": "Save"
+    }
+  },
+  "onboarding": {
+    "welcome": "Welcome to MyCycleCoach",
+    "name": "Your name",
+    "age": "Your age",
+    "height": "Your height (cm)",
+    "weight": "Your weight (kg)",
+    "motivation": {
+      "title": "What would you like to achieve?",
+      "loseWeight": "Lose weight",
+      "gainWeight": "Gain weight",
+      "getFit": "Get fit",
+      "knowBody": "Get to know my body better",
+      "contraception": "Contraception"
+    },
+    "contraceptionWarning": "Important: All predictions are not a reliable contraceptive method. However, the app helps you get to know your body better.",
+    "lastPeriod": {
+      "title": "Your last period",
+      "startDate": "Start date",
+      "duration": "Duration (days)"
+    },
+    "buttons": {
+      "next": "Next",
+      "start": "Let's go!"
+    }
+  },
+  "comingSoon": "Coming soon...",
+  "dataSaved": "Data saved! (Check the console for details)"
+}
