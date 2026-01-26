@@ -94,5 +94,15 @@
     }
   },
   "comingSoon": "Coming soon...",
-  "dataSaved": "Daten gespeichert! (Schau in die Console für Details)"
+  "dataSaved": "Daten gespeichert! (Schau in die Console für Details)",
+  "profile": {
+    "personalData": "Persönliche Daten",
+    "name": "Name",
+    "age": "Alter",
+    "height": "Größe",
+    "weight": "Gewicht",
+    "language": "Sprache / Language",
+    "editProfile": "Profil bearbeiten",
+    "noData": "Keine Daten vorhanden"
+  }
 }

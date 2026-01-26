@@ -444,7 +444,7 @@ const ProfileScreen = ({ userData, onEditProfile }) => {
     return (
       <div style={{ padding: '20px', paddingBottom: '100px', textAlign: 'center' }}>
         <h2 style={{ color: COLORS.text, marginBottom: '16px' }}>{t('navigation.profile')}</h2>
-        <p style={{ color: COLORS.textLight }}>Keine Daten vorhanden</p>
+        <p style={{ color: COLORS.textLight }}>{t('profile.noData')}</p>
       </div>
     );
   }
@@ -464,28 +464,28 @@ const ProfileScreen = ({ userData, onEditProfile }) => {
         border: '1.5px solid rgba(226, 232, 240, 0.5)'
       }}>
         <h3 style={{ color: COLORS.text, fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>
-          Persönliche Daten
+          {t('profile.personalData')}
         </h3>
         <div style={{ display: 'grid', gap: '12px' }}>
           <div>
-            <span style={{ color: COLORS.textLight, fontSize: '14px' }}>Name:</span>
+            <span style={{ color: COLORS.textLight, fontSize: '14px' }}>{t('profile.name')}:</span>
             <p style={{ color: COLORS.text, fontSize: '16px', fontWeight: '500' }}>{userData.name}</p>
           </div>
           {userData.age && (
             <div>
-              <span style={{ color: COLORS.textLight, fontSize: '14px' }}>Alter:</span>
+              <span style={{ color: COLORS.textLight, fontSize: '14px' }}>{t('profile.age')}:</span>
               <p style={{ color: COLORS.text, fontSize: '16px', fontWeight: '500' }}>{userData.age}</p>
             </div>
           )}
           {userData.height && (
             <div>
-              <span style={{ color: COLORS.textLight, fontSize: '14px' }}>Größe:</span>
+              <span style={{ color: COLORS.textLight, fontSize: '14px' }}>{t('profile.height')}:</span>
               <p style={{ color: COLORS.text, fontSize: '16px', fontWeight: '500' }}>{userData.height} cm</p>
             </div>
           )}
           {userData.weight && (
             <div>
-              <span style={{ color: COLORS.textLight, fontSize: '14px' }}>Gewicht:</span>
+              <span style={{ color: COLORS.textLight, fontSize: '14px' }}>{t('profile.weight')}:</span>
               <p style={{ color: COLORS.text, fontSize: '16px', fontWeight: '500' }}>{userData.weight} kg</p>
             </div>
           )}
@@ -501,7 +501,7 @@ const ProfileScreen = ({ userData, onEditProfile }) => {
         border: '1.5px solid rgba(226, 232, 240, 0.5)'
       }}>
         <h3 style={{ color: COLORS.text, fontSize: '18px', fontWeight: '600', marginBottom: '16px' }}>
-          Sprache / Language
+          {t('profile.language')}
         </h3>
         <div style={{ display: 'flex', gap: '12px' }}>
           <button
@@ -553,7 +553,7 @@ const ProfileScreen = ({ userData, onEditProfile }) => {
           boxShadow: `0 0 25px ${COLORS.follicular}60`
         }}
       >
-        Profil bearbeiten
+        {t('profile.editProfile')}
       </button>
     </div>
   );

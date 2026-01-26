@@ -94,5 +94,15 @@
     }
   },
   "comingSoon": "Coming soon...",
-  "dataSaved": "Data saved! (Check the console for details)"
+  "dataSaved": "Data saved! (Check the console for details)",
+  "profile": {
+    "personalData": "Personal Data",
+    "name": "Name",
+    "age": "Age",
+    "height": "Height",
+    "weight": "Weight",
+    "language": "Language / Sprache",
+    "editProfile": "Edit Profile",
+    "noData": "No data available"
+  }
 }
