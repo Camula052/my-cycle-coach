@@ -50,7 +50,9 @@ const getCurrentPhase = (cycleDay) => {
 
 // Daily Tracking Modal Component
 const DailyTrackingModal = ({ isOpen, onClose, onSave }) => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();  
+  console.log('Current language:', language);
+  
   const [mood, setMood] = useState(3);
   const [symptoms, setSymptoms] = useState({});
   const [weight, setWeight] = useState('');
@@ -593,6 +595,15 @@ function App() {
     alert(t('dataSaved'));
   };
 
+  // Navigation Items - muss hier sein damit t() bei Sprachwechsel aktualisiert wird
+  const navItems = [
+    { id: 'home', icon: Home, label: t('navigation.home') },
+    { id: 'calendar', icon: Calendar, label: t('navigation.calendar') },
+    { id: 'nutrition', icon: Utensils, label: t('navigation.nutrition') },
+    { id: 'activity', icon: Activity, label: t('navigation.activity') },
+    { id: 'profile', icon: User, label: t('navigation.profile') }
+  ];
+
   const screens = {
     home: <HomeScreen 
             currentPhase={currentPhase} 
@@ -607,14 +618,6 @@ function App() {
                onEditProfile={() => setShowOnboarding(true)}
              />
   };
-
-  const navItems = [
-    { id: 'home', icon: Home, label: t('navigation.home') },
-    { id: 'calendar', icon: Calendar, label: t('navigation.calendar') },
-    { id: 'nutrition', icon: Utensils, label: t('navigation.nutrition') },
-    { id: 'activity', icon: Activity, label: t('navigation.activity') },
-    { id: 'profile', icon: User, label: t('navigation.profile') }
-  ];
 
   return (
     <div style={{

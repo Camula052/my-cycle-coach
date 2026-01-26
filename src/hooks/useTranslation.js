@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import de from '../translations/de.json';
 import en from '../translations/en.json';
 
@@ -18,8 +18,12 @@ const interpolate = (text, values) => {
   return text.replace(/\{\{(\w+)\}\}/g, (match, key) => values[key] || match);
 };
 
-export const useTranslation = () => {
-  const [language, setLanguage] = useState('de'); // Default: Deutsch
+// Context erstellen
+const TranslationContext = createContext();
+
+// Provider Component
+export const TranslationProvider = ({ children }) => {
+  const [language, setLanguage] = useState('de');
 
   useEffect(() => {
     // Sprache aus localStorage laden (falls vorhanden)
@@ -33,11 +37,11 @@ export const useTranslation = () => {
     if (translations[lang]) {
       setLanguage(lang);
       localStorage.setItem('language', lang);
+      console.log('Language changed to:', lang);
     }
   };
 
   // t = translate Funktion
-  // Verwendung: t('home.cycleDay', { day: 14 })
   const t = (key, values) => {
     const text = getNestedValue(translations[language], key);
     if (!text) {
@@ -47,9 +51,18 @@ export const useTranslation = () => {
     return interpolate(text, values);
   };
 
-  return {
-    t,
-    language,
-    changeLanguage
-  };
+  return (
+    <TranslationContext.Provider value={{ t, language, changeLanguage }}>
+      {children}
+    </TranslationContext.Provider>
+  );
+};
+
+// Hook zum Nutzen des Contexts
+export const useTranslation = () => {
+  const context = useContext(TranslationContext);
+  if (!context) {
+    throw new Error('useTranslation must be used within TranslationProvider');
+  }
+  return context;
 };
