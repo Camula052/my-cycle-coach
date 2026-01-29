@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Home, Utensils, Activity, User, MessageCircle } from 'lucide-react';
 import { useTranslation } from './hooks/useTranslation';
 import Onboarding from './components/Onboarding';
+import { getDaysInMonth, getFirstDayOfMonth, getMonthName } from './utils/dateHelpers';
 
 // Farbschema (Pastell)
 const COLORS = {
@@ -409,12 +410,103 @@ const HomeScreen = ({ currentPhase, cycleDay, onOpenTracking }) => {
   );
 };
 
-const CalendarScreen = () => {
+const CalendarScreen = ({userData}) => {
   const { t } = useTranslation();
+  const[currentDate, setCurrentDate] = useState(new Date());
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  const daysInMonth = getDaysInMonth(year, month);
+  const firstDay = getFirstDayOfMonth(year, month);
+  const monthName = getMonthName(month, t.language);
+  
+  const emptyDays = Array(firstDay - 1).fill(null);
+  const days = Array.from({length: daysInMonth}, (_,i ) => i+1);
+  const calendarDays = [...emptyDays, ...days];
+  
+  const periodStartDate = userData?.periodStartDate 
+    ? new Date(userData.periodStartDate) 
+    : new Date();
+
+  const getCycleDayForDate = (day) => {
+    const targetDate = new Date(year, month, day);
+    const daysSinceStart = Math.floor((targetDate - periodStartDate) / (1000 * 60 * 60 * 24));
+    const cycleDay = (daysSinceStart % 28) + 1;
+    return cycleDay;
+  };
+
+  const getColorForDay = (day) => {
+    const cycleDay = getCycleDayForDate(day);
+    const phase = getCurrentPhase(cycleDay);
+    return phase.color;
+  }
+
   return (
-    <div style={{ padding: '20px', paddingBottom: '100px', textAlign: 'center' }}>
-      <h2 style={{ color: COLORS.text, marginBottom: '16px' }}>{t('navigation.calendar')}</h2>
-      <p style={{ color: COLORS.textLight }}>{t('comingSoon')}</p>
+    <div style={{ 
+      padding: '20px', 
+      paddingBottom: '100px',
+      maxWidth: '600px',
+      margin: '0 auto'
+    }}>
+      
+      {/* Header: Monat + Jahr */}
+      <h2 style={{ 
+        color: COLORS.text, 
+        marginBottom: '24px',
+        textAlign: 'center',
+        fontSize: '24px'
+      }}>
+        {monthName} {year}
+      </h2>
+      
+      {/* Wochentage */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(7, 1fr)',
+        gap: '8px',
+        marginBottom: '8px'
+      }}>
+        {['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map(day => (
+          <div key={day} style={{
+            textAlign: 'center',
+            fontSize: '12px',
+            fontWeight: '600',
+            color: COLORS.textLight,
+            padding: '8px'
+          }}>
+            {day}
+          </div>
+        ))}
+      </div>
+      
+      {/* Tages-Kacheln */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(7, 1fr)',
+        gap: '8px'
+      }}>
+        {calendarDays.map((day, index) => (
+          <div
+            key={index}
+            style={{
+              aspectRatio: '1', // Macht Quadrate
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '12px',
+              fontSize: '16px',
+              fontWeight: '500',
+              // TODO: Farbe nur wenn day nicht null ist
+              backgroundColor: day ? getColorForDay(day) : 'transparent',
+              color: COLORS.text,
+              cursor: day ? 'pointer' : 'default'
+            }}
+          >
+            {day}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
@@ -422,7 +514,7 @@ const CalendarScreen = () => {
 const NutritionScreen = () => {
   const { t } = useTranslation();
   return (
-    <div style={{ padding: '20px', paddingBottom: '100px', textAlign: 'center' }}>
+    <div style={{ padding: '20px', paddingBottom: '100px', maxWidth: '600px', margin: '0 auto'}}>
       <h2 style={{ color: COLORS.text, marginBottom: '16px' }}>{t('navigation.nutrition')}</h2>
       <p style={{ color: COLORS.textLight }}>{t('comingSoon')}</p>
     </div>
@@ -604,20 +696,20 @@ function App() {
     { id: 'profile', icon: User, label: t('navigation.profile') }
   ];
 
-  const screens = {
-    home: <HomeScreen 
-            currentPhase={currentPhase} 
-            cycleDay={cycleDay} 
-            onOpenTracking={() => setIsTrackingModalOpen(true)} 
-          />,
-    calendar: <CalendarScreen />,
-    nutrition: <NutritionScreen />,
-    activity: <ActivityScreen />,
-    profile: <ProfileScreen 
-               userData={userData}
-               onEditProfile={() => setShowOnboarding(true)}
-             />
-  };
+const screens = {
+  home: <HomeScreen 
+          currentPhase={currentPhase} 
+          cycleDay={cycleDay} 
+          onOpenTracking={() => setIsTrackingModalOpen(true)} 
+        />,
+  calendar: <CalendarScreen userData={userData} />,
+  nutrition: <NutritionScreen />,
+  activity: <ActivityScreen />,
+  profile: <ProfileScreen 
+             userData={userData}
+             onEditProfile={() => setShowOnboarding(true)}
+           />
+};
 
   return (
     <div style={{
