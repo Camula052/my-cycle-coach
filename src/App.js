@@ -47,13 +47,20 @@ function App() {
   
   const currentPhase = getCurrentPhase(cycleDay);
 
+  const handleUpdateUserData = (newData) => {
+    setUserData(newData);
+  };
+  
   const screens = {
     home: <HomeScreen 
             currentPhase={currentPhase} 
             cycleDay={cycleDay} 
             onOpenTracking={() => setIsTrackingModalOpen(true)} 
           />,
-    calendar: <CalendarScreen userData={userData} />,
+    calendar: <CalendarScreen 
+                userData={userData}
+                onUpdateUserData={handleUpdateUserData}
+              />,
     nutrition: <NutritionScreen />,
     activity: <ActivityScreen />,
     profile: <ProfileScreen 

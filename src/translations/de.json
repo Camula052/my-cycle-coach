@@ -104,5 +104,22 @@
     "language": "Sprache / Language",
     "editProfile": "Profil bearbeiten",
     "noData": "Keine Daten vorhanden"
+  },
+  "calendar": {
+    "today": "Heute",
+    "legend": "Klicke auf einen Tag um Details zu sehen und Daten einzutragen.",
+    "periodStart": "Periode Start",
+    "periodEnd": "Periode Ende",
+    "cycleDay": "Zyklustag {{day}}",
+    "trackingTitle": "Daten erfassen",
+    "weekdayShortcuts": {
+      "monday": "Mo",
+      "tuesday": "Di",
+      "wednesday": "Mi",
+      "thursday": "Do",
+      "friday": "Fr",
+      "saturday": "Sa",
+      "sunday": "So"
+    }
   }
 }
