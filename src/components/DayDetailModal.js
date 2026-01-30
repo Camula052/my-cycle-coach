@@ -9,6 +9,9 @@ const DayDetailModal = ({
   selectedDate, 
   cycleDay, 
   phaseName,
+  isPeriodDay,
+  isFutureDay,
+  hasActivePeriod,
   onSaveTracking,
   onMarkPeriodStart,
   onMarkPeriodEnd 
@@ -18,6 +21,7 @@ const DayDetailModal = ({
   const [symptoms, setSymptoms] = useState({});
   const [weight, setWeight] = useState('');
   const [temperature, setTemperature] = useState('');
+  const [flowIntensity, setFlowIntensity] = useState(0);
 
   if (!isOpen || !selectedDate) return null;
   
@@ -29,6 +33,7 @@ const DayDetailModal = ({
   };
   
   const isPast = isPastDay();
+  const canEdit = !isPast && !isFutureDay;
 
   const dateString = selectedDate.toLocaleDateString('de-DE', {
     weekday: 'long',
@@ -65,7 +70,8 @@ const DayDetailModal = ({
       mood,
       symptoms,
       weight: weight ? parseFloat(weight) : null,
-      temperature: temperature ? parseFloat(temperature) : null
+      temperature: temperature ? parseFloat(temperature) : null,
+      flowIntensity: isPeriodDay ? flowIntensity : null
     });
     onClose();
   };
@@ -117,11 +123,12 @@ const DayDetailModal = ({
         </h2>
         <p style={{ color: COLORS.textLight, marginBottom: '24px', fontSize: '14px' }}>
           {phaseName} • {t('calendar.cycleDay', { day: cycleDay })}
-          {isPast && ' • Vergangener Tag (nur Ansicht)'}
+          {isPast && ` • ${t('calendar.pastDay')}`}
+          {isFutureDay && ' • Zukunft (nicht bearbeitbar)'}
         </p>
 
-        {/* Periode Buttons - nur für heutige/zukünftige Tage */}
-        {!isPast && (
+        {/* Periode Buttons - nur für heute, nicht während aktiver Periode */}
+        {!isPast && !isFutureDay && !hasActivePeriod && (
           <div style={{ display: 'flex', gap: '12px', marginBottom: '32px' }}>
             <button
               onClick={() => {
@@ -142,13 +149,19 @@ const DayDetailModal = ({
             >
               🩸 {t('calendar.periodStart')}
             </button>
+          </div>
+        )}
+        
+        {/* Periode Ende Button - nur während aktiver Periode */}
+        {!isPast && !isFutureDay && hasActivePeriod && (
+          <div style={{ marginBottom: '32px' }}>
             <button
               onClick={() => {
                 onMarkPeriodEnd(selectedDate);
                 onClose();
               }}
               style={{
-                flex: 1,
+                width: '100%',
                 padding: '12px',
                 backgroundColor: COLORS.follicular,
                 border: 'none',
@@ -164,8 +177,8 @@ const DayDetailModal = ({
           </div>
         )}
 
-        {/* Info für vergangene Tage */}
-        {isPast && (
+        {/* Info für vergangene/zukünftige Tage */}
+        {(isPast || isFutureDay) && (
           <div style={{
             padding: '16px',
             backgroundColor: 'rgba(184, 230, 213, 0.2)',
@@ -174,17 +187,58 @@ const DayDetailModal = ({
             textAlign: 'center'
           }}>
             <p style={{ color: COLORS.textLight, fontSize: '14px', margin: 0 }}>
-              📖 Vergangene Tage können nicht mehr bearbeitet werden
+              📖 {isPast ? t('calendar.pastDayInfo') : 'Zukünftige Tage können nicht bearbeitet werden'}
             </p>
           </div>
         )}
 
-        {/* Tracking Section - nur für heutige/zukünftige Tage */}
-        {!isPast && (
+        {/* Tracking Section - nur für heute */}
+        {canEdit && (
           <>
             <h3 style={{ color: COLORS.text, marginBottom: '16px', fontSize: '18px', fontWeight: '600' }}>
               {t('calendar.trackingTitle')}
             </h3>
+
+            {/* Blutstropfen - nur für Perioden-Tage */}
+            {isPeriodDay && (
+              <div style={{ marginBottom: '24px' }}>
+                <h4 style={{ color: COLORS.text, marginBottom: '12px', fontSize: '16px' }}>
+                  {t('calendar.flowIntensity')}
+                </h4>
+                <p style={{ color: COLORS.textLight, fontSize: '13px', marginBottom: '12px' }}>
+                  {t('calendar.selectFlow')}
+                </p>
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                  {[1, 2, 3, 4, 5].map((intensity) => (
+                    <button
+                      key={intensity}
+                      onClick={() => setFlowIntensity(intensity)}
+                      style={{
+                        padding: '16px 12px',
+                        fontSize: '20px',
+                        backgroundColor: flowIntensity >= intensity ? COLORS.menstruation : 'transparent',
+                        border: `2px solid ${flowIntensity >= intensity ? COLORS.menstruation : 'rgba(226, 232, 240, 0.5)'}`,
+                        borderRadius: '12px',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '4px',
+                        minWidth: '50px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', gap: '1px' }}>
+                        {Array.from({ length: intensity }).map((_, i) => (
+                          <span key={i} style={{ fontSize: '12px' }}>🩸</span>
+                        ))}
+                      </div>
+                      <span style={{ fontSize: '10px', color: COLORS.textLight }}>{intensity}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
         {/* Stimmung */}
         <div style={{ marginBottom: '24px' }}>

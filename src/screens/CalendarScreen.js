@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { getDaysInMonth, getFirstDayOfMonth, getMonthName } from '../utils/dateHelpers';
@@ -15,6 +15,15 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(null);
   const [isDayModalOpen, setIsDayModalOpen] = useState(false);
+  const [flowData, setFlowData] = useState({}); // { "2025-01-15": 3, "2025-01-16": 4 }
+  
+  // Lade Flow-Daten aus localStorage
+  useEffect(() => {
+    const savedFlowData = localStorage.getItem('flowData');
+    if (savedFlowData) {
+      setFlowData(JSON.parse(savedFlowData));
+    }
+  }, []);
   
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -34,6 +43,13 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
   const getCycleDayForDate = (day) => {
     const targetDate = new Date(year, month, day);
     const daysSinceStart = Math.floor((targetDate - periodStartDate) / (1000 * 60 * 60 * 24));
+    
+    // Falls negativ (Tag vor Periode-Start), berechne rückwärts vom 28-Tage-Zyklus
+    if (daysSinceStart < 0) {
+      const cycleDay = 28 + ((daysSinceStart % 28) + 1);
+      return cycleDay;
+    }
+    
     const cycleDay = (daysSinceStart % 28) + 1;
     return cycleDay;
   };
@@ -56,6 +72,15 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return targetDate < today;
+  };
+  
+  // Prüfe ob Tag in der Zukunft liegt
+  const isFutureDay = (day) => {
+    if (!day) return false;
+    const targetDate = new Date(year, month, day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return targetDate > today;
   };
   
   // Prüfe ob Tag heute ist
@@ -96,6 +121,23 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
     return 0;
   };
   
+  // Hole Flow-Intensität für einen Tag
+  const getFlowIntensity = (day) => {
+    const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return flowData[dateKey] || 0;
+  };
+  
+  // Prüfe ob Tag ein Perioden-Tag ist (basierend auf Zyklustag)
+  const isPeriodDay = (day) => {
+    const cycleDay = getCycleDayForDate(day);
+    return cycleDay >= 1 && cycleDay <= periodDuration;
+  };
+  
+  // Prüfe ob aktuell eine aktive Periode läuft (Flow-Daten vorhanden)
+  const hasActivePeriod = () => {
+    return Object.keys(flowData).length > 0;
+  };
+  
   // Navigiere zum vorherigen Monat
   const goToPrevMonth = () => {
     setCurrentDate(new Date(year, month - 1, 1));
@@ -116,7 +158,16 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
   // Speichere Tracking für einen Tag
   const handleSaveTracking = (data) => {
     console.log('Tracking für Tag gespeichert:', data);
-    // TODO: In localStorage oder Backend speichern
+    
+    // Speichere Flow-Intensität wenn vorhanden
+    if (data.flowIntensity) {
+      const dateKey = data.date.split('T')[0];
+      const newFlowData = { ...flowData, [dateKey]: data.flowIntensity };
+      setFlowData(newFlowData);
+      localStorage.setItem('flowData', JSON.stringify(newFlowData));
+    }
+    
+    // TODO: Alle anderen Daten in localStorage oder Backend speichern
     alert(t('dataSaved'));
   };
   
@@ -128,7 +179,7 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
     };
     localStorage.setItem('userData', JSON.stringify(newUserData));
     if (onUpdateUserData) onUpdateUserData(newUserData);
-    alert(t('calendar.periodStartMarked'));
+    alert(t('calendar.periodStart') + ' markiert!');
   };
   
   // Markiere Periode Ende
@@ -143,7 +194,19 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
     };
     localStorage.setItem('userData', JSON.stringify(newUserData));
     if (onUpdateUserData) onUpdateUserData(newUserData);
-    alert(t('calendar.periodEndMarked', { duration }));
+    alert(t('calendar.periodEnd') + ` markiert! Dauer: ${duration} Tage`);
+  };
+  
+  // Periode abbrechen
+  const handleCancelPeriod = () => {
+    if (!window.confirm('Möchtest du die aktuelle Periode wirklich abbrechen? Alle Flow-Daten werden gelöscht.')) {
+      return;
+    }
+    
+    // Lösche Flow-Daten
+    setFlowData({});
+    localStorage.removeItem('flowData');
+    alert(t('calendar.periodCancelled'));
   };
   
   // Erstelle Kalender-Array
@@ -318,19 +381,51 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
       {/* Legende */}
       <div style={{
         marginTop: '32px',
-        padding: '16px',
-        backgroundColor: 'rgba(255, 255, 255, 0.5)',
-        borderRadius: '12px',
-        border: '1px solid rgba(226, 232, 240, 0.5)'
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px'
       }}>
-        <p style={{ 
-          color: COLORS.textLight, 
-          fontSize: '12px', 
-          margin: 0,
-          textAlign: 'center'
+        <div style={{
+          padding: '16px',
+          backgroundColor: 'rgba(255, 255, 255, 0.5)',
+          borderRadius: '12px',
+          border: '1px solid rgba(226, 232, 240, 0.5)'
         }}>
-          💡 {t('calendar.legend')}
-        </p>
+          <p style={{ 
+            color: COLORS.textLight, 
+            fontSize: '12px', 
+            margin: 0,
+            textAlign: 'center'
+          }}>
+            💡 {t('calendar.legend')}
+          </p>
+        </div>
+        
+        {/* Periode abbrechen Button - nur wenn Flow-Daten vorhanden */}
+        {Object.keys(flowData).length > 0 && (
+          <button
+            onClick={handleCancelPeriod}
+            style={{
+              padding: '12px',
+              backgroundColor: 'rgba(230, 184, 156, 0.3)',
+              border: '1.5px solid rgba(230, 184, 156, 0.5)',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: COLORS.text,
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(230, 184, 156, 0.5)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(230, 184, 156, 0.3)';
+            }}
+          >
+            ❌ {t('calendar.periodCancel')}
+          </button>
+        )}
       </div>
       
       {/* Day Detail Modal */}
@@ -340,6 +435,9 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
         selectedDate={selectedDate}
         cycleDay={selectedCycleDay}
         phaseName={selectedPhase ? t(`phases.${selectedPhase.key}.name`) : ''}
+        isPeriodDay={selectedDay ? isPeriodDay(selectedDay) : false}
+        isFutureDay={selectedDay ? isFutureDay(selectedDay) : false}
+        hasActivePeriod={hasActivePeriod()}
         onSaveTracking={handleSaveTracking}
         onMarkPeriodStart={handleMarkPeriodStart}
         onMarkPeriodEnd={handleMarkPeriodEnd}
