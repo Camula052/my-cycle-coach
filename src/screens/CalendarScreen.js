@@ -49,6 +49,15 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
     setCurrentDate(new Date());
   };
   
+  // Prüfe ob Tag in der Vergangenheit liegt
+  const isPastDay = (day) => {
+    if (!day) return false;
+    const targetDate = new Date(year, month, day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return targetDate < today;
+  };
+  
   // Prüfe ob Tag heute ist
   const isToday = (day) => {
     const today = new Date();
@@ -64,6 +73,29 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
     return phase.color;
   };
   
+  // Prüfe ob Tag Eisprung ist (Zyklustag 14)
+  const isOvulationDay = (day) => {
+    const cycleDay = getCycleDayForDate(day);
+    return cycleDay === 14;
+  };
+  
+  // Prüfe ob Tag fruchtbar ist (Zyklustag 10-16)
+  const isFertileDay = (day) => {
+    const cycleDay = getCycleDayForDate(day);
+    return cycleDay >= 10 && cycleDay <= 16;
+  };
+  
+  // Berechne Fruchtbarkeits-Intensität (für Punkt-Größe)
+  const getFertilityIntensity = (day) => {
+    const cycleDay = getCycleDayForDate(day);
+    if (cycleDay === 14) return 1; // Eisprung = max
+    if (cycleDay === 13 || cycleDay === 15) return 0.8;
+    if (cycleDay === 12 || cycleDay === 16) return 0.6;
+    if (cycleDay === 11 || cycleDay === 17) return 0.4;
+    if (cycleDay === 10 || cycleDay === 18) return 0.2;
+    return 0;
+  };
+  
   // Navigiere zum vorherigen Monat
   const goToPrevMonth = () => {
     setCurrentDate(new Date(year, month - 1, 1));
@@ -77,6 +109,12 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
   // Tag wurde geklickt
   const handleDayClick = (day) => {
     if (!day) return;
+    
+    // Vergangene Tage nicht klickbar
+    if (isPastDay(day)) {
+      return;
+    }
+    
     setSelectedDay(day);
     setIsDayModalOpen(true);
   };
@@ -214,7 +252,15 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
         gap: '8px',
         marginBottom: '8px'
       }}>
-        {['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map(day => (
+        {[
+          t('calendar.weekdayShortcuts.monday'),
+          t('calendar.weekdayShortcuts.tuesday'),
+          t('calendar.weekdayShortcuts.wednesday'),
+          t('calendar.weekdayShortcuts.thursday'),
+          t('calendar.weekdayShortcuts.friday'),
+          t('calendar.weekdayShortcuts.saturday'),
+          t('calendar.weekdayShortcuts.sunday')
+        ].map(day => (
           <div key={day} style={{
             textAlign: 'center',
             fontSize: '12px',
