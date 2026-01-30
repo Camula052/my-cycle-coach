@@ -20,6 +20,15 @@ const DayDetailModal = ({
   const [temperature, setTemperature] = useState('');
 
   if (!isOpen || !selectedDate) return null;
+  
+  // Prüfe ob Tag in der Vergangenheit liegt
+  const isPastDay = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return selectedDate < today;
+  };
+  
+  const isPast = isPastDay();
 
   const dateString = selectedDate.toLocaleDateString('de-DE', {
     weekday: 'long',
@@ -108,54 +117,74 @@ const DayDetailModal = ({
         </h2>
         <p style={{ color: COLORS.textLight, marginBottom: '24px', fontSize: '14px' }}>
           {phaseName} • {t('calendar.cycleDay', { day: cycleDay })}
+          {isPast && ' • Vergangener Tag (nur Ansicht)'}
         </p>
 
-        {/* Periode Buttons */}
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '32px' }}>
-          <button
-            onClick={() => {
-              onMarkPeriodStart(selectedDate);
-              onClose();
-            }}
-            style={{
-              flex: 1,
-              padding: '12px',
-              backgroundColor: COLORS.menstruation,
-              border: 'none',
-              borderRadius: '12px',
-              cursor: 'pointer',
-              fontWeight: '600',
-              color: COLORS.text,
-              fontSize: '14px'
-            }}
-          >
-            🩸 {t('calendar.periodStart')}
-          </button>
-          <button
-            onClick={() => {
-              onMarkPeriodEnd(selectedDate);
-              onClose();
-            }}
-            style={{
-              flex: 1,
-              padding: '12px',
-              backgroundColor: COLORS.follicular,
-              border: 'none',
-              borderRadius: '12px',
-              cursor: 'pointer',
-              fontWeight: '600',
-              color: COLORS.text,
-              fontSize: '14px'
-            }}
-          >
-            ✓ {t('calendar.periodEnd')}
-          </button>
-        </div>
+        {/* Periode Buttons - nur für heutige/zukünftige Tage */}
+        {!isPast && (
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '32px' }}>
+            <button
+              onClick={() => {
+                onMarkPeriodStart(selectedDate);
+                onClose();
+              }}
+              style={{
+                flex: 1,
+                padding: '12px',
+                backgroundColor: COLORS.menstruation,
+                border: 'none',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                fontWeight: '600',
+                color: COLORS.text,
+                fontSize: '14px'
+              }}
+            >
+              🩸 {t('calendar.periodStart')}
+            </button>
+            <button
+              onClick={() => {
+                onMarkPeriodEnd(selectedDate);
+                onClose();
+              }}
+              style={{
+                flex: 1,
+                padding: '12px',
+                backgroundColor: COLORS.follicular,
+                border: 'none',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                fontWeight: '600',
+                color: COLORS.text,
+                fontSize: '14px'
+              }}
+            >
+              ✓ {t('calendar.periodEnd')}
+            </button>
+          </div>
+        )}
 
-        {/* Tracking Section */}
-        <h3 style={{ color: COLORS.text, marginBottom: '16px', fontSize: '18px', fontWeight: '600' }}>
-          {t('calendar.trackingTitle')}
-        </h3>
+        {/* Info für vergangene Tage */}
+        {isPast && (
+          <div style={{
+            padding: '16px',
+            backgroundColor: 'rgba(184, 230, 213, 0.2)',
+            borderRadius: '12px',
+            marginBottom: '24px',
+            textAlign: 'center'
+          }}>
+            <p style={{ color: COLORS.textLight, fontSize: '14px', margin: 0 }}>
+              📖 Vergangene Tage können nicht mehr bearbeitet werden
+            </p>
+          </div>
+        )}
+
+        {/* Tracking Section - nur für heutige/zukünftige Tage */}
+        {!isPast && (
+          <>
+            <h3 style={{ color: COLORS.text, marginBottom: '16px', fontSize: '18px', fontWeight: '600' }}>
+              {t('calendar.trackingTitle')}
+            </h3>
 
         {/* Stimmung */}
         <div style={{ marginBottom: '24px' }}>
@@ -283,6 +312,8 @@ const DayDetailModal = ({
         >
           {t('tracking.buttons.save')}
         </button>
+          </>
+        )}
       </div>
     </div>
   );

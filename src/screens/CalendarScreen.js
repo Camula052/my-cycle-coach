@@ -109,12 +109,6 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
   // Tag wurde geklickt
   const handleDayClick = (day) => {
     if (!day) return;
-    
-    // Vergangene Tage nicht klickbar
-    if (isPastDay(day)) {
-      return;
-    }
-    
     setSelectedDay(day);
     setIsDayModalOpen(true);
   };
