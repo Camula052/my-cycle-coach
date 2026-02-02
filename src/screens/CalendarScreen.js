@@ -403,30 +403,65 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
         })}
       </div>
       
-      {/* Legende */}
+      {/* Legende & Cancel Button */}
       <div style={{
         marginTop: '32px',
+        marginBottom: '16px',
         display: 'flex',
         flexDirection: 'column',
         gap: '12px'
       }}>
+        {/* Farblegende */}
         <div style={{
-          padding: '16px',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: '8px',
+          padding: '12px',
+          backgroundColor: 'rgba(255, 255, 255, 0.5)',
+          borderRadius: '12px',
+          border: '1px solid rgba(226, 232, 240, 0.5)'
+        }}>
+          {[
+            { key: 'menstruation', label: 'Menstruation' },
+            { key: 'follicular', label: 'Follikel' },
+            { key: 'ovulation', label: 'Eisprung' },
+            { key: 'luteal', label: 'Luteal' }
+          ].map(phase => (
+            <div key={phase.key} style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '6px',
+              fontSize: '11px'
+            }}>
+              <div style={{ 
+                width: '16px', 
+                height: '16px', 
+                borderRadius: '4px',
+                backgroundColor: COLORS[phase.key],
+                flexShrink: 0
+              }} />
+              <span style={{ color: COLORS.textLight }}>{phase.label}</span>
+            </div>
+          ))}
+        </div>
+        
+        <div style={{
+          padding: '12px',
           backgroundColor: 'rgba(255, 255, 255, 0.5)',
           borderRadius: '12px',
           border: '1px solid rgba(226, 232, 240, 0.5)'
         }}>
           <p style={{ 
             color: COLORS.textLight, 
-            fontSize: '12px', 
+            fontSize: '11px', 
             margin: 0,
             textAlign: 'center'
           }}>
-            💡 {t('calendar.legend')}
+            💡 {t('calendar.legend')} Dunklere Farbe = stärkere Blutung
           </p>
         </div>
         
-        {/* Periode abbrechen Button - nur wenn Flow-Daten vorhanden */}
+        {/* Periode abbrechen Button */}
         {Object.keys(flowData).length > 0 && (
           <button
             onClick={handleCancelPeriod}
