@@ -2,20 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { getDaysInMonth, getFirstDayOfMonth, getMonthName } from '../utils/dateHelpers';
-import { getCurrentPhase } from '../utils/cycleHelpers';
+import { getCurrentPhase, COLORS, CYCLE_PHASES } from '../utils/cycleHelpers';
 import DayDetailModal from '../components/DayDetailModal';
-
-const COLORS = {
-  text: '#2D3748',
-  textLight: '#718096'
-};
 
 const CalendarScreen = ({ userData, onUpdateUserData }) => {
   const { t, language } = useTranslation();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(null);
   const [isDayModalOpen, setIsDayModalOpen] = useState(false);
-  const [flowData, setFlowData] = useState({}); // { "2025-01-15": 3, "2025-01-16": 4 }
+  const [flowData, setFlowData] = useState({});
   
   // Lade Flow-Daten aus localStorage
   useEffect(() => {
@@ -32,19 +27,16 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
   const firstDay = getFirstDayOfMonth(year, month);
   const monthName = getMonthName(month, language);
   
-  // Perioden-Startdatum aus Onboarding
   const periodStartDate = userData?.periodStartDate 
     ? new Date(userData.periodStartDate) 
     : new Date();
   
   const periodDuration = parseInt(userData?.periodDuration) || 5;
   
-  // Berechne Zyklustag für ein bestimmtes Datum
   const getCycleDayForDate = (day) => {
     const targetDate = new Date(year, month, day);
     const daysSinceStart = Math.floor((targetDate - periodStartDate) / (1000 * 60 * 60 * 24));
     
-    // Falls negativ (Tag vor Periode-Start), berechne rückwärts vom 28-Tage-Zyklus
     if (daysSinceStart < 0) {
       const cycleDay = 28 + ((daysSinceStart % 28) + 1);
       return cycleDay;
@@ -54,18 +46,6 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
     return cycleDay;
   };
   
-  // Prüfe ob aktueller Monat der heutige Monat ist
-  const isCurrentMonth = () => {
-    const today = new Date();
-    return month === today.getMonth() && year === today.getFullYear();
-  };
-  
-  // Navigiere zu heute
-  const goToToday = () => {
-    setCurrentDate(new Date());
-  };
-  
-  // Prüfe ob Tag in der Vergangenheit liegt
   const isPastDay = (day) => {
     if (!day) return false;
     const targetDate = new Date(year, month, day);
@@ -74,7 +54,6 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
     return targetDate < today;
   };
   
-  // Prüfe ob Tag in der Zukunft liegt
   const isFutureDay = (day) => {
     if (!day) return false;
     const targetDate = new Date(year, month, day);
@@ -83,7 +62,6 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
     return targetDate > today;
   };
   
-  // Prüfe ob Tag heute ist
   const isToday = (day) => {
     const today = new Date();
     return day === today.getDate() && 
@@ -91,54 +69,50 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
            year === today.getFullYear();
   };
   
-  // Hole Farbe für einen Tag basierend auf Zyklusphase + Flow-Intensität
   const getColorForDay = (day) => {
     const cycleDay = getCycleDayForDate(day);
     const phase = getCurrentPhase(cycleDay);
     const flowInt = getFlowIntensity(day);
     
-    // Wenn Flow-Intensität vorhanden, dunkle die Farbe ab
     if (flowInt > 0 && isPeriodDay(day)) {
-      // Je höher die Intensität, desto dunkler
-      const darkenFactor = 1 - (flowInt * 0.12); // 0.88, 0.76, 0.64, 0.52, 0.4
-      return adjustColorBrightness(phase.color, darkenFactor);
+      const darkenFactor = 1 - (flowInt * 0.12);
+      const darkenedColor = adjustColorBrightness(phase.color, darkenFactor);
+      return darkenedColor;
     }
     
     return phase.color;
   };
   
-  // Helper: Farbe abdunkeln
   const adjustColorBrightness = (hex, factor) => {
-    // Convert hex to RGB
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
     const b = parseInt(hex.slice(5, 7), 16);
     
-    // Darken
     const newR = Math.round(r * factor);
     const newG = Math.round(g * factor);
     const newB = Math.round(b * factor);
     
-    // Convert back to hex
-    return `#${newR.toString(16).padStart(2, '0')}${newG.toString(16).padStart(2, '0')}${newB.toString(16).padStart(2, '0')}`;
+    const toHex = (num) => {
+      const hex = num.toString(16).padStart(2, '0');
+      return hex;
+    };
+    
+    return `#${toHex(newR)}${toHex(newG)}${toHex(newB)}`;
   };
   
-  // Prüfe ob Tag Eisprung ist (Zyklustag 14)
   const isOvulationDay = (day) => {
     const cycleDay = getCycleDayForDate(day);
     return cycleDay === 14;
   };
   
-  // Prüfe ob Tag fruchtbar ist (Zyklustag 10-16)
   const isFertileDay = (day) => {
     const cycleDay = getCycleDayForDate(day);
     return cycleDay >= 10 && cycleDay <= 16;
   };
   
-  // Berechne Fruchtbarkeits-Intensität (für Punkt-Größe)
   const getFertilityIntensity = (day) => {
     const cycleDay = getCycleDayForDate(day);
-    if (cycleDay === 14) return 1; // Eisprung = max
+    if (cycleDay === 14) return 1;
     if (cycleDay === 13 || cycleDay === 15) return 0.8;
     if (cycleDay === 12 || cycleDay === 16) return 0.6;
     if (cycleDay === 11 || cycleDay === 17) return 0.4;
@@ -146,45 +120,46 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
     return 0;
   };
   
-  // Hole Flow-Intensität für einen Tag
   const getFlowIntensity = (day) => {
     const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     return flowData[dateKey] || 0;
   };
   
-  // Prüfe ob Tag ein Perioden-Tag ist (basierend auf Zyklustag)
   const isPeriodDay = (day) => {
     const cycleDay = getCycleDayForDate(day);
     return cycleDay >= 1 && cycleDay <= periodDuration;
   };
   
-  // Prüfe ob aktuell eine aktive Periode läuft (Flow-Daten vorhanden)
   const hasActivePeriod = () => {
     return Object.keys(flowData).length > 0;
   };
   
-  // Navigiere zum vorherigen Monat
+  const isCurrentMonth = () => {
+    const today = new Date();
+    return month === today.getMonth() && year === today.getFullYear();
+  };
+  
+  const goToToday = () => {
+    setCurrentDate(new Date());
+  };
+  
   const goToPrevMonth = () => {
     setCurrentDate(new Date(year, month - 1, 1));
   };
   
-  // Navigiere zum nächsten Monat
   const goToNextMonth = () => {
     setCurrentDate(new Date(year, month + 1, 1));
   };
   
-  // Tag wurde geklickt
   const handleDayClick = (day) => {
     if (!day) return;
     setSelectedDay(day);
     setIsDayModalOpen(true);
   };
   
-  // Speichere Tracking für einen Tag
   const handleSaveTracking = (data) => {
-    console.log('Tracking für Tag gespeichert:', data);
+    console.log('Tracking gespeichert:', data);
     
-    // Speichere Flow-Intensität wenn vorhanden
     if (data.flowIntensity) {
       const dateKey = data.date.split('T')[0];
       const newFlowData = { ...flowData, [dateKey]: data.flowIntensity };
@@ -192,11 +167,9 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
       localStorage.setItem('flowData', JSON.stringify(newFlowData));
     }
     
-    // TODO: Alle anderen Daten in localStorage oder Backend speichern
     alert(t('dataSaved'));
   };
   
-  // Markiere Periode Start
   const handleMarkPeriodStart = (date) => {
     const newUserData = {
       ...userData,
@@ -207,9 +180,7 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
     alert(t('calendar.periodStart') + ' markiert!');
   };
   
-  // Markiere Periode Ende
   const handleMarkPeriodEnd = (date) => {
-    // Berechne Dauer basierend auf Start und Ende
     const start = new Date(userData.periodStartDate);
     const duration = Math.floor((date - start) / (1000 * 60 * 60 * 24)) + 1;
     
@@ -222,24 +193,20 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
     alert(t('calendar.periodEnd') + ` markiert! Dauer: ${duration} Tage`);
   };
   
-  // Periode abbrechen
   const handleCancelPeriod = () => {
     if (!window.confirm('Möchtest du die aktuelle Periode wirklich abbrechen? Alle Flow-Daten werden gelöscht.')) {
       return;
     }
     
-    // Lösche Flow-Daten
     setFlowData({});
     localStorage.removeItem('flowData');
     alert(t('calendar.periodCancelled'));
   };
   
-  // Erstelle Kalender-Array
   const emptyDays = Array(firstDay - 1).fill(null);
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
   const calendarDays = [...emptyDays, ...days];
   
-  // Hole Infos für selected day
   const selectedCycleDay = selectedDay ? getCycleDayForDate(selectedDay) : null;
   const selectedPhase = selectedCycleDay ? getCurrentPhase(selectedCycleDay) : null;
   const selectedDate = selectedDay ? new Date(year, month, selectedDay) : null;
@@ -252,7 +219,6 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
       margin: '0 auto'
     }}>
       
-      {/* Header mit Navigation */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -284,7 +250,6 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
             {monthName} {year}
           </h2>
           
-          {/* "Zurück zu heute" Button - nur wenn nicht im aktuellen Monat */}
           {!isCurrentMonth() && (
             <button
               onClick={goToToday}
@@ -327,7 +292,6 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
         </button>
       </div>
       
-      {/* Wochentage */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(7, 1fr)',
@@ -355,7 +319,6 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
         ))}
       </div>
       
-      {/* Tages-Kacheln */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(7, 1fr)',
@@ -363,6 +326,12 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
       }}>
         {calendarDays.map((day, index) => {
           const today = isToday(day);
+          const past = isPastDay(day);
+          const fertile = day ? isFertileDay(day) : false;
+          const ovulation = day ? isOvulationDay(day) : false;
+          const fertilityIntensity = day ? getFertilityIntensity(day) : 0;
+          const isPeriod = day ? isPeriodDay(day) : false;
+          const flowIntensity = day ? getFlowIntensity(day) : 0;
           
           return (
             <div
@@ -371,6 +340,7 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
               style={{
                 aspectRatio: '1',
                 display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderRadius: '12px',
@@ -380,30 +350,76 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
                 color: COLORS.text,
                 cursor: day ? 'pointer' : 'default',
                 border: today ? `2px solid ${COLORS.text}` : 'none',
-                boxShadow: today ? `0 0 0 2px ${COLORS.background}, 0 0 0 4px ${COLORS.text}40` : 'none',
+                boxShadow: today ? `0 0 0 2px ${COLORS.background}, 0 0 0 4px ${COLORS.text}40` : 
+                           fertile ? `0 0 0 2px rgba(245, 194, 199, 0.4), inset 0 0 10px rgba(245, 194, 199, 0.2)` : 
+                           'none',
                 position: 'relative',
-                transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                opacity: past ? 0.6 : 1,
+                gap: '2px',
+                padding: '4px'
               }}
               onMouseEnter={(e) => {
                 if (day) {
                   e.currentTarget.style.transform = 'scale(1.05)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                  e.currentTarget.style.boxShadow = fertile ? 
+                    '0 4px 12px rgba(245, 194, 199, 0.4), 0 0 0 2px rgba(245, 194, 199, 0.4)' :
+                    '0 4px 12px rgba(0,0,0,0.15)';
                 }
               }}
               onMouseLeave={(e) => {
                 if (day) {
                   e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.boxShadow = today ? `0 0 0 2px ${COLORS.background}, 0 0 0 4px ${COLORS.text}40` : 
+                                                     fertile ? `0 0 0 2px rgba(245, 194, 199, 0.4), inset 0 0 10px rgba(245, 194, 199, 0.2)` : 
+                                                     'none';
                 }
               }}
             >
-              {day}
+              <span>{day}</span>
+              
+              {fertile && (
+                <div style={{
+                  position: 'absolute',
+                  top: '4px',
+                  right: '4px',
+                  width: `${6 + fertilityIntensity * 6}px`,
+                  height: `${6 + fertilityIntensity * 6}px`,
+                  borderRadius: '50%',
+                  backgroundColor: ovulation ? '#F5C2C7' : 'rgba(245, 194, 199, 0.8)',
+                  animation: ovulation ? 'pulse-ovulation 2s ease-in-out infinite' : 'pulse-fertile 3s ease-in-out infinite'
+                }}>
+                  <style>
+                    {`
+                      @keyframes pulse-ovulation {
+                        0%, 100% { 
+                          transform: scale(1);
+                          opacity: 1;
+                        }
+                        50% { 
+                          transform: scale(1.3);
+                          opacity: 0.8;
+                        }
+                      }
+                      @keyframes pulse-fertile {
+                        0%, 100% { 
+                          transform: scale(1);
+                          opacity: 0.7;
+                        }
+                        50% { 
+                          transform: scale(1.2);
+                          opacity: 1;
+                        }
+                      }
+                    `}
+                  </style>
+                </div>
+              )}
             </div>
           );
         })}
       </div>
       
-      {/* Legende & Cancel Button */}
       <div style={{
         marginTop: '32px',
         marginBottom: '16px',
@@ -411,7 +427,6 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
         flexDirection: 'column',
         gap: '12px'
       }}>
-        {/* Farblegende */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
@@ -422,10 +437,10 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
           border: '1px solid rgba(226, 232, 240, 0.5)'
         }}>
           {[
-            { key: 'menstruation', label: 'Menstruation' },
-            { key: 'follicular', label: 'Follikel' },
-            { key: 'ovulation', label: 'Eisprung' },
-            { key: 'luteal', label: 'Luteal' }
+            { key: 'menstruation', label: 'Menstruation', color: COLORS.menstruation },
+            { key: 'follicular', label: 'Follikel', color: COLORS.follicular },
+            { key: 'ovulation', label: 'Eisprung', color: COLORS.ovulation },
+            { key: 'luteal', label: 'Luteal', color: COLORS.luteal }
           ].map(phase => (
             <div key={phase.key} style={{ 
               display: 'flex', 
@@ -437,7 +452,7 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
                 width: '16px', 
                 height: '16px', 
                 borderRadius: '4px',
-                backgroundColor: COLORS[phase.key],
+                backgroundColor: phase.color,
                 flexShrink: 0
               }} />
               <span style={{ color: COLORS.textLight }}>{phase.label}</span>
@@ -461,7 +476,6 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
           </p>
         </div>
         
-        {/* Periode abbrechen Button */}
         {Object.keys(flowData).length > 0 && (
           <button
             onClick={handleCancelPeriod}
@@ -488,7 +502,6 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
         )}
       </div>
       
-      {/* Day Detail Modal */}
       <DayDetailModal
         isOpen={isDayModalOpen}
         onClose={() => setIsDayModalOpen(false)}
