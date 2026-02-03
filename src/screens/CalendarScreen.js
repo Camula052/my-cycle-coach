@@ -74,30 +74,20 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
     const phase = getCurrentPhase(cycleDay);
     const flowInt = getFlowIntensity(day);
     
+    // Perioden-Tage: Farbverlauf von hell nach tiefem Rot je nach Intensität
     if (flowInt > 0 && isPeriodDay(day)) {
-      const darkenFactor = 1 - (flowInt * 0.12);
-      const darkenedColor = adjustColorBrightness(phase.color, darkenFactor);
-      return darkenedColor;
+      // Farbskala: 1 = hellstes Pastell, 5 = tiefes sattdes Rot
+      const periodColors = [
+        '#F0D0C0', // 1 - sehr leicht, fast wie base
+        '#E8A888', // 2 - leichtes Warmes
+        '#D67D5E', // 3 - mittleres Warmes Rot
+        '#C4654A', // 4 - tiefes Warmes Rot
+        '#A84832', // 5 - sattestes tiefes Rot
+      ];
+      return periodColors[flowInt - 1];
     }
     
     return phase.color;
-  };
-  
-  const adjustColorBrightness = (hex, factor) => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    
-    const newR = Math.round(r * factor);
-    const newG = Math.round(g * factor);
-    const newB = Math.round(b * factor);
-    
-    const toHex = (num) => {
-      const hex = num.toString(16).padStart(2, '0');
-      return hex;
-    };
-    
-    return `#${toHex(newR)}${toHex(newG)}${toHex(newB)}`;
   };
   
   const isOvulationDay = (day) => {
@@ -161,7 +151,9 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
     console.log('Tracking gespeichert:', data);
     
     if (data.flowIntensity) {
-      const dateKey = data.date.split('T')[0];
+      // Verwende year/month/selectedDay statt data.date um Zeitzone-Probleme zu vermeiden
+      const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
+      console.log('Saving with dateKey:', dateKey);
       const newFlowData = { ...flowData, [dateKey]: data.flowIntensity };
       setFlowData(newFlowData);
       localStorage.setItem('flowData', JSON.stringify(newFlowData));
