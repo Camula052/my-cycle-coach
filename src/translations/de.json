@@ -70,6 +70,7 @@
   },
   "onboarding": {
     "welcome": "Willkommen bei MyCycleCoach",
+    "intro": "Dein persönlicher Begleiter durch deinen Zyklus. Wir helfen dir, deinen Körper besser zu verstehen und unterstützen dich mit individuellen Tipps für jede Phase.",
     "name": "Dein Name",
     "age": "Dein Alter",
     "height": "Deine Größe (cm)",
@@ -83,6 +84,12 @@
       "contraception": "Verhütung"
     },
     "contraceptionWarning": "Wichtig: Alle Prognosen sind keine sichere Verhütungsmethode. Die App hilft dir jedoch, deinen Körper besser kennenzulernen.",
+    "customSymptoms": {
+      "title": "Möchtest du eigene Symptome erfassen?",
+      "subtitle": "Du kannst das auch später im Profil machen",
+      "add": "Symptom hinzufügen",
+      "placeholder": "z.B. Migräne, Übelkeit..."
+    },
     "lastPeriod": {
       "title": "Deine letzte Periode",
       "startDate": "Startdatum",
@@ -90,6 +97,7 @@
     },
     "buttons": {
       "next": "Weiter",
+      "skip": "Überspringen",
       "start": "Los geht's!"
     }
   },

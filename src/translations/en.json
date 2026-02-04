@@ -70,6 +70,7 @@
   },
   "onboarding": {
     "welcome": "Welcome to MyCycleCoach",
+    "intro": "Your personal companion through your cycle. We help you understand your body better and support you with individual tips for each phase.",
     "name": "Your name",
     "age": "Your age",
     "height": "Your height (cm)",
@@ -83,6 +84,12 @@
       "contraception": "Contraception"
     },
     "contraceptionWarning": "Important: All predictions are not a reliable contraceptive method. However, the app helps you get to know your body better.",
+    "customSymptoms": {
+      "title": "Would you like to add custom symptoms?",
+      "subtitle": "You can also do this later in your profile",
+      "add": "Add symptom",
+      "placeholder": "e.g. Migraine, Nausea..."
+    },
     "lastPeriod": {
       "title": "Your last period",
       "startDate": "Start date",
@@ -90,6 +97,7 @@
     },
     "buttons": {
       "next": "Next",
+      "skip": "Skip",
       "start": "Let's go!"
     }
   },

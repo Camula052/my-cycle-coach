@@ -14,17 +14,19 @@ const COLORS = {
 
 const Onboarding = ({ onComplete }) => {
   const { t } = useTranslation();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [userData, setUserData] = useState({
     name: '',
     age: '',
     height: '',
     weight: '',
     motivations: [],
+    customSymptoms: [],
     periodStartDate: '',
     periodDuration: '5'
   });
   const [showContraceptionWarning, setShowContraceptionWarning] = useState(false);
+  const [newSymptom, setNewSymptom] = useState('');
 
   const motivationOptions = [
     { key: 'loseWeight', label: t('onboarding.motivation.loseWeight') },
@@ -40,7 +42,6 @@ const Onboarding = ({ onComplete }) => {
         ? prev.motivations.filter(m => m !== key)
         : [...prev.motivations, key];
       
-      // Zeige Warning wenn Verhütung ausgewählt
       setShowContraceptionWarning(motivations.includes('contraception'));
       
       return { ...prev, motivations };
@@ -48,27 +49,44 @@ const Onboarding = ({ onComplete }) => {
   };
 
   const handleNext = () => {
-    if (step < 3) {
+    if (step < 4) {
       setStep(step + 1);
     } else {
-      // Onboarding abgeschlossen - speichere Daten
       localStorage.setItem('userData', JSON.stringify(userData));
       localStorage.setItem('onboardingComplete', 'true');
+      
+      if (userData.customSymptoms.length > 0) {
+        localStorage.setItem('customSymptoms', JSON.stringify(userData.customSymptoms));
+      }
+      
       onComplete(userData);
     }
   };
 
   const canProceed = () => {
-    if (step === 1) {
-      return userData.name.trim() !== '';
-    }
-    if (step === 2) {
-      return userData.motivations.length > 0;
-    }
-    if (step === 3) {
-      return userData.periodStartDate !== '';
-    }
+    if (step === 0) return true;
+    if (step === 1) return userData.name.trim() !== '';
+    if (step === 2) return userData.motivations.length > 0;
+    if (step === 3) return true;
+    if (step === 4) return userData.periodStartDate !== '';
     return false;
+  };
+  
+  const addCustomSymptom = () => {
+    if (newSymptom.trim() !== '') {
+      setUserData(prev => ({
+        ...prev,
+        customSymptoms: [...prev.customSymptoms, newSymptom.trim()]
+      }));
+      setNewSymptom('');
+    }
+  };
+  
+  const removeCustomSymptom = (index) => {
+    setUserData(prev => ({
+      ...prev,
+      customSymptoms: prev.customSymptoms.filter((_, i) => i !== index)
+    }));
   };
 
   return (
@@ -88,7 +106,6 @@ const Onboarding = ({ onComplete }) => {
         margin: '0 auto',
         paddingTop: '40px'
       }}>
-        {/* Welcome Header */}
         <div style={{
           textAlign: 'center',
           marginBottom: '48px'
@@ -113,7 +130,7 @@ const Onboarding = ({ onComplete }) => {
             gap: '8px',
             marginTop: '24px'
           }}>
-            {[1, 2, 3].map(s => (
+            {[0, 1, 2, 3, 4].map(s => (
               <div
                 key={s}
                 style={{
@@ -128,7 +145,25 @@ const Onboarding = ({ onComplete }) => {
           </div>
         </div>
 
-        {/* Step 1: Persönliche Daten */}
+        {step === 0 && (
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.9)',
+            borderRadius: '24px',
+            padding: '32px',
+            backdropFilter: 'blur(10px)',
+            textAlign: 'center'
+          }}>
+            <p style={{
+              color: COLORS.text,
+              fontSize: '16px',
+              lineHeight: '1.6',
+              marginBottom: '24px'
+            }}>
+              {t('onboarding.intro')}
+            </p>
+          </div>
+        )}
+
         {step === 1 && (
           <div style={{
             background: 'rgba(255, 255, 255, 0.9)',
@@ -240,7 +275,6 @@ const Onboarding = ({ onComplete }) => {
           </div>
         )}
 
-        {/* Step 2: Motivation */}
         {step === 2 && (
           <div style={{
             background: 'rgba(255, 255, 255, 0.9)',
@@ -306,8 +340,103 @@ const Onboarding = ({ onComplete }) => {
           </div>
         )}
 
-        {/* Step 3: Letzte Periode */}
         {step === 3 && (
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.9)',
+            borderRadius: '24px',
+            padding: '32px',
+            backdropFilter: 'blur(10px)'
+          }}>
+            <h3 style={{
+              color: COLORS.text,
+              fontSize: '20px',
+              fontWeight: '600',
+              marginBottom: '8px',
+              textAlign: 'center'
+            }}>
+              {t('onboarding.customSymptoms.title')}
+            </h3>
+            <p style={{
+              color: COLORS.textLight,
+              fontSize: '14px',
+              marginBottom: '24px',
+              textAlign: 'center'
+            }}>
+              {t('onboarding.customSymptoms.subtitle')}
+            </p>
+
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+              <input
+                type="text"
+                value={newSymptom}
+                onChange={(e) => setNewSymptom(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && addCustomSymptom()}
+                placeholder={t('onboarding.customSymptoms.placeholder')}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  fontSize: '16px',
+                  border: '2px solid rgba(226, 232, 240, 0.5)',
+                  borderRadius: '12px',
+                  backgroundColor: 'transparent'
+                }}
+              />
+              <button
+                onClick={addCustomSymptom}
+                style={{
+                  padding: '12px 16px',
+                  backgroundColor: COLORS.follicular,
+                  border: 'none',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  color: COLORS.text
+                }}
+              >
+                {t('onboarding.customSymptoms.add')}
+              </button>
+            </div>
+
+            {userData.customSymptoms.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                {userData.customSymptoms.map((symptom, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      padding: '8px 12px',
+                      backgroundColor: `${COLORS.follicular}60`,
+                      border: `1.5px solid ${COLORS.follicular}`,
+                      borderRadius: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      fontSize: '14px',
+                      color: COLORS.text
+                    }}
+                  >
+                    {symptom}
+                    <button
+                      onClick={() => removeCustomSymptom(index)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '16px',
+                        padding: '0',
+                        color: COLORS.text
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {step === 4 && (
           <div style={{
             background: 'rgba(255, 255, 255, 0.9)',
             borderRadius: '24px',
@@ -378,13 +507,12 @@ const Onboarding = ({ onComplete }) => {
           </div>
         )}
 
-        {/* Navigation Buttons */}
         <div style={{
           display: 'flex',
           gap: '12px',
           marginTop: '24px'
         }}>
-          {step > 1 && (
+          {step > 0 && (
             <button
               onClick={() => setStep(step - 1)}
               style={{
@@ -402,6 +530,26 @@ const Onboarding = ({ onComplete }) => {
               ← Zurück
             </button>
           )}
+          
+          {step === 3 && (
+            <button
+              onClick={() => setStep(4)}
+              style={{
+                flex: 1,
+                padding: '16px',
+                fontSize: '16px',
+                fontWeight: '600',
+                backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                border: '2px solid rgba(226, 232, 240, 0.5)',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                color: COLORS.text
+              }}
+            >
+              {t('onboarding.buttons.skip')}
+            </button>
+          )}
+          
           <button
             onClick={handleNext}
             disabled={!canProceed()}
@@ -419,7 +567,7 @@ const Onboarding = ({ onComplete }) => {
               opacity: canProceed() ? 1 : 0.5
             }}
           >
-            {step === 3 ? t('onboarding.buttons.start') : t('onboarding.buttons.next')}
+            {step === 4 ? t('onboarding.buttons.start') : t('onboarding.buttons.next')}
           </button>
         </div>
       </div>
