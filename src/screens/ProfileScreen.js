@@ -11,6 +11,15 @@ const COLORS = {
 const ProfileScreen = ({ userData, onEditProfile }) => {
   const { t, language, changeLanguage } = useTranslation();
   
+  const handleDebugReset = () => {
+    if (window.confirm(t('profile.debugConfirm'))) {
+      // Lösche alle localStorage Daten
+      localStorage.clear();
+      // Reload App
+      window.location.reload();
+    }
+  };
+  
   if (!userData) {
     return (
       <div style={{ padding: '20px', paddingBottom: '100px', textAlign: 'center' }}>
@@ -121,10 +130,29 @@ const ProfileScreen = ({ userData, onEditProfile }) => {
           fontWeight: '600',
           fontSize: '16px',
           color: COLORS.text,
-          boxShadow: `0 0 25px ${COLORS.follicular}60`
+          boxShadow: `0 0 25px ${COLORS.follicular}60`,
+          marginBottom: '12px'
         }}
       >
         {t('profile.editProfile')}
+      </button>
+      
+      {/* Debug Reset Button */}
+      <button
+        onClick={handleDebugReset}
+        style={{
+          width: '100%',
+          padding: '12px',
+          backgroundColor: 'rgba(230, 184, 156, 0.3)',
+          border: '1.5px solid rgba(230, 184, 156, 0.5)',
+          borderRadius: '12px',
+          cursor: 'pointer',
+          fontWeight: '500',
+          fontSize: '14px',
+          color: COLORS.text
+        }}
+      >
+        {t('profile.debugReset')}
       </button>
     </div>
   );

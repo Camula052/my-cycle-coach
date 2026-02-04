@@ -103,7 +103,9 @@
     "weight": "Weight",
     "language": "Language / Sprache",
     "editProfile": "Edit Profile",
-    "noData": "No data available"
+    "noData": "No data available",
+    "debugReset": "🔧 Debug: Reset all data",
+    "debugConfirm": "WARNING: All data will be deleted and the app will reload. Continue?"
   },
   "calendar": {
     "today": "Today",

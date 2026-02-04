@@ -103,7 +103,9 @@
     "weight": "Gewicht",
     "language": "Sprache / Language",
     "editProfile": "Profil bearbeiten",
-    "noData": "Keine Daten vorhanden"
+    "noData": "Keine Daten vorhanden",
+    "debugReset": "🔧 Debug: Alle Daten zurücksetzen",
+    "debugConfirm": "WARNUNG: Alle Daten werden gelöscht und die App wird neu geladen. Fortfahren?"
   },
   "calendar": {
     "today": "Heute",
