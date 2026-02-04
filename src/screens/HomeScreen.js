@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Info } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import FloatingButton from '../components/FloatingButton';
+import PhaseDetailsModal from '../components/PhaseDetailsModal';
 
 const COLORS = {
   text: '#2D3748',
   textLight: '#718096'
 };
 
-const HomeScreen = ({ currentPhase, cycleDay, onOpenTracking }) => {
+const HomeScreen = ({ currentPhase, cycleDay, onOpenTracking, onNavigate }) => {
   const { t } = useTranslation();
+  const [isPhaseDetailsOpen, setIsPhaseDetailsOpen] = useState(false);
   
   return (
     <div style={{
@@ -69,14 +72,48 @@ const HomeScreen = ({ currentPhase, cycleDay, onOpenTracking }) => {
         borderRadius: '24px',
         border: '1px solid rgba(255, 255, 255, 0.4)',
         backdropFilter: 'blur(10px)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)'
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
+        position: 'relative'
       }}>
+        {/* Info Icon - oben rechts */}
+        <button
+          onClick={() => setIsPhaseDetailsOpen(true)}
+          style={{
+            position: 'absolute',
+            top: '12px',
+            right: '12px',
+            background: 'rgba(255, 255, 255, 0.6)',
+            border: 'none',
+            borderRadius: '50%',
+            width: '32px',
+            height: '32px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: COLORS.text,
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.9)';
+            e.currentTarget.style.transform = 'scale(1.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.6)';
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
+          title={t('home.learnMore')}
+        >
+          <Info size={18} />
+        </button>
+
         <h3 style={{
           color: COLORS.text,
           fontSize: '20px',
           fontWeight: '600',
           marginBottom: '16px',
-          textAlign: 'center'
+          textAlign: 'center',
+          paddingRight: '32px'
         }}>
           {t('home.whatIsHappening')}
         </h3>
@@ -95,6 +132,15 @@ const HomeScreen = ({ currentPhase, cycleDay, onOpenTracking }) => {
       <FloatingButton 
         onClick={onOpenTracking}
         label={t('home.tellMeAboutDay')}
+      />
+
+      {/* Phase Details Modal */}
+      <PhaseDetailsModal
+        isOpen={isPhaseDetailsOpen}
+        onClose={() => setIsPhaseDetailsOpen(false)}
+        currentPhase={currentPhase}
+        onNavigateToNutrition={() => onNavigate('nutrition')}
+        onNavigateToActivity={() => onNavigate('activity')}
       />
     </div>
   );

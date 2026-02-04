@@ -9,25 +9,55 @@
   "phases": {
     "menstruation": {
       "name": "Menstruationsphase",
-      "info": "Die Gebärmutterschleimhaut wird abgestoßen. Niedriger Östrogen- und Progesteronspiegel führt oft zu Müdigkeit."
+      "info": "Die Gebärmutterschleimhaut wird abgestoßen. Niedriger Östrogen- und Progesteronspiegel führt oft zu Müdigkeit.",
+      "details": {
+        "body": "In dieser Phase wird die aufgebaute Gebärmutterschleimhaut abgestoßen. Der Hormonspiegel ist auf dem Tiefpunkt.",
+        "energy": "Dein Energielevel ist am niedrigsten. Gönn dir Ruhe und sei sanft zu dir selbst.",
+        "mood": "Du fühlst dich vielleicht müde, emotional oder zurückgezogen. Das ist völlig normal.",
+        "tips": "Achte auf ausreichend Schlaf, wärmende Tees und leichte Bewegung wie Yoga oder Spaziergänge."
+      }
     },
     "follicular": {
       "name": "Follikelphase",
-      "info": "Nach der Blutung reifen neue Eibläschen heran. Der Östrogenspiegel steigt, was Energie und Wohlbefinden steigern kann."
+      "info": "Nach der Blutung reifen neue Eibläschen heran. Der Östrogenspiegel steigt, was Energie und Wohlbefinden steigern kann.",
+      "details": {
+        "body": "Neue Follikel reifen in den Eierstöcken heran. Der Östrogenspiegel steigt kontinuierlich an.",
+        "energy": "Deine Energie steigt täglich. Perfekt für neue Projekte und Herausforderungen!",
+        "mood": "Du fühlst dich motiviert, kreativ und sozial. Nutze diese positive Phase!",
+        "tips": "Ideal für intensiveres Training, neue Vorhaben starten und soziale Aktivitäten."
+      }
     },
     "ovulation": {
       "name": "Ovulationsphase",
-      "info": "Ein reifer Follikel platzt, die Eizelle wandert in den Eileiter. Dies ist der Zeitpunkt maximaler Fruchtbarkeit."
+      "info": "Ein reifer Follikel platzt, die Eizelle wandert in den Eileiter. Dies ist der Zeitpunkt maximaler Fruchtbarkeit.",
+      "details": {
+        "body": "Der Eisprung findet statt - die Eizelle wird freigesetzt. Hormone erreichen ihren Höhepunkt.",
+        "energy": "Peak-Performance! Deine Energie und Ausstrahlung sind auf dem Maximum.",
+        "mood": "Du fühlst dich selbstbewusst, attraktiv und kommunikativ. Beste Zeit für wichtige Gespräche!",
+        "tips": "Nutze deine Energie für wichtige Projekte, Dates oder intensive Workouts."
+      }
     },
     "luteal": {
       "name": "Lutealphase",
-      "info": "Der geplatzte Follikel produziert Progesteron. Die Schleimhaut verdickt sich weiter. Energie sinkt oft, PMS kann auftreten."
+      "info": "Der geplatzte Follikel produziert Progesteron. Die Schleimhaut verdickt sich weiter. Energie sinkt oft, PMS kann auftreten.",
+      "details": {
+        "body": "Der Gelbkörper produziert Progesteron. Die Gebärmutter bereitet sich auf eine mögliche Schwangerschaft vor.",
+        "energy": "Deine Energie lässt nach. Zeit für mehr Selbstfürsorge und Entspannung.",
+        "mood": "PMS-Symptome können auftreten. Du brauchst vielleicht mehr Ruhe und Rückzug.",
+        "tips": "Fokus auf entspannende Aktivitäten, gesunde Ernährung und ausreichend Schlaf. Sei nachsichtig mit dir."
+      }
     }
   },
   "home": {
     "cycleDay": "Tag {{day}} deines Zyklus",
     "whatIsHappening": "Was geht gerade ab",
-    "tellMeAboutDay": "Erzähl mir von deinem Tag"
+    "tellMeAboutDay": "Erzähl mir von deinem Tag",
+    "phaseDetails": "Phasen-Details",
+    "learnMore": "Mehr erfahren",
+    "nutritionPrompt": "Möchtest du erfahren, welche Lebensmittel dir aktuell gut tun?",
+    "activityPrompt": "Oder welchen Aktivitäten du idealerweise nachgehen könntest?",
+    "goToNutrition": "Zu Ernährungstipps",
+    "goToActivity": "Zu Aktivitätsvorschlägen"
   },
   "tracking": {
     "title": "Erzähl mir von deinem Tag",

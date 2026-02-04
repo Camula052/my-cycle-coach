@@ -9,25 +9,55 @@
   "phases": {
     "menstruation": {
       "name": "Menstruation Phase",
-      "info": "The uterine lining is being shed. Low estrogen and progesterone levels often lead to fatigue."
+      "info": "The uterine lining is being shed. Low estrogen and progesterone levels often lead to fatigue.",
+      "details": {
+        "body": "During this phase, the built-up uterine lining is shed. Hormone levels are at their lowest.",
+        "energy": "Your energy level is at its lowest. Allow yourself rest and be gentle with yourself.",
+        "mood": "You may feel tired, emotional, or withdrawn. This is completely normal.",
+        "tips": "Focus on adequate sleep, warming teas, and gentle movement like yoga or walks."
+      }
     },
     "follicular": {
       "name": "Follicular Phase",
-      "info": "After bleeding, new follicles mature. Rising estrogen levels can increase energy and wellbeing."
+      "info": "After bleeding, new follicles mature. Rising estrogen levels can increase energy and wellbeing.",
+      "details": {
+        "body": "New follicles mature in the ovaries. Estrogen levels rise continuously.",
+        "energy": "Your energy increases daily. Perfect for new projects and challenges!",
+        "mood": "You feel motivated, creative, and social. Use this positive phase!",
+        "tips": "Ideal for more intensive training, starting new ventures, and social activities."
+      }
     },
     "ovulation": {
       "name": "Ovulation Phase",
-      "info": "A mature follicle ruptures, releasing the egg into the fallopian tube. This is the time of maximum fertility."
+      "info": "A mature follicle ruptures, releasing the egg into the fallopian tube. This is the time of maximum fertility.",
+      "details": {
+        "body": "Ovulation occurs - the egg is released. Hormones reach their peak.",
+        "energy": "Peak performance! Your energy and radiance are at maximum.",
+        "mood": "You feel confident, attractive, and communicative. Best time for important conversations!",
+        "tips": "Use your energy for important projects, dates, or intensive workouts."
+      }
     },
     "luteal": {
       "name": "Luteal Phase",
-      "info": "The ruptured follicle produces progesterone. The lining thickens further. Energy often decreases, PMS may occur."
+      "info": "The ruptured follicle produces progesterone. The lining thickens further. Energy often decreases, PMS may occur.",
+      "details": {
+        "body": "The corpus luteum produces progesterone. The uterus prepares for possible pregnancy.",
+        "energy": "Your energy decreases. Time for more self-care and relaxation.",
+        "mood": "PMS symptoms may occur. You may need more rest and withdrawal.",
+        "tips": "Focus on relaxing activities, healthy nutrition, and adequate sleep. Be compassionate with yourself."
+      }
     }
   },
   "home": {
     "cycleDay": "Day {{day}} of your cycle",
     "whatIsHappening": "What's happening now",
-    "tellMeAboutDay": "Tell me about your day"
+    "tellMeAboutDay": "Tell me about your day",
+    "phaseDetails": "Phase Details",
+    "learnMore": "Learn more",
+    "nutritionPrompt": "Would you like to know which foods are good for you right now?",
+    "activityPrompt": "Or which activities you should ideally pursue?",
+    "goToNutrition": "Go to nutrition tips",
+    "goToActivity": "Go to activity suggestions"
   },
   "tracking": {
     "title": "Tell me about your day",

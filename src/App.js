@@ -55,7 +55,8 @@ function App() {
     home: <HomeScreen 
             currentPhase={currentPhase} 
             cycleDay={cycleDay} 
-            onOpenTracking={() => setIsTrackingModalOpen(true)} 
+            onOpenTracking={() => setIsTrackingModalOpen(true)}
+            onNavigate={setCurrentScreen}
           />,
     calendar: <CalendarScreen 
                 userData={userData}
