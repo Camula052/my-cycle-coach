@@ -38,7 +38,7 @@ const HomeScreen = ({ currentPhase, cycleDay, onOpenTracking, onNavigate }) => {
         backdropFilter: 'blur(10px)',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
       }}>
-        🌸
+        {currentPhase.emoji}
       </div>
 
       {/* Phase Name */}

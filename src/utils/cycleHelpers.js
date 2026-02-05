@@ -15,21 +15,25 @@ export const CYCLE_PHASES = {
   menstruation: {
     color: COLORS.menstruation,
     gradient: 'linear-gradient(135deg, #E6B89C 0%, #F5D5C0 100%)',
+    emoji: '🌙',
     days: [1, 2, 3, 4, 5]
   },
   follicular: {
     color: COLORS.follicular,
     gradient: 'linear-gradient(135deg, #B8E6D5 0%, #D4F1E8 100%)',
+    emoji: '🌱',
     days: [6, 7, 8, 9, 10, 11, 12, 13]
   },
   ovulation: {
     color: COLORS.ovulation,
     gradient: 'linear-gradient(135deg, #F5C2C7 0%, #FFE0E5 100%)',
+    emoji: '🌸',
     days: [14]
   },
   luteal: {
     color: COLORS.luteal,
     gradient: 'linear-gradient(135deg, #F9E4B7 0%, #FFF4D6 100%)',
+    emoji: '🍂',
     days: [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28]
   }
 };
