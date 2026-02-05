@@ -68,11 +68,11 @@ const HomeScreen = ({ currentPhase, cycleDay, onOpenTracking, onNavigate }) => {
       <div style={{
         maxWidth: '500px',
         padding: '32px',
-        background: 'rgba(255, 255, 255, 0.2)',
+        background: currentPhase.gradient,
         borderRadius: '24px',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
+        border: `2px solid ${currentPhase.color}40`,
         backdropFilter: 'blur(10px)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
+        boxShadow: `0 8px 32px ${currentPhase.color}60`,
         position: 'relative'
       }}>
         {/* Info Icon - oben rechts */}

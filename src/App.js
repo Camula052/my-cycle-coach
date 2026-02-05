@@ -18,7 +18,6 @@ function App() {
   const { t } = useTranslation();
   const [currentScreen, setCurrentScreen] = useState('home');
   const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
-  const [cycleDay, setCycleDay] = useState(14);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [userData, setUserData] = useState(null);
   
@@ -37,8 +36,27 @@ function App() {
   const handleOnboardingComplete = (data) => {
     setUserData(data);
     setShowOnboarding(false);
-    // TODO: Berechne cycleDay basierend auf periodStartDate
   };
+  
+  // Berechne den aktuellen Zyklustag basierend auf periodStartDate
+  const getCurrentCycleDay = () => {
+    if (!userData?.periodStartDate) return 1;
+    
+    const periodStartDate = new Date(userData.periodStartDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const daysSinceStart = Math.floor((today - periodStartDate) / (1000 * 60 * 60 * 24));
+    
+    if (daysSinceStart < 0) {
+      return 1; // Falls noch kein Startdatum in der Vergangenheit
+    }
+    
+    const cycleDay = (daysSinceStart % 28) + 1;
+    return cycleDay;
+  };
+  
+  const cycleDay = getCurrentCycleDay();
   
   const handleSaveTracking = (data) => {
     console.log('Tracking gespeichert:', data);
