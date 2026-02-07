@@ -80,7 +80,7 @@ function App() {
                 userData={userData}
                 onUpdateUserData={handleUpdateUserData}
               />,
-    nutrition: <NutritionScreen />,
+    nutrition: <NutritionScreen userData={userData} />,
     activity: <ActivityScreen />,
     profile: <ProfileScreen 
                userData={userData}

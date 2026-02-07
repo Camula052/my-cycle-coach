@@ -42,13 +42,24 @@ export const TranslationProvider = ({ children }) => {
   };
 
   // t = translate Funktion
-  const t = (key, values) => {
+  const t = (key, options) => {
     const text = getNestedValue(translations[language], key);
     if (!text) {
       console.warn(`Translation missing for key: ${key}`);
       return key;
     }
-    return interpolate(text, values);
+    
+    // Wenn returnObjects true ist, gib das Objekt/Array direkt zurück
+    if (options?.returnObjects) {
+      return text;
+    }
+    
+    // Nur interpolate aufrufen wenn es ein String ist
+    if (typeof text === 'string') {
+      return interpolate(text, options);
+    }
+    
+    return text;
   };
 
   return (

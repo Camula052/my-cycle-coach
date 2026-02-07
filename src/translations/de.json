@@ -175,5 +175,235 @@
       "saturday": "Sa",
       "sunday": "So"
     }
+  },
+  "nutrition": {
+    "title": "Ernährung für deine Phase",
+    "whatYourBodyNeeds": "Was dein Körper jetzt braucht",
+    "importantNutrients": "Wichtige Nährstoffe",
+    "premium": {
+      "title": "Deine KI-Ernährungsassistentin",
+      "description": "Lass dir von KI helfen, die perfekten Mahlzeiten für deine aktuelle Zyklusphase zu finden.",
+      "feature1": "KI-gestützte Rezeptvorschläge",
+      "feature2": "Personalisierte Meal-Pläne",
+      "feature3": "Auf dich zugeschnitten",
+      "cta": "Bald verfügbar",
+      "subtitle": "Coming Soon ✨"
+    },
+    "menstruation": {
+      "intro": "Während deiner Menstruation verlierst du Blut und damit wichtige Nährstoffe. Dein Körper braucht jetzt besonders viel Unterstützung zur Regeneration.",
+      "description": "Fokussiere dich auf eisenreiche Lebensmittel, um den Blutverlust auszugleichen. Magnesium hilft gegen Krämpfe, Omega-3-Fettsäuren wirken entzündungshemmend.",
+      "nutrients": [
+        {
+          "icon": "🔴",
+          "name": "Eisen",
+          "why": "Gleicht den Blutverlust aus und beugt Müdigkeit vor",
+          "foods": [
+            "Rotes Fleisch",
+            "Spinat",
+            "Linsen",
+            "Quinoa",
+            "Kürbiskerne"
+          ]
+        },
+        {
+          "icon": "💪",
+          "name": "Magnesium",
+          "why": "Lindert Krämpfe und entspannt die Muskulatur",
+          "foods": [
+            "Dunkle Schokolade",
+            "Mandeln",
+            "Avocado",
+            "Bananen",
+            "Vollkorn"
+          ]
+        },
+        {
+          "icon": "🐟",
+          "name": "Omega-3",
+          "why": "Wirkt entzündungshemmend und reduziert Schmerzen",
+          "foods": [
+            "Lachs",
+            "Makrele",
+            "Leinsamen",
+            "Walnüsse",
+            "Chiasamen"
+          ]
+        },
+        {
+          "icon": "☕",
+          "name": "Vitamin B12",
+          "why": "Unterstützt die Blutbildung und gibt Energie",
+          "foods": [
+            "Eier",
+            "Käse",
+            "Joghurt",
+            "Lachs",
+            "Rinderleber"
+          ]
+        }
+      ]
+    },
+    "follicular": {
+      "intro": "In der Follikelphase baut dein Körper die Gebärmutterschleimhaut wieder auf. Der Östrogenspiegel steigt und du hast mehr Energie.",
+      "description": "Leichte, nährstoffreiche Kost mit viel Protein und B-Vitaminen unterstützt das Wachstum und deine steigende Energie. Jetzt ist die beste Zeit für frisches Gemüse und Vollkorn.",
+      "nutrients": [
+        {
+          "icon": "🥚",
+          "name": "Protein",
+          "why": "Baut die Gebärmutterschleimhaut auf und gibt Energie",
+          "foods": [
+            "Hähnchen",
+            "Fisch",
+            "Eier",
+            "Tofu",
+            "Linsen"
+          ]
+        },
+        {
+          "icon": "🌾",
+          "name": "B-Vitamine",
+          "why": "Unterstützen Stoffwechsel und Energieproduktion",
+          "foods": [
+            "Vollkorn",
+            "Haferflocken",
+            "Nüsse",
+            "Eier",
+            "Hülsenfrüchte"
+          ]
+        },
+        {
+          "icon": "🥦",
+          "name": "Folsäure",
+          "why": "Wichtig für Zellwachstum und -teilung",
+          "foods": [
+            "Brokkoli",
+            "Spinat",
+            "Spargel",
+            "Avocado",
+            "Linsen"
+          ]
+        },
+        {
+          "icon": "🥕",
+          "name": "Vitamin A",
+          "why": "Fördert gesunde Haut und Schleimhäute",
+          "foods": [
+            "Karotten",
+            "Süßkartoffeln",
+            "Kürbis",
+            "Mango",
+            "Paprika"
+          ]
+        }
+      ]
+    },
+    "ovulation": {
+      "intro": "Beim Eisprung ist dein Östrogenspiegel auf dem Höhepunkt. Dein Körper läuft auf Hochtouren und braucht viel Energie.",
+      "description": "Antioxidantien schützen die Eizelle, komplexe Kohlenhydrate geben nachhaltige Energie. Ballaststoffe helfen, überschüssiges Östrogen abzubauen.",
+      "nutrients": [
+        {
+          "icon": "🫐",
+          "name": "Antioxidantien",
+          "why": "Schützen die Eizelle und bekämpfen freie Radikale",
+          "foods": [
+            "Beeren",
+            "Granatapfel",
+            "Dunkle Schokolade",
+            "Grüntee",
+            "Nüsse"
+          ]
+        },
+        {
+          "icon": "🥖",
+          "name": "Komplexe Kohlenhydrate",
+          "why": "Liefern langanhaltende Energie für deine Peak-Phase",
+          "foods": [
+            "Vollkornbrot",
+            "Haferflocken",
+            "Quinoa",
+            "Süßkartoffeln",
+            "Brauner Reis"
+          ]
+        },
+        {
+          "icon": "🌿",
+          "name": "Ballaststoffe",
+          "why": "Helfen beim Abbau von überschüssigem Östrogen",
+          "foods": [
+            "Leinsamen",
+            "Chiasamen",
+            "Vollkorn",
+            "Äpfel",
+            "Brokkoli"
+          ]
+        },
+        {
+          "icon": "🥑",
+          "name": "Gesunde Fette",
+          "why": "Unterstützen die Hormonproduktion",
+          "foods": [
+            "Avocado",
+            "Olivenöl",
+            "Nüsse",
+            "Lachs",
+            "Samen"
+          ]
+        }
+      ]
+    },
+    "luteal": {
+      "intro": "In der Lutealphase steigt der Progesteronspiegel. Dein Körper bereitet sich auf eine mögliche Schwangerschaft vor und kann träger werden.",
+      "description": "Komplexe Kohlenhydrate stabilisieren den Blutzucker und die Stimmung. Magnesium und Vitamin B6 helfen gegen PMS-Symptome. Vermeide zu viel Salz wegen Wassereinlagerungen.",
+      "nutrients": [
+        {
+          "icon": "🍠",
+          "name": "Komplexe Kohlenhydrate",
+          "why": "Stabilisieren Blutzucker und Stimmung bei PMS",
+          "foods": [
+            "Süßkartoffeln",
+            "Vollkornreis",
+            "Haferflocken",
+            "Quinoa",
+            "Kürbis"
+          ]
+        },
+        {
+          "icon": "💚",
+          "name": "Magnesium",
+          "why": "Reduziert Wassereinlagerungen und Stimmungsschwankungen",
+          "foods": [
+            "Kürbiskerne",
+            "Mandeln",
+            "Spinat",
+            "Dunkle Schokolade",
+            "Avocado"
+          ]
+        },
+        {
+          "icon": "🌰",
+          "name": "Vitamin B6",
+          "why": "Lindert PMS-Symptome und reguliert Hormone",
+          "foods": [
+            "Hähnchen",
+            "Lachs",
+            "Kichererbsen",
+            "Bananen",
+            "Walnüsse"
+          ]
+        },
+        {
+          "icon": "🥛",
+          "name": "Kalzium",
+          "why": "Reduziert Krämpfe und unterstützt die Knochengesundheit",
+          "foods": [
+            "Milchprodukte",
+            "Brokkoli",
+            "Mandeln",
+            "Sesam",
+            "Grünkohl"
+          ]
+        }
+      ]
+    }
   }
 }

@@ -175,5 +175,235 @@
       "saturday": "Sat",
       "sunday": "Sun"
     }
+  },
+  "nutrition": {
+    "title": "Nutrition for Your Phase",
+    "whatYourBodyNeeds": "What your body needs now",
+    "importantNutrients": "Important Nutrients",
+    "premium": {
+      "title": "Your AI Nutrition Assistant",
+      "description": "Let AI help you find the perfect meals for your current cycle phase.",
+      "feature1": "AI-powered recipe suggestions",
+      "feature2": "Personalized meal plans",
+      "feature3": "Tailored to your needs",
+      "cta": "Coming Soon",
+      "subtitle": "AI-powered nutrition guidance ✨"
+    },
+    "menstruation": {
+      "intro": "During menstruation, you lose blood and important nutrients. Your body needs extra support for regeneration now.",
+      "description": "Focus on iron-rich foods to compensate for blood loss. Magnesium helps with cramps, omega-3 fatty acids have anti-inflammatory effects.",
+      "nutrients": [
+        {
+          "icon": "🔴",
+          "name": "Iron",
+          "why": "Compensates for blood loss and prevents fatigue",
+          "foods": [
+            "Red Meat",
+            "Spinach",
+            "Lentils",
+            "Quinoa",
+            "Pumpkin Seeds"
+          ]
+        },
+        {
+          "icon": "💪",
+          "name": "Magnesium",
+          "why": "Relieves cramps and relaxes muscles",
+          "foods": [
+            "Dark Chocolate",
+            "Almonds",
+            "Avocado",
+            "Bananas",
+            "Whole Grains"
+          ]
+        },
+        {
+          "icon": "🐟",
+          "name": "Omega-3",
+          "why": "Has anti-inflammatory effects and reduces pain",
+          "foods": [
+            "Salmon",
+            "Mackerel",
+            "Flaxseeds",
+            "Walnuts",
+            "Chia Seeds"
+          ]
+        },
+        {
+          "icon": "☕",
+          "name": "Vitamin B12",
+          "why": "Supports blood formation and provides energy",
+          "foods": [
+            "Eggs",
+            "Cheese",
+            "Yogurt",
+            "Salmon",
+            "Beef Liver"
+          ]
+        }
+      ]
+    },
+    "follicular": {
+      "intro": "In the follicular phase, your body rebuilds the uterine lining. Estrogen levels rise and you have more energy.",
+      "description": "Light, nutrient-rich food with lots of protein and B vitamins supports growth and your rising energy. Now is the best time for fresh vegetables and whole grains.",
+      "nutrients": [
+        {
+          "icon": "🥚",
+          "name": "Protein",
+          "why": "Builds up the uterine lining and provides energy",
+          "foods": [
+            "Chicken",
+            "Fish",
+            "Eggs",
+            "Tofu",
+            "Lentils"
+          ]
+        },
+        {
+          "icon": "🌾",
+          "name": "B Vitamins",
+          "why": "Support metabolism and energy production",
+          "foods": [
+            "Whole Grains",
+            "Oats",
+            "Nuts",
+            "Eggs",
+            "Legumes"
+          ]
+        },
+        {
+          "icon": "🥦",
+          "name": "Folic Acid",
+          "why": "Important for cell growth and division",
+          "foods": [
+            "Broccoli",
+            "Spinach",
+            "Asparagus",
+            "Avocado",
+            "Lentils"
+          ]
+        },
+        {
+          "icon": "🥕",
+          "name": "Vitamin A",
+          "why": "Promotes healthy skin and mucous membranes",
+          "foods": [
+            "Carrots",
+            "Sweet Potatoes",
+            "Pumpkin",
+            "Mango",
+            "Bell Peppers"
+          ]
+        }
+      ]
+    },
+    "ovulation": {
+      "intro": "During ovulation, your estrogen levels peak. Your body is running at full capacity and needs lots of energy.",
+      "description": "Antioxidants protect the egg, complex carbohydrates provide sustained energy. Fiber helps break down excess estrogen.",
+      "nutrients": [
+        {
+          "icon": "🫐",
+          "name": "Antioxidants",
+          "why": "Protect the egg and fight free radicals",
+          "foods": [
+            "Berries",
+            "Pomegranate",
+            "Dark Chocolate",
+            "Green Tea",
+            "Nuts"
+          ]
+        },
+        {
+          "icon": "🥖",
+          "name": "Complex Carbs",
+          "why": "Provide long-lasting energy for your peak phase",
+          "foods": [
+            "Whole Grain Bread",
+            "Oats",
+            "Quinoa",
+            "Sweet Potatoes",
+            "Brown Rice"
+          ]
+        },
+        {
+          "icon": "🌿",
+          "name": "Fiber",
+          "why": "Help break down excess estrogen",
+          "foods": [
+            "Flaxseeds",
+            "Chia Seeds",
+            "Whole Grains",
+            "Apples",
+            "Broccoli"
+          ]
+        },
+        {
+          "icon": "🥑",
+          "name": "Healthy Fats",
+          "why": "Support hormone production",
+          "foods": [
+            "Avocado",
+            "Olive Oil",
+            "Nuts",
+            "Salmon",
+            "Seeds"
+          ]
+        }
+      ]
+    },
+    "luteal": {
+      "intro": "In the luteal phase, progesterone levels rise. Your body prepares for possible pregnancy and may become sluggish.",
+      "description": "Complex carbs stabilize blood sugar and mood. Magnesium and vitamin B6 help with PMS symptoms. Avoid too much salt due to water retention.",
+      "nutrients": [
+        {
+          "icon": "🍠",
+          "name": "Complex Carbs",
+          "why": "Stabilize blood sugar and mood during PMS",
+          "foods": [
+            "Sweet Potatoes",
+            "Brown Rice",
+            "Oats",
+            "Quinoa",
+            "Pumpkin"
+          ]
+        },
+        {
+          "icon": "💚",
+          "name": "Magnesium",
+          "why": "Reduces water retention and mood swings",
+          "foods": [
+            "Pumpkin Seeds",
+            "Almonds",
+            "Spinach",
+            "Dark Chocolate",
+            "Avocado"
+          ]
+        },
+        {
+          "icon": "🌰",
+          "name": "Vitamin B6",
+          "why": "Relieves PMS symptoms and regulates hormones",
+          "foods": [
+            "Chicken",
+            "Salmon",
+            "Chickpeas",
+            "Bananas",
+            "Walnuts"
+          ]
+        },
+        {
+          "icon": "🥛",
+          "name": "Calcium",
+          "why": "Reduces cramps and supports bone health",
+          "foods": [
+            "Dairy Products",
+            "Broccoli",
+            "Almonds",
+            "Sesame",
+            "Kale"
+          ]
+        }
+      ]
+    }
   }
 }
