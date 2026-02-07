@@ -11,7 +11,9 @@
       "name": "Menstruationsphase",
       "info": "Die Gebärmutterschleimhaut wird abgestoßen. Niedriger Östrogen- und Progesteronspiegel führt oft zu Müdigkeit.",
       "details": {
+        "emoji": "Der Mond 🌙 symbolisiert diese Phase der Ruhe und des Rückzugs. Wie der Mond zyklisch seine Phasen durchläuft, durchläuft auch dein Körper seinen natürlichen Rhythmus. Es ist Zeit, nach innen zu schauen und zu regenerieren.",
         "body": "In dieser Phase wird die aufgebaute Gebärmutterschleimhaut abgestoßen. Der Hormonspiegel ist auf dem Tiefpunkt.",
+        "physical": "Dein Bauch kann sich aufgebläht anfühlen. Viele Frauen haben leichte Wassereinlagerungen, besonders in den Beinen. Die Haut kann unrein werden oder trockener sein. Durch die Blutung fühlst du dich möglicherweise körperlich schwächer.",
         "energy": "Dein Energielevel ist am niedrigsten. Gönn dir Ruhe und sei sanft zu dir selbst.",
         "mood": "Du fühlst dich vielleicht müde, emotional oder zurückgezogen. Das ist völlig normal.",
         "tips": "Achte auf ausreichend Schlaf, wärmende Tees und leichte Bewegung wie Yoga oder Spaziergänge."
@@ -21,7 +23,9 @@
       "name": "Follikelphase",
       "info": "Nach der Blutung reifen neue Eibläschen heran. Der Östrogenspiegel steigt, was Energie und Wohlbefinden steigern kann.",
       "details": {
+        "emoji": "Die junge Pflanze 🌱 steht für Wachstum und Neubeginn. Nach der Menstruation erwacht dein Körper zu neuem Leben. Wie ein Samen, der keimt, baust du wieder Energie auf und bereitest dich auf deine produktivste Phase vor.",
         "body": "Neue Follikel reifen in den Eierstöcken heran. Der Östrogenspiegel steigt kontinuierlich an.",
+        "physical": "Dein Körper fühlt sich leichter an. Wassereinlagerungen gehen zurück und der Bauch wird flacher. Die Haut strahlt und wird klarer. Viele Frauen fühlen sich in dieser Phase am wohlsten in ihrem Körper.",
         "energy": "Deine Energie steigt täglich. Perfekt für neue Projekte und Herausforderungen!",
         "mood": "Du fühlst dich motiviert, kreativ und sozial. Nutze diese positive Phase!",
         "tips": "Ideal für intensiveres Training, neue Vorhaben starten und soziale Aktivitäten."
@@ -31,7 +35,9 @@
       "name": "Ovulationsphase",
       "info": "Ein reifer Follikel platzt, die Eizelle wandert in den Eileiter. Dies ist der Zeitpunkt maximaler Fruchtbarkeit.",
       "details": {
+        "emoji": "Die Blüte 🌸 symbolisiert den Höhepunkt deines Zyklus. Wie eine Blume in voller Pracht stehst du in dieser Phase auf dem Gipfel deiner Fruchtbarkeit, Energie und Ausstrahlung.",
         "body": "Der Eisprung findet statt - die Eizelle wird freigesetzt. Hormone erreichen ihren Höhepunkt.",
+        "physical": "Deine Haut hat einen natürlichen Glow, die Lippen können voller wirken. Der Zervixschleim wird klar und dehnbar. Manche Frauen spüren den Eisprung durch einen leichten Schmerz (Mittelschmerz) im Unterleib. Du fühlst dich körperlich am attraktivsten.",
         "energy": "Peak-Performance! Deine Energie und Ausstrahlung sind auf dem Maximum.",
         "mood": "Du fühlst dich selbstbewusst, attraktiv und kommunikativ. Beste Zeit für wichtige Gespräche!",
         "tips": "Nutze deine Energie für wichtige Projekte, Dates oder intensive Workouts."
@@ -41,7 +47,9 @@
       "name": "Lutealphase",
       "info": "Der geplatzte Follikel produziert Progesteron. Die Schleimhaut verdickt sich weiter. Energie sinkt oft, PMS kann auftreten.",
       "details": {
+        "emoji": "Das Herbstblatt 🍂 steht für den Übergang und das Loslassen. Wie die Natur sich auf den Winter vorbereitet, bereitet sich dein Körper auf die Menstruation vor. Es ist Zeit, Tempo rauszunehmen und dich auf das Wesentliche zu konzentrieren.",
         "body": "Der Gelbkörper produziert Progesteron. Die Gebärmutter bereitet sich auf eine mögliche Schwangerschaft vor.",
+        "physical": "Wassereinlagerungen nehmen zu, besonders in Bauch, Brüsten und Beinen. Die Brüste können spannen und empfindlich sein. Der Bauch bläht sich auf. Die Haut kann unreiner werden. Manche Frauen nehmen 1-2 kg zu, die nach der Menstruation wieder verschwinden.",
         "energy": "Deine Energie lässt nach. Zeit für mehr Selbstfürsorge und Entspannung.",
         "mood": "PMS-Symptome können auftreten. Du brauchst vielleicht mehr Ruhe und Rückzug.",
         "tips": "Fokus auf entspannende Aktivitäten, gesunde Ernährung und ausreichend Schlaf. Sei nachsichtig mit dir."

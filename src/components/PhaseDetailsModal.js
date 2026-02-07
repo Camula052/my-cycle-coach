@@ -64,7 +64,7 @@ const PhaseDetailsModal = ({ isOpen, onClose, currentPhase, onNavigateToNutritio
             fontSize: '48px',
             marginBottom: '16px'
           }}>
-            🌸
+            {currentPhase.emoji}
           </div>
           <h2 style={{
             color: COLORS.text,
@@ -85,6 +85,31 @@ const PhaseDetailsModal = ({ isOpen, onClose, currentPhase, onNavigateToNutritio
 
         {/* Detail Cards */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '32px' }}>
+          {/* Emoji Erklärung */}
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.3)',
+            borderRadius: '16px',
+            padding: '20px',
+            backdropFilter: 'blur(10px)'
+          }}>
+            <h3 style={{
+              color: COLORS.text,
+              fontSize: '16px',
+              fontWeight: '600',
+              marginBottom: '8px'
+            }}>
+              {currentPhase.emoji} Warum dieses Symbol?
+            </h3>
+            <p style={{
+              color: COLORS.text,
+              fontSize: '15px',
+              lineHeight: '1.6',
+              opacity: 0.9
+            }}>
+              {t(`phases.${currentPhase.key}.details.emoji`)}
+            </p>
+          </div>
+
           {/* Was passiert im Körper */}
           <div style={{
             background: 'rgba(255, 255, 255, 0.3)',
@@ -107,6 +132,31 @@ const PhaseDetailsModal = ({ isOpen, onClose, currentPhase, onNavigateToNutritio
               opacity: 0.9
             }}>
               {t(`phases.${currentPhase.key}.details.body`)}
+            </p>
+          </div>
+
+          {/* Körperliche Veränderungen */}
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.3)',
+            borderRadius: '16px',
+            padding: '20px',
+            backdropFilter: 'blur(10px)'
+          }}>
+            <h3 style={{
+              color: COLORS.text,
+              fontSize: '16px',
+              fontWeight: '600',
+              marginBottom: '8px'
+            }}>
+              👁️ Wie verändert sich dein Körper?
+            </h3>
+            <p style={{
+              color: COLORS.text,
+              fontSize: '15px',
+              lineHeight: '1.6',
+              opacity: 0.9
+            }}>
+              {t(`phases.${currentPhase.key}.details.physical`)}
             </p>
           </div>
 
