@@ -58,6 +58,11 @@ const PhaseDetailsModal = ({ isOpen, onClose, currentPhase, onNavigateToNutritio
 
   const handleTouchMove = (e) => {
     setTouchEnd(e.targetTouches[0].clientX);
+    // Verhindere horizontales Scrollen des Modals während Swipe
+    const touchDiff = touchStart - e.targetTouches[0].clientX;
+    if (Math.abs(touchDiff) > 10) {
+      e.preventDefault();
+    }
   };
 
   const handleTouchEnd = () => {
@@ -93,6 +98,7 @@ const PhaseDetailsModal = ({ isOpen, onClose, currentPhase, onNavigateToNutritio
         width: '100%',
         maxHeight: '90vh',
         overflowY: 'auto',
+        overflowX: 'hidden',
         padding: '24px',
         position: 'relative'
       }}>
@@ -227,7 +233,8 @@ const PhaseDetailsModal = ({ isOpen, onClose, currentPhase, onNavigateToNutritio
             onTouchEnd={handleTouchEnd}
             style={{
               overflow: 'hidden',
-              borderRadius: '16px'
+              borderRadius: '16px',
+              touchAction: 'pan-y'
             }}
           >
             <div style={{

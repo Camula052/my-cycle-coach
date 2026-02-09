@@ -51,6 +51,11 @@ const NutritionScreen = ({ userData }) => {
 
   const handleTouchMove = (e) => {
     setTouchEnd(e.targetTouches[0].clientX);
+    // Verhindere horizontales Scrollen während Swipe
+    const touchDiff = touchStart - e.targetTouches[0].clientX;
+    if (Math.abs(touchDiff) > 10) {
+      e.preventDefault();
+    }
   };
 
   const handleTouchEnd = () => {
@@ -203,7 +208,8 @@ const NutritionScreen = ({ userData }) => {
             onTouchEnd={handleTouchEnd}
             style={{
               overflow: 'hidden',
-              borderRadius: '16px'
+              borderRadius: '16px',
+              touchAction: 'pan-y'
             }}
           >
             <div style={{
