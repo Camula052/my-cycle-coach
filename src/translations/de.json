@@ -89,7 +89,12 @@
       "sweaty": "Schwitzig",
       "bloated": "Aufgebläht",
       "listless": "Antriebslos",
-      "cravings": "Heißhunger"
+      "cravings": "Heißhunger",
+      "add": "Symptom hinzufügen",
+      "other": "Andere...",
+      "custom": "Eigenes Symptom",
+      "enterCustom": "Eigenes Symptom eingeben",
+      "noSymptoms": "Noch keine Symptome erfasst"
     },
     "weight": {
       "title": "Gewicht (optional)",
@@ -126,7 +131,10 @@
       "title": "Möchtest du eigene Symptome erfassen?",
       "subtitle": "Du kannst das auch später im Profil machen",
       "add": "Symptom hinzufügen",
-      "placeholder": "z.B. Migräne, Übelkeit..."
+      "placeholder": "z.B. Migräne, Übelkeit...",
+      "info": "Hier siehst du die gängigsten Symptome. Du kannst jederzeit eigene hinzufügen und alles im Profil anpassen.",
+      "viewPredefined": "Vordefinierte Symptome ansehen",
+      "addOwn": "Eigenes Symptom hinzufügen"
     },
     "lastPeriod": {
       "title": "Deine letzte Periode",

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Plus, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 
 const COLORS = {
@@ -27,6 +28,7 @@ const Onboarding = ({ onComplete }) => {
   });
   const [showContraceptionWarning, setShowContraceptionWarning] = useState(false);
   const [newSymptom, setNewSymptom] = useState('');
+  const [showPredefinedSymptoms, setShowPredefinedSymptoms] = useState(false);
 
   const motivationOptions = [
     { key: 'loseWeight', label: t('onboarding.motivation.loseWeight') },
@@ -34,6 +36,20 @@ const Onboarding = ({ onComplete }) => {
     { key: 'getFit', label: t('onboarding.motivation.getFit') },
     { key: 'knowBody', label: t('onboarding.motivation.knowBody') },
     { key: 'contraception', label: t('onboarding.motivation.contraception') }
+  ];
+
+  const predefinedSymptoms = [
+    t('tracking.symptoms.headache'),
+    t('tracking.symptoms.backPain'),
+    t('tracking.symptoms.shoulderPain'),
+    t('tracking.symptoms.abdominalPain'),
+    t('tracking.symptoms.cramps'),
+    t('tracking.symptoms.cold'),
+    t('tracking.symptoms.hot'),
+    t('tracking.symptoms.sweaty'),
+    t('tracking.symptoms.bloated'),
+    t('tracking.symptoms.listless'),
+    t('tracking.symptoms.cravings')
   ];
 
   const toggleMotivation = (key) => {
@@ -96,74 +112,62 @@ const Onboarding = ({ onComplete }) => {
       left: 0,
       right: 0,
       bottom: 0,
-      background: 'linear-gradient(135deg, #B8E6D5 0%, #F5C2C7 100%)',
-      zIndex: 2000,
+      background: `linear-gradient(135deg, ${COLORS.follicular} 0%, ${COLORS.ovulation} 50%, ${COLORS.luteal} 100%)`,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '20px',
       overflowY: 'auto',
-      padding: '20px'
+      zIndex: 9999
     }}>
-      <div style={{
-        maxWidth: '600px',
-        margin: '0 auto',
-        paddingTop: '40px'
-      }}>
-        <div style={{
-          textAlign: 'center',
-          marginBottom: '48px'
-        }}>
-          <div style={{
-            fontSize: '64px',
-            marginBottom: '16px'
-          }}>
-            🌸
-          </div>
-          <h1 style={{
-            color: COLORS.text,
-            fontSize: '32px',
-            fontWeight: '700',
-            marginBottom: '8px'
-          }}>
-            {t('onboarding.welcome')}
-          </h1>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '8px',
-            marginTop: '24px'
-          }}>
-            {[0, 1, 2, 3, 4].map(s => (
-              <div
-                key={s}
-                style={{
-                  width: '40px',
-                  height: '4px',
-                  borderRadius: '2px',
-                  backgroundColor: step >= s ? COLORS.follicular : 'rgba(255,255,255,0.3)',
-                  transition: 'all 0.3s ease'
-                }}
-              />
-            ))}
-          </div>
-        </div>
-
+      <div style={{ width: '100%', maxWidth: '500px' }}>
+        {/* Welcome Screen */}
         {step === 0 && (
           <div style={{
             background: 'rgba(255, 255, 255, 0.9)',
             borderRadius: '24px',
-            padding: '32px',
+            padding: '48px 32px',
             backdropFilter: 'blur(10px)',
             textAlign: 'center'
           }}>
-            <p style={{
+            <div style={{ fontSize: '64px', marginBottom: '24px' }}>🌸</div>
+            <h1 style={{
               color: COLORS.text,
+              fontSize: '28px',
+              fontWeight: '700',
+              marginBottom: '16px'
+            }}>
+              {t('onboarding.welcome')}
+            </h1>
+            <p style={{
+              color: COLORS.textLight,
               fontSize: '16px',
               lineHeight: '1.6',
-              marginBottom: '24px'
+              marginBottom: '32px'
             }}>
               {t('onboarding.intro')}
             </p>
+            <button
+              onClick={handleNext}
+              style={{
+                width: '100%',
+                padding: '16px',
+                fontSize: '18px',
+                fontWeight: '600',
+                background: COLORS.follicular,
+                border: 'none',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                color: COLORS.text,
+                boxShadow: `0 0 30px ${COLORS.follicular}60`
+              }}
+            >
+              {t('onboarding.buttons.start')}
+            </button>
           </div>
         )}
 
+        {/* Personal Data */}
         {step === 1 && (
           <div style={{
             background: 'rgba(255, 255, 255, 0.9)',
@@ -171,57 +175,7 @@ const Onboarding = ({ onComplete }) => {
             padding: '32px',
             backdropFilter: 'blur(10px)'
           }}>
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{
-                display: 'block',
-                color: COLORS.text,
-                fontSize: '16px',
-                fontWeight: '600',
-                marginBottom: '8px'
-              }}>
-                {t('onboarding.name')}
-              </label>
-              <input
-                type="text"
-                value={userData.name}
-                onChange={(e) => setUserData({ ...userData, name: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  fontSize: '16px',
-                  border: '2px solid rgba(226, 232, 240, 0.5)',
-                  borderRadius: '12px',
-                  backgroundColor: 'transparent'
-                }}
-              />
-            </div>
-
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{
-                display: 'block',
-                color: COLORS.text,
-                fontSize: '16px',
-                fontWeight: '600',
-                marginBottom: '8px'
-              }}>
-                {t('onboarding.age')}
-              </label>
-              <input
-                type="number"
-                value={userData.age}
-                onChange={(e) => setUserData({ ...userData, age: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  fontSize: '16px',
-                  border: '2px solid rgba(226, 232, 240, 0.5)',
-                  borderRadius: '12px',
-                  backgroundColor: 'transparent'
-                }}
-              />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+            <div style={{ display: 'grid', gap: '20px' }}>
               <div>
                 <label style={{
                   display: 'block',
@@ -230,12 +184,12 @@ const Onboarding = ({ onComplete }) => {
                   fontWeight: '600',
                   marginBottom: '8px'
                 }}>
-                  {t('onboarding.height')}
+                  {t('onboarding.name')} *
                 </label>
                 <input
-                  type="number"
-                  value={userData.height}
-                  onChange={(e) => setUserData({ ...userData, height: e.target.value })}
+                  type="text"
+                  value={userData.name}
+                  onChange={(e) => setUserData({ ...userData, name: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '12px',
@@ -246,6 +200,7 @@ const Onboarding = ({ onComplete }) => {
                   }}
                 />
               </div>
+
               <div>
                 <label style={{
                   display: 'block',
@@ -254,13 +209,12 @@ const Onboarding = ({ onComplete }) => {
                   fontWeight: '600',
                   marginBottom: '8px'
                 }}>
-                  {t('onboarding.weight')}
+                  {t('onboarding.age')}
                 </label>
                 <input
                   type="number"
-                  step="0.1"
-                  value={userData.weight}
-                  onChange={(e) => setUserData({ ...userData, weight: e.target.value })}
+                  value={userData.age}
+                  onChange={(e) => setUserData({ ...userData, age: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '12px',
@@ -270,11 +224,64 @@ const Onboarding = ({ onComplete }) => {
                     backgroundColor: 'transparent'
                   }}
                 />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{
+                    display: 'block',
+                    color: COLORS.text,
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    marginBottom: '8px'
+                  }}>
+                    {t('onboarding.height')}
+                  </label>
+                  <input
+                    type="number"
+                    value={userData.height}
+                    onChange={(e) => setUserData({ ...userData, height: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      fontSize: '16px',
+                      border: '2px solid rgba(226, 232, 240, 0.5)',
+                      borderRadius: '12px',
+                      backgroundColor: 'transparent'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{
+                    display: 'block',
+                    color: COLORS.text,
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    marginBottom: '8px'
+                  }}>
+                    {t('onboarding.weight')}
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={userData.weight}
+                    onChange={(e) => setUserData({ ...userData, weight: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      fontSize: '16px',
+                      border: '2px solid rgba(226, 232, 240, 0.5)',
+                      borderRadius: '12px',
+                      backgroundColor: 'transparent'
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>
         )}
 
+        {/* Motivations */}
         {step === 2 && (
           <div style={{
             background: 'rgba(255, 255, 255, 0.9)',
@@ -340,6 +347,7 @@ const Onboarding = ({ onComplete }) => {
           </div>
         )}
 
+        {/* Custom Symptoms - NEU */}
         {step === 3 && (
           <div style={{
             background: 'rgba(255, 255, 255, 0.9)',
@@ -356,86 +364,184 @@ const Onboarding = ({ onComplete }) => {
             }}>
               {t('onboarding.customSymptoms.title')}
             </h3>
-            <p style={{
-              color: COLORS.textLight,
-              fontSize: '14px',
+            
+            {/* Info-Text */}
+            <div style={{
+              padding: '16px',
+              backgroundColor: `${COLORS.follicular}20`,
+              borderRadius: '12px',
               marginBottom: '24px',
-              textAlign: 'center'
+              border: `1px solid ${COLORS.follicular}40`
             }}>
-              {t('onboarding.customSymptoms.subtitle')}
-            </p>
-
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-              <input
-                type="text"
-                value={newSymptom}
-                onChange={(e) => setNewSymptom(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && addCustomSymptom()}
-                placeholder={t('onboarding.customSymptoms.placeholder')}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  fontSize: '16px',
-                  border: '2px solid rgba(226, 232, 240, 0.5)',
-                  borderRadius: '12px',
-                  backgroundColor: 'transparent'
-                }}
-              />
-              <button
-                onClick={addCustomSymptom}
-                style={{
-                  padding: '12px 16px',
-                  backgroundColor: COLORS.follicular,
-                  border: 'none',
-                  borderRadius: '12px',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  fontSize: '14px',
-                  color: COLORS.text
-                }}
-              >
-                {t('onboarding.customSymptoms.add')}
-              </button>
+              <p style={{
+                color: COLORS.text,
+                fontSize: '14px',
+                lineHeight: '1.6',
+                margin: 0
+              }}>
+                💡 {t('onboarding.customSymptoms.info')}
+              </p>
             </div>
 
-            {userData.customSymptoms.length > 0 && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {userData.customSymptoms.map((symptom, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      padding: '8px 12px',
-                      backgroundColor: `${COLORS.follicular}60`,
-                      border: `1.5px solid ${COLORS.follicular}`,
-                      borderRadius: '8px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      fontSize: '14px',
-                      color: COLORS.text
-                    }}
-                  >
-                    {symptom}
-                    <button
-                      onClick={() => removeCustomSymptom(index)}
+            {/* Vordefinierte Symptome Toggle */}
+            <button
+              onClick={() => setShowPredefinedSymptoms(!showPredefinedSymptoms)}
+              style={{
+                width: '100%',
+                padding: '14px',
+                marginBottom: '16px',
+                backgroundColor: 'transparent',
+                border: '1.5px solid rgba(226, 232, 240, 0.5)',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                fontSize: '15px',
+                fontWeight: '600',
+                color: COLORS.text,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = COLORS.follicular;
+                e.currentTarget.style.backgroundColor = `${COLORS.follicular}10`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(226, 232, 240, 0.5)';
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <span>📋 {t('onboarding.customSymptoms.viewPredefined')}</span>
+              {showPredefinedSymptoms ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </button>
+
+            {/* Liste der vordefinierten Symptome */}
+            {showPredefinedSymptoms && (
+              <div style={{
+                padding: '16px',
+                backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                borderRadius: '12px',
+                marginBottom: '24px',
+                border: '1px solid rgba(226, 232, 240, 0.5)'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '8px'
+                }}>
+                  {predefinedSymptoms.map((symptom, index) => (
+                    <span
+                      key={index}
                       style={{
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        fontSize: '16px',
-                        padding: '0',
-                        color: COLORS.text
+                        padding: '8px 12px',
+                        backgroundColor: 'rgba(184, 230, 213, 0.3)',
+                        borderRadius: '16px',
+                        fontSize: '13px',
+                        color: COLORS.text,
+                        fontWeight: '500'
                       }}
                     >
-                      ×
-                    </button>
-                  </div>
-                ))}
+                      {symptom}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
+
+            {/* Eigene Symptome hinzufügen */}
+            <div style={{ marginBottom: '20px' }}>
+              <h4 style={{
+                color: COLORS.text,
+                fontSize: '16px',
+                fontWeight: '600',
+                marginBottom: '12px'
+              }}>
+                ✏️ {t('onboarding.customSymptoms.addOwn')}
+              </h4>
+              
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                <input
+                  type="text"
+                  value={newSymptom}
+                  onChange={(e) => setNewSymptom(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && addCustomSymptom()}
+                  placeholder={t('onboarding.customSymptoms.placeholder')}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    fontSize: '16px',
+                    border: '2px solid rgba(226, 232, 240, 0.5)',
+                    borderRadius: '12px',
+                    backgroundColor: 'transparent',
+                    color: COLORS.text
+                  }}
+                />
+                <button
+                  onClick={addCustomSymptom}
+                  style={{
+                    padding: '12px 20px',
+                    fontSize: '16px',
+                    background: COLORS.follicular,
+                    border: 'none',
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    color: COLORS.text,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: `0 0 20px ${COLORS.follicular}40`
+                  }}
+                >
+                  <Plus size={18} />
+                </button>
+              </div>
+
+              {/* Custom Symptom Pills */}
+              {userData.customSymptoms.length > 0 && (
+                <div style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '8px'
+                }}>
+                  {userData.customSymptoms.map((symptom, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '8px 12px',
+                        backgroundColor: COLORS.follicular,
+                        borderRadius: '16px',
+                        fontSize: '14px',
+                        color: COLORS.text,
+                        fontWeight: '500'
+                      }}
+                    >
+                      {symptom}
+                      <button
+                        onClick={() => removeCustomSymptom(index)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: '2px',
+                          display: 'flex',
+                          color: COLORS.text
+                        }}
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
+        {/* Period Info */}
         {step === 4 && (
           <div style={{
             background: 'rgba(255, 255, 255, 0.9)',
@@ -453,123 +559,104 @@ const Onboarding = ({ onComplete }) => {
               {t('onboarding.lastPeriod.title')}
             </h3>
 
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{
-                display: 'block',
-                color: COLORS.text,
-                fontSize: '16px',
-                fontWeight: '600',
-                marginBottom: '8px'
-              }}>
-                {t('onboarding.lastPeriod.startDate')}
-              </label>
-              <input
-                type="date"
-                value={userData.periodStartDate}
-                onChange={(e) => setUserData({ ...userData, periodStartDate: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '12px',
+            <div style={{ display: 'grid', gap: '20px' }}>
+              <div>
+                <label style={{
+                  display: 'block',
+                  color: COLORS.text,
                   fontSize: '16px',
-                  border: '2px solid rgba(226, 232, 240, 0.5)',
-                  borderRadius: '12px',
-                  backgroundColor: 'transparent'
-                }}
-              />
-            </div>
+                  fontWeight: '600',
+                  marginBottom: '8px'
+                }}>
+                  {t('onboarding.lastPeriod.startDate')} *
+                </label>
+                <input
+                  type="date"
+                  value={userData.periodStartDate}
+                  onChange={(e) => setUserData({ ...userData, periodStartDate: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    fontSize: '16px',
+                    border: '2px solid rgba(226, 232, 240, 0.5)',
+                    borderRadius: '12px',
+                    backgroundColor: 'transparent'
+                  }}
+                />
+              </div>
 
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{
-                display: 'block',
-                color: COLORS.text,
-                fontSize: '16px',
-                fontWeight: '600',
-                marginBottom: '8px'
-              }}>
-                {t('onboarding.lastPeriod.duration')}
-              </label>
-              <input
-                type="number"
-                min="1"
-                max="10"
-                value={userData.periodDuration}
-                onChange={(e) => setUserData({ ...userData, periodDuration: e.target.value })}
-                style={{
-                  width: '100%',
-                  padding: '12px',
+              <div>
+                <label style={{
+                  display: 'block',
+                  color: COLORS.text,
                   fontSize: '16px',
-                  border: '2px solid rgba(226, 232, 240, 0.5)',
-                  borderRadius: '12px',
-                  backgroundColor: 'transparent'
-                }}
-              />
+                  fontWeight: '600',
+                  marginBottom: '8px'
+                }}>
+                  {t('onboarding.lastPeriod.duration')}
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={userData.periodDuration}
+                  onChange={(e) => setUserData({ ...userData, periodDuration: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    fontSize: '16px',
+                    border: '2px solid rgba(226, 232, 240, 0.5)',
+                    borderRadius: '12px',
+                    backgroundColor: 'transparent'
+                  }}
+                />
+              </div>
             </div>
           </div>
         )}
 
-        <div style={{
-          display: 'flex',
-          gap: '12px',
-          marginTop: '24px'
-        }}>
-          {step > 0 && (
+        {/* Navigation Buttons */}
+        {step > 0 && (
+          <div style={{ marginTop: '20px', display: 'flex', gap: '12px' }}>
+            {step > 1 && (
+              <button
+                onClick={() => setStep(step - 1)}
+                style={{
+                  flex: 1,
+                  padding: '16px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  background: 'rgba(255, 255, 255, 0.5)',
+                  border: '2px solid rgba(226, 232, 240, 0.5)',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  color: COLORS.text
+                }}
+              >
+                {t('onboarding.buttons.skip')}
+              </button>
+            )}
             <button
-              onClick={() => setStep(step - 1)}
+              onClick={handleNext}
+              disabled={!canProceed()}
               style={{
                 flex: 1,
                 padding: '16px',
                 fontSize: '16px',
                 fontWeight: '600',
-                backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                border: '2px solid rgba(226, 232, 240, 0.5)',
+                background: canProceed() ? COLORS.follicular : 'rgba(226, 232, 240, 0.5)',
+                border: 'none',
                 borderRadius: '12px',
-                cursor: 'pointer',
-                color: COLORS.text
+                cursor: canProceed() ? 'pointer' : 'not-allowed',
+                color: COLORS.text,
+                boxShadow: canProceed() ? `0 0 30px ${COLORS.follicular}60` : 'none',
+                opacity: canProceed() ? 1 : 0.5
               }}
             >
-              ← Zurück
+              {step === 4 ? t('onboarding.buttons.start') : t('onboarding.buttons.next')}
             </button>
-          )}
-          
-          {step === 3 && (
-            <button
-              onClick={() => setStep(4)}
-              style={{
-                flex: 1,
-                padding: '16px',
-                fontSize: '16px',
-                fontWeight: '600',
-                backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                border: '2px solid rgba(226, 232, 240, 0.5)',
-                borderRadius: '12px',
-                cursor: 'pointer',
-                color: COLORS.text
-              }}
-            >
-              {t('onboarding.buttons.skip')}
-            </button>
-          )}
-          
-          <button
-            onClick={handleNext}
-            disabled={!canProceed()}
-            style={{
-              flex: 1,
-              padding: '16px',
-              fontSize: '16px',
-              fontWeight: '600',
-              backgroundColor: canProceed() ? COLORS.follicular : 'rgba(200, 200, 200, 0.5)',
-              border: 'none',
-              borderRadius: '12px',
-              cursor: canProceed() ? 'pointer' : 'not-allowed',
-              color: COLORS.text,
-              boxShadow: canProceed() ? `0 0 25px ${COLORS.follicular}60` : 'none',
-              opacity: canProceed() ? 1 : 0.5
-            }}
-          >
-            {step === 4 ? t('onboarding.buttons.start') : t('onboarding.buttons.next')}
-          </button>
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

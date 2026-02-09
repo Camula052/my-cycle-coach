@@ -89,7 +89,12 @@
       "sweaty": "Sweaty",
       "bloated": "Bloated",
       "listless": "Listless",
-      "cravings": "Cravings"
+      "cravings": "Cravings",
+      "add": "Add symptom",
+      "other": "Other...",
+      "custom": "Custom symptom",
+      "enterCustom": "Enter custom symptom",
+      "noSymptoms": "No symptoms tracked yet"
     },
     "weight": {
       "title": "Weight (optional)",
@@ -126,7 +131,10 @@
       "title": "Would you like to add custom symptoms?",
       "subtitle": "You can also do this later in your profile",
       "add": "Add symptom",
-      "placeholder": "e.g. Migraine, Nausea..."
+      "placeholder": "e.g. Migraine, Nausea...",
+      "info": "Here are the most common symptoms. You can add your own anytime and manage everything in your profile.",
+      "viewPredefined": "View predefined symptoms",
+      "addOwn": "Add custom symptom"
     },
     "lastPeriod": {
       "title": "Your last period",
