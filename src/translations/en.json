@@ -109,7 +109,9 @@
     "buttons": {
       "cancel": "Cancel",
       "save": "Save"
-    }
+    },
+    "ovulation": "Ovulation",
+    "ovulationInfo": "Mark the day you ovulated. This improves the calculation of your fertile days."
   },
   "onboarding": {
     "welcome": "Welcome to MyCycleCoach",
@@ -182,7 +184,11 @@
       "friday": "Fri",
       "saturday": "Sat",
       "sunday": "Sun"
-    }
+    },
+    "editDay": "Edit day",
+    "markOvulation": "Mark ovulation",
+    "ovulationMarked": "Ovulation has been marked",
+    "removeOvulation": "Remove ovulation"
   },
   "nutrition": {
     "title": "Nutrition for Your Phase",

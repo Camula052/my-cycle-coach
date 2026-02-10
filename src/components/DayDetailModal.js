@@ -14,7 +14,10 @@ const DayDetailModal = ({
   hasActivePeriod,
   onSaveTracking,
   onMarkPeriodStart,
-  onMarkPeriodEnd 
+  onMarkPeriodEnd,
+  onMarkOvulation,
+  onRemoveOvulation,
+  isOvulationDay
 }) => {
   const { t } = useTranslation();
   const [mood, setMood] = useState(3);
@@ -25,6 +28,7 @@ const DayDetailModal = ({
   const [weight, setWeight] = useState('');
   const [temperature, setTemperature] = useState('');
   const [flowIntensity, setFlowIntensity] = useState(0);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   // Lade custom Symptome aus localStorage
   const [customSymptoms, setCustomSymptoms] = useState([]);
@@ -36,6 +40,13 @@ const DayDetailModal = ({
     }
   }, []);
 
+  // Reset edit mode when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setIsEditMode(false);
+    }
+  }, [isOpen]);
+
   if (!isOpen || !selectedDate) return null;
   
   const isPastDay = () => {
@@ -45,7 +56,8 @@ const DayDetailModal = ({
   };
   
   const isPast = isPastDay();
-  const canEdit = !isPast && !isFutureDay;
+  const isToday = !isPast && !isFutureDay;
+  const canEdit = isToday || (isPast && isEditMode);
 
   const dateString = selectedDate.toLocaleDateString('de-DE', {
     weekday: 'long',
@@ -130,6 +142,7 @@ const DayDetailModal = ({
       temperature: temperature ? parseFloat(temperature) : null,
       flowIntensity: isPeriodDay ? flowIntensity : null
     });
+    setIsEditMode(false);
     onClose();
   };
 
@@ -181,12 +194,104 @@ const DayDetailModal = ({
         </h2>
         <p style={{ color: COLORS.textLight, marginBottom: '24px', fontSize: '14px' }}>
           {phaseName} • {t('calendar.cycleDay', { day: cycleDay })}
-          {isPast && ` • ${t('calendar.pastDay')}`}
+          {isPast && !isEditMode && ` • ${t('calendar.pastDay')}`}
+          {isPast && isEditMode && ' • Bearbeiten-Modus'}
           {isFutureDay && ' • Zukunft (nicht bearbeitbar)'}
         </p>
 
-        {/* Periode Buttons */}
-        {!isPast && !isFutureDay && !hasActivePeriod && (
+        {/* Bearbeiten Button für vergangene Tage */}
+        {isPast && !isEditMode && (
+          <button
+            onClick={() => setIsEditMode(true)}
+            style={{
+              width: '100%',
+              padding: '12px',
+              marginBottom: '24px',
+              backgroundColor: COLORS.follicular,
+              border: 'none',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              fontWeight: '600',
+              color: COLORS.text,
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              boxShadow: `0 0 15px ${COLORS.follicular}40`
+            }}
+          >
+            <span>✏️</span>
+            {t('calendar.editDay')}
+          </button>
+        )}
+
+        {/* Eisprung markieren/entfernen - nur für nicht-zukünftige Tage */}
+        {!isFutureDay && (
+          <div style={{ marginBottom: '24px' }}>
+            {isOvulationDay ? (
+              <button
+                onClick={() => {
+                  if (onRemoveOvulation) onRemoveOvulation(selectedDate);
+                  onClose();
+                }}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  backgroundColor: 'rgba(245, 194, 199, 0.3)',
+                  border: `2px solid ${COLORS.ovulation}`,
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  color: COLORS.text,
+                  fontSize: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}
+              >
+                ✓ {t('calendar.removeOvulation')}
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  if (onMarkOvulation) onMarkOvulation(selectedDate);
+                  onClose();
+                }}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  backgroundColor: 'transparent',
+                  border: `2px solid ${COLORS.ovulation}`,
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  color: COLORS.text,
+                  fontSize: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}
+              >
+                🌸 {t('calendar.markOvulation')}
+              </button>
+            )}
+            <p style={{
+              fontSize: '12px',
+              color: COLORS.textLight,
+              textAlign: 'center',
+              marginTop: '8px',
+              fontStyle: 'italic'
+            }}>
+              💡 {t('tracking.ovulationInfo')}
+            </p>
+          </div>
+        )}
+
+        {/* Periode Buttons - nur für heute */}
+        {isToday && !hasActivePeriod && (
           <div style={{ display: 'flex', gap: '12px', marginBottom: '32px' }}>
             <button
               onClick={() => {
@@ -210,7 +315,7 @@ const DayDetailModal = ({
           </div>
         )}
         
-        {!isPast && !isFutureDay && hasActivePeriod && (
+        {isToday && hasActivePeriod && (
           <div style={{ marginBottom: '32px' }}>
             <button
               onClick={() => {
@@ -234,8 +339,8 @@ const DayDetailModal = ({
           </div>
         )}
 
-        {/* Info für vergangene/zukünftige Tage */}
-        {(isPast || isFutureDay) && (
+        {/* Info für zukünftige Tage */}
+        {isFutureDay && (
           <div style={{
             padding: '16px',
             backgroundColor: 'rgba(184, 230, 213, 0.2)',
@@ -244,12 +349,12 @@ const DayDetailModal = ({
             textAlign: 'center'
           }}>
             <p style={{ color: COLORS.textLight, fontSize: '14px', margin: 0 }}>
-              📖 {isPast ? t('calendar.pastDayInfo') : 'Zukünftige Tage können nicht bearbeitet werden'}
+              📖 Zukünftige Tage können nicht bearbeitet werden
             </p>
           </div>
         )}
 
-        {/* Tracking Section */}
+        {/* Tracking Section - für heute ODER vergangene Tage im Edit-Modus */}
         {canEdit && (
           <>
             <h3 style={{ color: COLORS.text, marginBottom: '16px', fontSize: '18px', fontWeight: '600' }}>

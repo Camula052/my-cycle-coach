@@ -11,12 +11,18 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
   const [selectedDay, setSelectedDay] = useState(null);
   const [isDayModalOpen, setIsDayModalOpen] = useState(false);
   const [flowData, setFlowData] = useState({});
+  const [ovulationDates, setOvulationDates] = useState({});
   
-  // Lade Flow-Daten aus localStorage
+  // Lade Flow-Daten und Eisprung-Daten aus localStorage
   useEffect(() => {
     const savedFlowData = localStorage.getItem('flowData');
     if (savedFlowData) {
       setFlowData(JSON.parse(savedFlowData));
+    }
+    
+    const savedOvulation = localStorage.getItem('ovulationDates');
+    if (savedOvulation) {
+      setOvulationDates(JSON.parse(savedOvulation));
     }
   }, []);
   
@@ -33,8 +39,41 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
   
   const periodDuration = parseInt(userData?.periodDuration) || 5;
   
+  // Findet das neueste markierte Eisprung-Datum
+  const getLatestOvulationDate = () => {
+    const ovDates = Object.keys(ovulationDates).filter(key => ovulationDates[key]);
+    if (ovDates.length === 0) return null;
+    
+    // Sortiere Daten und nimm das neueste
+    const dates = ovDates.map(dateKey => {
+      const [y, m, d] = dateKey.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }).sort((a, b) => b - a); // Neuestes zuerst
+    
+    return dates[0];
+  };
+  
   const getCycleDayForDate = (day) => {
     const targetDate = new Date(year, month, day);
+    
+    // Wenn ein Eisprung markiert ist, berechne relativ dazu
+    // Eisprung = Zyklustag 14
+    const latestOvulation = getLatestOvulationDate();
+    if (latestOvulation) {
+      const daysSinceOvulation = Math.floor((targetDate - latestOvulation) / (1000 * 60 * 60 * 24));
+      // Eisprung ist Tag 14, also:
+      const cycleDay = 14 + daysSinceOvulation;
+      
+      // Normalisiere auf 1-28
+      if (cycleDay <= 0) {
+        return 28 + (cycleDay % 28);
+      } else if (cycleDay > 28) {
+        return ((cycleDay - 1) % 28) + 1;
+      }
+      return cycleDay;
+    }
+    
+    // Fallback: Berechnung basierend auf Periodenstart
     const daysSinceStart = Math.floor((targetDate - periodStartDate) / (1000 * 60 * 60 * 24));
     
     if (daysSinceStart < 0) {
@@ -91,16 +130,50 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
   };
   
   const isOvulationDay = (day) => {
-    const cycleDay = getCycleDayForDate(day);
-    return cycleDay === 14;
+    const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return ovulationDates[dateKey] === true;
   };
   
   const isFertileDay = (day) => {
-    const cycleDay = getCycleDayForDate(day);
-    return cycleDay >= 10 && cycleDay <= 16;
+    // Checke ob ein markierter Eisprung in der Nähe ist (±3 Tage)
+    for (let offset = -3; offset <= 3; offset++) {
+      const checkDate = new Date(year, month, day + offset);
+      const dateKey = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, '0')}-${String(checkDate.getDate()).padStart(2, '0')}`;
+      if (ovulationDates[dateKey]) {
+        return true;
+      }
+    }
+    
+    // Fallback auf berechnete fruchtbare Tage wenn kein Eisprung markiert
+    const hasMarkedOvulation = Object.keys(ovulationDates).length > 0;
+    if (!hasMarkedOvulation) {
+      const cycleDay = getCycleDayForDate(day);
+      return cycleDay >= 10 && cycleDay <= 16;
+    }
+    
+    return false;
   };
   
   const getFertilityIntensity = (day) => {
+    // Checke Distanz zum markierten Eisprung
+    let closestDistance = Infinity;
+    
+    for (const dateKey in ovulationDates) {
+      if (ovulationDates[dateKey]) {
+        const [y, m, d] = dateKey.split('-').map(Number);
+        const ovDate = new Date(y, m - 1, d);
+        const currentDate = new Date(year, month, day);
+        const daysDiff = Math.abs((currentDate - ovDate) / (1000 * 60 * 60 * 24));
+        closestDistance = Math.min(closestDistance, daysDiff);
+      }
+    }
+    
+    if (closestDistance === 0) return 1;
+    if (closestDistance === 1) return 0.8;
+    if (closestDistance === 2) return 0.6;
+    if (closestDistance === 3) return 0.4;
+    
+    // Fallback auf berechnete Tage
     const cycleDay = getCycleDayForDate(day);
     if (cycleDay === 14) return 1;
     if (cycleDay === 13 || cycleDay === 15) return 0.8;
@@ -183,6 +256,23 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
     localStorage.setItem('userData', JSON.stringify(newUserData));
     if (onUpdateUserData) onUpdateUserData(newUserData);
     alert(t('calendar.periodEnd') + ` markiert! Dauer: ${duration} Tage`);
+  };
+  
+  const handleMarkOvulation = (date) => {
+    const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const newOvulationDates = { ...ovulationDates, [dateKey]: true };
+    setOvulationDates(newOvulationDates);
+    localStorage.setItem('ovulationDates', JSON.stringify(newOvulationDates));
+    alert('🌸 ' + t('calendar.ovulationMarked'));
+  };
+  
+  const handleRemoveOvulation = (date) => {
+    const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const newOvulationDates = { ...ovulationDates };
+    delete newOvulationDates[dateKey];
+    setOvulationDates(newOvulationDates);
+    localStorage.setItem('ovulationDates', JSON.stringify(newOvulationDates));
+    alert(t('calendar.removeOvulation') + ' ✓');
   };
   
   const handleCancelPeriod = () => {
@@ -506,6 +596,9 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
         onSaveTracking={handleSaveTracking}
         onMarkPeriodStart={handleMarkPeriodStart}
         onMarkPeriodEnd={handleMarkPeriodEnd}
+        onMarkOvulation={handleMarkOvulation}
+        onRemoveOvulation={handleRemoveOvulation}
+        isOvulationDay={selectedDay ? isOvulationDay(selectedDay) : false}
       />
     </div>
   );

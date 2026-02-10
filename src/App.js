@@ -38,10 +38,38 @@ function App() {
     setShowOnboarding(false);
   };
   
-  // Berechne den aktuellen Zyklustag basierend auf periodStartDate
+  // Berechne den aktuellen Zyklustag basierend auf periodStartDate oder Eisprung
   const getCurrentCycleDay = () => {
     if (!userData?.periodStartDate) return 1;
     
+    // Lade Eisprung-Daten
+    const ovulationDatesStr = localStorage.getItem('ovulationDates');
+    const ovulationDates = ovulationDatesStr ? JSON.parse(ovulationDatesStr) : {};
+    
+    // Finde neuesten markierten Eisprung
+    const ovDates = Object.keys(ovulationDates).filter(key => ovulationDates[key]);
+    if (ovDates.length > 0) {
+      const dates = ovDates.map(dateKey => {
+        const [y, m, d] = dateKey.split('-').map(Number);
+        return new Date(y, m - 1, d);
+      }).sort((a, b) => b - a);
+      
+      const latestOvulation = dates[0];
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const daysSinceOvulation = Math.floor((today - latestOvulation) / (1000 * 60 * 60 * 24));
+      const cycleDay = 14 + daysSinceOvulation;
+      
+      if (cycleDay <= 0) {
+        return 28 + (cycleDay % 28);
+      } else if (cycleDay > 28) {
+        return ((cycleDay - 1) % 28) + 1;
+      }
+      return cycleDay;
+    }
+    
+    // Fallback auf Periodenstart
     const periodStartDate = new Date(userData.periodStartDate);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -49,7 +77,7 @@ function App() {
     const daysSinceStart = Math.floor((today - periodStartDate) / (1000 * 60 * 60 * 24));
     
     if (daysSinceStart < 0) {
-      return 1; // Falls noch kein Startdatum in der Vergangenheit
+      return 1;
     }
     
     const cycleDay = (daysSinceStart % 28) + 1;

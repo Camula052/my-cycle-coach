@@ -109,7 +109,9 @@
     "buttons": {
       "cancel": "Abbrechen",
       "save": "Speichern"
-    }
+    },
+    "ovulation": "Eisprung",
+    "ovulationInfo": "Markiere den Tag, an dem du deinen Eisprung hattest. Das verbessert die Berechnung deiner fruchtbaren Tage."
   },
   "onboarding": {
     "welcome": "Willkommen bei MyCycleCoach",
@@ -182,7 +184,11 @@
       "friday": "Fr",
       "saturday": "Sa",
       "sunday": "So"
-    }
+    },
+    "editDay": "Tag bearbeiten",
+    "markOvulation": "Eisprung markieren",
+    "ovulationMarked": "Eisprung wurde markiert",
+    "removeOvulation": "Eisprung entfernen"
   },
   "nutrition": {
     "title": "Ernährung für deine Phase",
