@@ -161,7 +161,15 @@
     "editProfile": "Profil bearbeiten",
     "noData": "Keine Daten vorhanden",
     "debugReset": "🔧 Debug: Alle Daten zurücksetzen",
-    "debugConfirm": "WARNUNG: Alle Daten werden gelöscht und die App wird neu geladen. Fortfahren?"
+    "debugConfirm": "WARNUNG: Alle Daten werden gelöscht und die App wird neu geladen. Fortfahren?",
+    "cycleData": "Zyklusdaten",
+    "dangerZone": "Gefahrenzone",
+    "resetInfo": "Dies löscht alle deine Daten permanent und startet die App neu.",
+    "resetButton": "Alle Daten zurücksetzen",
+    "birthdate": "Geburtsdatum",
+    "bmiSettings": "BMI Einstellungen",
+    "showBMI": "BMI im Aktivitäts-Tab anzeigen",
+    "showBMIDescription": "BMI-Berechnung und Info-Grafik"
   },
   "calendar": {
     "today": "Heute",
@@ -418,6 +426,31 @@
           ]
         }
       ]
+    }
+  },
+  "activity": {
+    "yourBMI": "Dein Body Mass Index",
+    "comingSoon": "Aktivitäts-Features kommen bald!",
+    "bmiHidden": "BMI ist ausgeblendet. Du kannst ihn im Profil aktivieren.",
+    "bmi": {
+      "underweight": "Untergewicht",
+      "normal": "Normalgewicht",
+      "overweight": "Übergewicht",
+      "obese": "Adipositas"
+    },
+    "bmiWarning": {
+      "title": "BMI ist nur ein Richtwert",
+      "text": "Der BMI berücksichtigt nicht die Verteilung von Muskel- und Fettmasse. Sportliche Menschen mit viel Muskelmasse können trotz hohem BMI gesund sein. Bei Unsicherheiten konsultiere einen Arzt."
+    },
+    "bmiInfo": {
+      "title": "Gut zu wissen",
+      "point1": "Der BMI ist ein Screening-Tool, keine Diagnose",
+      "point2": "Faktoren wie Alter, Geschlecht und Muskelmasse werden nicht berücksichtigt",
+      "point3": "Für eine genaue Einschätzung konsultiere medizinisches Fachpersonal"
+    },
+    "noData": {
+      "title": "Keine Daten verfügbar",
+      "text": "Gib deine Größe und Gewicht im Profil ein, um deinen BMI zu berechnen."
     }
   }
 }

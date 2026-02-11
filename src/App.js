@@ -109,10 +109,10 @@ function App() {
                 onUpdateUserData={handleUpdateUserData}
               />,
     nutrition: <NutritionScreen userData={userData} />,
-    activity: <ActivityScreen />,
+    activity: <ActivityScreen userData={userData} />,
     profile: <ProfileScreen 
                userData={userData}
-               onEditProfile={() => setShowOnboarding(true)}
+               onEditProfile={handleUpdateUserData}
              />
   };
 

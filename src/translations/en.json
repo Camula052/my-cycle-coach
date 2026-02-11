@@ -161,7 +161,15 @@
     "editProfile": "Edit Profile",
     "noData": "No data available",
     "debugReset": "🔧 Debug: Reset all data",
-    "debugConfirm": "WARNING: All data will be deleted and the app will reload. Continue?"
+    "debugConfirm": "WARNING: All data will be deleted and the app will reload. Continue?",
+    "cycleData": "Cycle Data",
+    "dangerZone": "Danger Zone",
+    "resetInfo": "This will permanently delete all your data and restart the app.",
+    "resetButton": "Reset all data",
+    "birthdate": "Date of Birth",
+    "bmiSettings": "BMI Settings",
+    "showBMI": "Show BMI in Activity tab",
+    "showBMIDescription": "BMI calculation and info graphic"
   },
   "calendar": {
     "today": "Today",
@@ -418,6 +426,31 @@
           ]
         }
       ]
+    }
+  },
+  "activity": {
+    "yourBMI": "Your Body Mass Index",
+    "comingSoon": "Activity features coming soon!",
+    "bmiHidden": "BMI is hidden. You can enable it in your profile.",
+    "bmi": {
+      "underweight": "Underweight",
+      "normal": "Normal weight",
+      "overweight": "Overweight",
+      "obese": "Obese"
+    },
+    "bmiWarning": {
+      "title": "BMI is only a guideline",
+      "text": "BMI doesn't account for muscle vs fat distribution. Athletic people with high muscle mass can be healthy despite a high BMI. Consult a doctor if unsure."
+    },
+    "bmiInfo": {
+      "title": "Good to know",
+      "point1": "BMI is a screening tool, not a diagnosis",
+      "point2": "Factors like age, gender, and muscle mass are not considered",
+      "point3": "Consult medical professionals for an accurate assessment"
+    },
+    "noData": {
+      "title": "No data available",
+      "text": "Enter your height and weight in your profile to calculate your BMI."
     }
   }
 }

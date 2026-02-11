@@ -18,13 +18,14 @@ const Onboarding = ({ onComplete }) => {
   const [step, setStep] = useState(0);
   const [userData, setUserData] = useState({
     name: '',
-    age: '',
+    birthdate: '',
     height: '',
     weight: '',
     motivations: [],
     customSymptoms: [],
     periodStartDate: '',
-    periodDuration: '5'
+    periodDuration: '5',
+    hideBMI: false
   });
   const [showContraceptionWarning, setShowContraceptionWarning] = useState(false);
   const [newSymptom, setNewSymptom] = useState('');
@@ -209,12 +210,12 @@ const Onboarding = ({ onComplete }) => {
                   fontWeight: '600',
                   marginBottom: '8px'
                 }}>
-                  {t('onboarding.age')}
+                  {t('profile.birthdate')}
                 </label>
                 <input
-                  type="number"
-                  value={userData.age}
-                  onChange={(e) => setUserData({ ...userData, age: e.target.value })}
+                  type="date"
+                  value={userData.birthdate}
+                  onChange={(e) => setUserData({ ...userData, birthdate: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '12px',
