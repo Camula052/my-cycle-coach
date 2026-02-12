@@ -451,6 +451,59 @@
     "noData": {
       "title": "No data available",
       "text": "Enter your height and weight in your profile to calculate your BMI."
+    },
+    "movementForPhase": "Movement for your current phase",
+    "recommendedActivities": "Recommended Activities",
+    "movement": {
+      "menstruation": {
+        "description": "During your period, your energy is low. Focus on gentle, restorative movement that helps your body relax.",
+        "activities": [
+          "Gentle Yoga",
+          "Walking",
+          "Stretching",
+          "Meditation",
+          "Light stretches"
+        ]
+      },
+      "follicular": {
+        "description": "In the follicular phase, your energy rises! Perfect for new challenges and more intense training. Your body can handle more now.",
+        "activities": [
+          "Strength Training",
+          "HIIT",
+          "Running",
+          "Dancing",
+          "Try new sports"
+        ]
+      },
+      "ovulation": {
+        "description": "During ovulation, you're at peak strength! Use this phase for your most intense training and new personal bests.",
+        "activities": [
+          "High-intensity training",
+          "Competitions",
+          "Heavy weights",
+          "Sprints",
+          "Group workouts"
+        ]
+      },
+      "luteal": {
+        "description": "In the luteal phase, your energy slowly decreases. Moderate movement and stability help with PMS symptoms.",
+        "activities": [
+          "Moderate Cardio",
+          "Pilates",
+          "Swimming",
+          "Cycling",
+          "Yoga"
+        ]
+      }
+    },
+    "premium": {
+      "title": "Your Personalized Training Plans",
+      "description": "Let AI guide you through cycle-optimized workouts perfectly tailored to your body.",
+      "feature1": "AI-powered exercise suggestions",
+      "feature2": "Weekly training plans",
+      "feature3": "Matched to your phase",
+      "cta": "Coming Soon",
+      "subtitle": "AI-powered training guidance ✨"
     }
   }
 }

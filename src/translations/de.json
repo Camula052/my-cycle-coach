@@ -451,6 +451,59 @@
     "noData": {
       "title": "Keine Daten verfügbar",
       "text": "Gib deine Größe und Gewicht im Profil ein, um deinen BMI zu berechnen."
+    },
+    "movementForPhase": "Bewegung für deine aktuelle Phase",
+    "recommendedActivities": "Empfohlene Aktivitäten",
+    "movement": {
+      "menstruation": {
+        "description": "Während deiner Periode ist dein Energielevel niedrig. Fokussiere dich auf sanfte, regenerative Bewegung die deinem Körper hilft zu entspannen.",
+        "activities": [
+          "Sanftes Yoga",
+          "Spaziergänge",
+          "Stretching",
+          "Meditation",
+          "Leichte Dehnübungen"
+        ]
+      },
+      "follicular": {
+        "description": "In der Follikelphase steigt deine Energie! Perfekt für neue Herausforderungen und intensiveres Training. Dein Körper kann jetzt mehr leisten.",
+        "activities": [
+          "Krafttraining",
+          "HIIT",
+          "Laufen",
+          "Tanzen",
+          "Neue Sportarten ausprobieren"
+        ]
+      },
+      "ovulation": {
+        "description": "Beim Eisprung bist du auf dem Höhepunkt deiner Kraft! Nutze diese Phase für dein intensivstes Training und neue Personal Bests.",
+        "activities": [
+          "Hochintensives Training",
+          "Wettkämpfe",
+          "Schwere Gewichte",
+          "Sprints",
+          "Gruppen-Workouts"
+        ]
+      },
+      "luteal": {
+        "description": "In der Lutealphase nimmt deine Energie langsam ab. Moderate Bewegung und Stabilität helfen gegen PMS-Symptome.",
+        "activities": [
+          "Moderates Cardio",
+          "Pilates",
+          "Schwimmen",
+          "Radfahren",
+          "Yoga"
+        ]
+      }
+    },
+    "premium": {
+      "title": "Deine personalisierten Trainingspläne",
+      "description": "Lass dich von KI durch zyklus-optimierte Workouts führen, die perfekt zu deinem Körper passen.",
+      "feature1": "KI-gestützte Übungsvorschläge",
+      "feature2": "Wöchentliche Trainingspläne",
+      "feature3": "Auf deine Phase abgestimmt",
+      "cta": "Bald verfügbar",
+      "subtitle": "Coming Soon ✨"
     }
   }
 }
