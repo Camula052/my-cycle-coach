@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/my-cycle-coach/static/css/main.4f0d2d3a.css",
-    "main.js": "/my-cycle-coach/static/js/main.a309795b.js",
+    "main.js": "/my-cycle-coach/static/js/main.9059d884.js",
     "index.html": "/my-cycle-coach/index.html",
     "main.4f0d2d3a.css.map": "/my-cycle-coach/static/css/main.4f0d2d3a.css.map",
-    "main.a309795b.js.map": "/my-cycle-coach/static/js/main.a309795b.js.map"
+    "main.9059d884.js.map": "/my-cycle-coach/static/js/main.9059d884.js.map"
   },
   "entrypoints": [
     "static/css/main.4f0d2d3a.css",
-    "static/js/main.a309795b.js"
+    "static/js/main.9059d884.js"
   ]
 }
