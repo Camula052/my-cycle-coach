@@ -70,7 +70,9 @@
     "activityPrompt": "Or which activities you should ideally pursue?",
     "goToNutrition": "Go to nutrition tips",
     "goToActivity": "Go to activity suggestions",
-    "whatsHappening": "What's happening?"
+    "whatsHappening": "What's happening?",
+    "howAreYou": "How are you today?",
+    "trackYourDay": "Track your symptoms and well-being"
   },
   "tracking": {
     "title": "Tell me about your day",

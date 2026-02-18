@@ -65,6 +65,7 @@ const HomeScreen = ({ currentPhase, cycleDay, onOpenTracking, onNavigate }) => {
         position: 'relative',
         zIndex: 2
       }}>
+        {/* Emoji Circle - klickbar */}
         <div
           onClick={() => setIsPhaseDetailsOpen(true)}
           style={{
@@ -80,7 +81,8 @@ const HomeScreen = ({ currentPhase, cycleDay, onOpenTracking, onNavigate }) => {
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
-            animation: 'gentleFloat 6s ease-in-out infinite'
+            animation: 'gentleFloat 6s ease-in-out infinite',
+            position: 'relative'
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = 'scale(1.05)';
@@ -92,43 +94,48 @@ const HomeScreen = ({ currentPhase, cycleDay, onOpenTracking, onNavigate }) => {
           }}
         >
           {currentPhase.emoji}
+          
+          {/* Info Button - oben rechts am Emoji Circle */}
+          <button
+            onClick={() => {
+              console.log('Info button clicked!');
+              console.log('isPhaseDetailsOpen:', isPhaseDetailsOpen);
+              console.log('currentPhase:', currentPhase);
+              setIsPhaseDetailsOpen(true);
+            }}
+            style={{
+              position: 'absolute',
+              top: '10px',
+              right: '10px',
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(10px)',
+              border: 'none',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+              transition: 'all 0.2s ease',
+              zIndex: 10
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.1)';
+              e.currentTarget.style.background = 'white';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.95)';
+            }}
+          >
+            <Info size={20} color={COLORS.text} />
+          </button>
         </div>
       </div>
 
-      {/* Info Button - über Emoji */}
-      <button
-        onClick={() => setIsPhaseDetailsOpen(true)}
-        style={{
-          position: 'absolute',
-          top: '20px',
-          right: '24px',
-          background: 'rgba(255, 255, 255, 0.3)',
-          backdropFilter: 'blur(10px)',
-          border: 'none',
-          borderRadius: '50%',
-          width: '44px',
-          height: '44px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-          transition: 'all 0.3s ease',
-          zIndex: 10
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.1)';
-          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.5)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
-        }}
-      >
-        <Info size={22} color={COLORS.text} />
-      </button>
-
-      {/* "Was geht ab" Box - schmaler, unten */}
+      {/* "Was geht ab" Box */}
       <div style={{
         maxWidth: '500px',
         width: '100%',
@@ -169,7 +176,7 @@ const HomeScreen = ({ currentPhase, cycleDay, onOpenTracking, onNavigate }) => {
       <PhaseDetailsModal
         isOpen={isPhaseDetailsOpen}
         onClose={() => setIsPhaseDetailsOpen(false)}
-        phase={currentPhase}
+        currentPhase={currentPhase}
       />
 
       <style>{`

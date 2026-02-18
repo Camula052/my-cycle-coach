@@ -58,7 +58,6 @@ const PhaseDetailsModal = ({ isOpen, onClose, currentPhase, onNavigateToNutritio
 
   const handleTouchMove = (e) => {
     setTouchEnd(e.targetTouches[0].clientX);
-    // Verhindere horizontales Scrollen des Modals während Swipe
     const touchDiff = touchStart - e.targetTouches[0].clientX;
     if (Math.abs(touchDiff) > 10) {
       e.preventDefault();
@@ -67,12 +66,9 @@ const PhaseDetailsModal = ({ isOpen, onClose, currentPhase, onNavigateToNutritio
 
   const handleTouchEnd = () => {
     if (touchStart - touchEnd > 75) {
-      // Swiped left
       handleNextSlide();
     }
-
     if (touchStart - touchEnd < -75) {
-      // Swiped right
       handlePrevSlide();
     }
   };
@@ -319,48 +315,46 @@ const PhaseDetailsModal = ({ isOpen, onClose, currentPhase, onNavigateToNutritio
           </div>
         </div>
 
-        {/* Navigation Prompts */}
+        {/* Navigation Section - KOMPAKT für Mobile */}
         <div style={{
           background: 'rgba(255, 255, 255, 0.4)',
           borderRadius: '16px',
-          padding: '24px',
+          padding: '20px',
           backdropFilter: 'blur(10px)',
           textAlign: 'center'
         }}>
+          {/* Kurzer Hinweistext */}
           <p style={{
             color: COLORS.text,
-            fontSize: '16px',
-            marginBottom: '8px',
+            fontSize: '15px',
+            marginBottom: '16px',
             lineHeight: '1.5'
           }}>
-            {t('home.nutritionPrompt')}
-          </p>
-          <p style={{
-            color: COLORS.text,
-            fontSize: '16px',
-            marginBottom: '20px',
-            lineHeight: '1.5'
-          }}>
-            {t('home.activityPrompt')}
+            💡 Mehr Tipps zu Ernährung und Bewegung
           </p>
 
-          <div style={{ display: 'flex', gap: '12px' }}>
+          {/* Kompakte Button Grid - Icon oben, Text unten */}
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: '1fr 1fr', 
+            gap: '10px' 
+          }}>
             <button
               onClick={() => {
                 onNavigateToNutrition();
                 onClose();
               }}
               style={{
-                flex: 1,
-                padding: '14px',
+                padding: '16px 12px',
                 backgroundColor: 'rgba(255, 255, 255, 0.8)',
                 border: 'none',
                 borderRadius: '12px',
                 cursor: 'pointer',
                 fontWeight: '600',
-                fontSize: '14px',
+                fontSize: '13px',
                 color: COLORS.text,
                 display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px',
@@ -375,8 +369,8 @@ const PhaseDetailsModal = ({ isOpen, onClose, currentPhase, onNavigateToNutritio
                 e.currentTarget.style.transform = 'scale(1)';
               }}
             >
-              <Utensils size={18} />
-              {t('home.goToNutrition')}
+              <Utensils size={24} />
+              <span>Ernährung</span>
             </button>
 
             <button
@@ -385,16 +379,16 @@ const PhaseDetailsModal = ({ isOpen, onClose, currentPhase, onNavigateToNutritio
                 onClose();
               }}
               style={{
-                flex: 1,
-                padding: '14px',
+                padding: '16px 12px',
                 backgroundColor: 'rgba(255, 255, 255, 0.8)',
                 border: 'none',
                 borderRadius: '12px',
                 cursor: 'pointer',
                 fontWeight: '600',
-                fontSize: '14px',
+                fontSize: '13px',
                 color: COLORS.text,
                 display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px',
@@ -409,8 +403,8 @@ const PhaseDetailsModal = ({ isOpen, onClose, currentPhase, onNavigateToNutritio
                 e.currentTarget.style.transform = 'scale(1)';
               }}
             >
-              <Activity size={18} />
-              {t('home.goToActivity')}
+              <Activity size={24} />
+              <span>Bewegung</span>
             </button>
           </div>
         </div>
