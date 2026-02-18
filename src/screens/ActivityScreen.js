@@ -479,8 +479,21 @@ const ActivityScreen = ({ userData }) => {
   if (!userData || userData.hideBMI) {
     // Zeige trotzdem Bewegungsempfehlungen, auch wenn BMI ausgeblendet ist
     return (
-      <div style={{ padding: '20px', paddingBottom: '100px', maxWidth: '600px', margin: '0 auto' }}>
-        <h2 style={{ color: COLORS.text, marginBottom: '24px', fontSize: '28px', fontWeight: '700' }}>
+      <div style={{ 
+        minHeight: '100vh',
+        background: currentPhase ? currentPhase.gradient : COLORS.background,
+        padding: '40px 20px 120px'
+      }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+        
+        <h2 style={{ 
+          color: COLORS.text, 
+          marginBottom: '32px', 
+          fontSize: '32px', 
+          fontWeight: '700',
+          textAlign: 'center',
+          textShadow: '0 2px 4px rgba(255,255,255,0.8)'
+        }}>
           {t('navigation.activity')}
         </h2>
         
@@ -488,12 +501,12 @@ const ActivityScreen = ({ userData }) => {
           <div style={{
             padding: '12px 16px',
             textAlign: 'center',
-            backgroundColor: 'rgba(226, 232, 240, 0.2)',
+            backgroundColor: 'rgba(255, 255, 255, 0.3)',
+            backdropFilter: 'blur(10px)',
             borderRadius: '12px',
-            border: '1px solid rgba(226, 232, 240, 0.3)',
             marginBottom: '24px'
           }}>
-            <p style={{ color: COLORS.textLight, fontSize: '13px', margin: 0 }}>
+            <p style={{ color: COLORS.text, fontSize: '13px', margin: 0, opacity: 0.8 }}>
               {t('activity.bmiHidden')}
             </p>
           </div>
@@ -505,6 +518,7 @@ const ActivityScreen = ({ userData }) => {
         {/* Premium CTA */}
         {renderPremiumCTA()}
       </div>
+      </div>
     );
   }
 
@@ -512,36 +526,44 @@ const ActivityScreen = ({ userData }) => {
 
   return (
     <div style={{ 
-      padding: '20px', 
-      paddingBottom: '100px',
-      maxWidth: '600px',
-      margin: '0 auto'
+      minHeight: '100vh',
+      background: currentPhase ? currentPhase.gradient : COLORS.background,
+      padding: '40px 20px 120px'
     }}>
-      <h2 style={{ 
-        color: COLORS.text, 
-        marginBottom: '24px', 
-        fontSize: '28px', 
-        fontWeight: '700' 
-      }}>
-        {t('navigation.activity')}
-      </h2>
+      <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+        
+        {/* Header */}
+        <h2 style={{ 
+          color: COLORS.text, 
+          marginBottom: '32px', 
+          fontSize: '32px', 
+          fontWeight: '700',
+          textAlign: 'center',
+          textShadow: '0 2px 4px rgba(255,255,255,0.8)'
+        }}>
+          {t('navigation.activity')}
+        </h2>
 
-      {/* BMI Card */}
-      {bmi && (
-        <>
+        {/* Bewegungsempfehlungen für aktuelle Phase - HAUPTFEATURE */}
+        {currentPhase && renderMovementRecommendations()}
+        
+        {/* BMI Card - Sekundärer Inhalt in weißer Box */}
+        {bmi && (
           <div style={{
-            backgroundColor: COLORS.cardBg,
-            borderRadius: '20px',
-            padding: '28px',
-            marginBottom: '20px',
-            border: '1.5px solid rgba(226, 232, 240, 0.5)',
+            backgroundColor: 'rgba(255, 255, 255, 0.3)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '24px',
+            padding: '32px 28px',
+            marginBottom: '24px'
+          }}>
+          <div style={{
             textAlign: 'center'
           }}>
             <h3 style={{
               color: COLORS.text,
-              fontSize: '18px',
-              fontWeight: '600',
-              marginBottom: '20px'
+              fontSize: '20px',
+              fontWeight: '700',
+              marginBottom: '24px'
             }}>
               📊 {t('activity.yourBMI')}
             </h3>
@@ -724,23 +746,21 @@ const ActivityScreen = ({ userData }) => {
               </div>
             </div>
           </div>
-        </>
-      )}
+          </div>
+        )}
 
-      {/* Bewegungsempfehlungen für aktuelle Phase */}
-      {currentPhase && renderMovementRecommendations()}
-      
       {/* Premium CTA */}
       {renderPremiumCTA()}
 
       {/* Keine Daten verfügbar */}
       {!bmi && (
         <div style={{
-          backgroundColor: COLORS.cardBg,
-          borderRadius: '16px',
-          padding: '40px',
+          backgroundColor: 'rgba(255, 255, 255, 0.3)',
+          backdropFilter: 'blur(10px)',
+          borderRadius: '24px',
+          padding: '40px 28px',
           textAlign: 'center',
-          border: '1.5px solid rgba(226, 232, 240, 0.5)'
+          marginBottom: '24px'
         }}>
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚖️</div>
           <h3 style={{
@@ -760,6 +780,7 @@ const ActivityScreen = ({ userData }) => {
           </p>
         </div>
       )}
+      </div>
     </div>
   );
 };

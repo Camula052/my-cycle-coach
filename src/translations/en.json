@@ -17,7 +17,8 @@
         "energy": "Your energy level is at its lowest. Allow yourself rest and be gentle with yourself.",
         "mood": "You may feel tired, emotional, or withdrawn. This is completely normal.",
         "tips": "Focus on adequate sleep, warming teas, and gentle movement like yoga or walks."
-      }
+      },
+      "description": "The uterine lining is being shed. Low estrogen and progesterone levels often lead to fatigue."
     },
     "follicular": {
       "name": "Follicular Phase",
@@ -29,7 +30,8 @@
         "energy": "Your energy increases daily. Perfect for new projects and challenges!",
         "mood": "You feel motivated, creative, and social. Use this positive phase!",
         "tips": "Ideal for more intensive training, starting new ventures, and social activities."
-      }
+      },
+      "description": "After bleeding, new follicles mature. Rising estrogen levels can increase energy and wellbeing."
     },
     "ovulation": {
       "name": "Ovulation Phase",
@@ -41,7 +43,8 @@
         "energy": "Peak performance! Your energy and radiance are at maximum.",
         "mood": "You feel confident, attractive, and communicative. Best time for important conversations!",
         "tips": "Use your energy for important projects, dates, or intensive workouts."
-      }
+      },
+      "description": "A mature follicle ruptures, releasing the egg into the fallopian tube. This is the time of maximum fertility."
     },
     "luteal": {
       "name": "Luteal Phase",
@@ -53,11 +56,12 @@
         "energy": "Your energy decreases. Time for more self-care and relaxation.",
         "mood": "PMS symptoms may occur. You may need more rest and withdrawal.",
         "tips": "Focus on relaxing activities, healthy nutrition, and adequate sleep. Be compassionate with yourself."
-      }
+      },
+      "description": "The ruptured follicle produces progesterone. The lining thickens further. Energy often decreases, PMS may occur."
     }
   },
   "home": {
-    "cycleDay": "Day {{day}} of your cycle",
+    "cycleDay": "Cycle Day {{day}}",
     "whatIsHappening": "What's happening now",
     "tellMeAboutDay": "Tell me about your day",
     "phaseDetails": "Phase Details",
@@ -65,7 +69,8 @@
     "nutritionPrompt": "Would you like to know which foods are good for you right now?",
     "activityPrompt": "Or which activities you should ideally pursue?",
     "goToNutrition": "Go to nutrition tips",
-    "goToActivity": "Go to activity suggestions"
+    "goToActivity": "Go to activity suggestions",
+    "whatsHappening": "What's happening?"
   },
   "tracking": {
     "title": "Tell me about your day",

@@ -17,7 +17,8 @@
         "energy": "Dein Energielevel ist am niedrigsten. Gönn dir Ruhe und sei sanft zu dir selbst.",
         "mood": "Du fühlst dich vielleicht müde, emotional oder zurückgezogen. Das ist völlig normal.",
         "tips": "Achte auf ausreichend Schlaf, wärmende Tees und leichte Bewegung wie Yoga oder Spaziergänge."
-      }
+      },
+      "description": "Die Gebärmutterschleimhaut wird abgestoßen. Niedriger Östrogen- und Progesteronspiegel führt oft zu Müdigkeit."
     },
     "follicular": {
       "name": "Follikelphase",
@@ -29,7 +30,8 @@
         "energy": "Deine Energie steigt täglich. Perfekt für neue Projekte und Herausforderungen!",
         "mood": "Du fühlst dich motiviert, kreativ und sozial. Nutze diese positive Phase!",
         "tips": "Ideal für intensiveres Training, neue Vorhaben starten und soziale Aktivitäten."
-      }
+      },
+      "description": "Nach der Blutung reifen neue Eibläschen heran. Der Östrogenspiegel steigt, was Energie und Wohlbefinden steigern kann."
     },
     "ovulation": {
       "name": "Ovulationsphase",
@@ -41,7 +43,8 @@
         "energy": "Peak-Performance! Deine Energie und Ausstrahlung sind auf dem Maximum.",
         "mood": "Du fühlst dich selbstbewusst, attraktiv und kommunikativ. Beste Zeit für wichtige Gespräche!",
         "tips": "Nutze deine Energie für wichtige Projekte, Dates oder intensive Workouts."
-      }
+      },
+      "description": "Ein reifer Follikel platzt, die Eizelle wandert in den Eileiter. Dies ist der Zeitpunkt maximaler Fruchtbarkeit."
     },
     "luteal": {
       "name": "Lutealphase",
@@ -53,11 +56,12 @@
         "energy": "Deine Energie lässt nach. Zeit für mehr Selbstfürsorge und Entspannung.",
         "mood": "PMS-Symptome können auftreten. Du brauchst vielleicht mehr Ruhe und Rückzug.",
         "tips": "Fokus auf entspannende Aktivitäten, gesunde Ernährung und ausreichend Schlaf. Sei nachsichtig mit dir."
-      }
+      },
+      "description": "Der geplatzte Follikel produziert Progesteron. Die Schleimhaut verdickt sich weiter. Energie sinkt oft, PMS kann auftreten."
     }
   },
   "home": {
-    "cycleDay": "Tag {{day}} deines Zyklus",
+    "cycleDay": "Zyklustag {{day}}",
     "whatIsHappening": "Was geht gerade ab",
     "tellMeAboutDay": "Erzähl mir von deinem Tag",
     "phaseDetails": "Phasen-Details",
@@ -65,7 +69,8 @@
     "nutritionPrompt": "Möchtest du erfahren, welche Lebensmittel dir aktuell gut tun?",
     "activityPrompt": "Oder welchen Aktivitäten du idealerweise nachgehen könntest?",
     "goToNutrition": "Zu Ernährungstipps",
-    "goToActivity": "Zu Aktivitätsvorschlägen"
+    "goToActivity": "Zu Aktivitätsvorschlägen",
+    "whatsHappening": "Was geht gerade ab?"
   },
   "tracking": {
     "title": "Erzähl mir von deinem Tag",
