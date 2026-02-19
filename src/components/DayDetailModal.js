@@ -290,8 +290,8 @@ const DayDetailModal = ({
           </div>
         )}
 
-        {/* Periode Buttons - nur für heute */}
-        {isToday && !hasActivePeriod && (
+        {/* Periode Buttons - für heute und vergangene Tage */}
+        {!isFutureDay && !hasActivePeriod && (
           <div style={{ display: 'flex', gap: '12px', marginBottom: '32px' }}>
             <button
               onClick={() => {
@@ -315,7 +315,7 @@ const DayDetailModal = ({
           </div>
         )}
         
-        {isToday && hasActivePeriod && (
+        {!isFutureDay && hasActivePeriod && (
           <div style={{ marginBottom: '32px' }}>
             <button
               onClick={() => {
