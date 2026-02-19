@@ -10,7 +10,7 @@ const NutritionScreen = ({ userData }) => {
   const [touchEnd, setTouchEnd] = useState(0);
   const [currentPhase, setCurrentPhase] = useState(null);
 
-  // Berechne aktuelle Phase
+  // Berechne aktuelle Phase mit Eisprung-Berücksichtigung
   useEffect(() => {
     if (!userData?.periodStartDate) {
       setCurrentPhase(getCurrentPhase(1));
@@ -21,8 +21,33 @@ const NutritionScreen = ({ userData }) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    const daysSinceStart = Math.floor((today - periodStartDate) / (1000 * 60 * 60 * 24));
-    const cycleDay = daysSinceStart < 0 ? 1 : (daysSinceStart % 28) + 1;
+    // Checke auf markierten Eisprung
+    const ovulationDatesStr = localStorage.getItem('ovulationDates');
+    const ovulationDates = ovulationDatesStr ? JSON.parse(ovulationDatesStr) : {};
+    const ovDates = Object.keys(ovulationDates).filter(key => ovulationDates[key]);
+    
+    let cycleDay;
+    
+    if (ovDates.length > 0) {
+      // Finde den neuesten Eisprung
+      const dates = ovDates.map(dateKey => {
+        const [y, m, d] = dateKey.split('-').map(Number);
+        return new Date(y, m - 1, d);
+      }).sort((a, b) => b - a);
+      
+      const latestOvulation = dates[0];
+      const daysSinceOvulation = Math.floor((today - latestOvulation) / (1000 * 60 * 60 * 24));
+      cycleDay = 14 + daysSinceOvulation;
+      
+      if (cycleDay <= 0) {
+        cycleDay = 28 + (cycleDay % 28);
+      } else if (cycleDay > 28) {
+        cycleDay = ((cycleDay - 1) % 28) + 1;
+      }
+    } else {
+      const daysSinceStart = Math.floor((today - periodStartDate) / (1000 * 60 * 60 * 24));
+      cycleDay = daysSinceStart < 0 ? 1 : (daysSinceStart % 28) + 1;
+    }
     
     setCurrentPhase(getCurrentPhase(cycleDay));
   }, [userData]);

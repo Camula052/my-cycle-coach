@@ -20,6 +20,69 @@ function App() {
   const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [userData, setUserData] = useState(null);
+  const [cycleDay, setCycleDay] = useState(14);
+  const [currentPhase, setCurrentPhase] = useState(getCurrentPhase(14));
+  
+  // Check if onboarding is complete
+  useEffect(() => {
+    const onboardingComplete = localStorage.getItem('onboardingComplete');
+    const savedUserData = localStorage.getItem('userData');
+    
+    if (!onboardingComplete) {
+      setShowOnboarding(true);
+    } else if (savedUserData) {
+      setUserData(JSON.parse(savedUserData));
+    }
+  }, []);
+  
+  // Berechne cycleDay und currentPhase wenn userData sich ändert
+  useEffect(() => {
+    const calculateCycleDay = () => {
+      if (!userData || !userData.periodStartDate) {
+        return 14; // Default fallback
+      }
+      
+      const periodStartDate = new Date(userData.periodStartDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // Checke auf markierten Eisprung
+      const ovulationDatesStr = localStorage.getItem('ovulationDates');
+      const ovulationDates = ovulationDatesStr ? JSON.parse(ovulationDatesStr) : {};
+      const ovDates = Object.keys(ovulationDates).filter(key => ovulationDates[key]);
+      
+      let cycleDay;
+      
+      if (ovDates.length > 0) {
+        // Finde den neuesten Eisprung
+        const dates = ovDates.map(dateKey => {
+          const [y, m, d] = dateKey.split('-').map(Number);
+          return new Date(y, m - 1, d);
+        }).sort((a, b) => b - a);
+        
+        const latestOvulation = dates[0];
+        const daysSinceOvulation = Math.floor((today - latestOvulation) / (1000 * 60 * 60 * 24));
+        cycleDay = 14 + daysSinceOvulation;
+        
+        // Handle negative days und wrap around
+        if (cycleDay <= 0) {
+          cycleDay = 28 + (cycleDay % 28);
+        } else if (cycleDay > 28) {
+          cycleDay = ((cycleDay - 1) % 28) + 1;
+        }
+      } else {
+        // Normale Berechnung ohne Eisprung
+        const daysSinceStart = Math.floor((today - periodStartDate) / (1000 * 60 * 60 * 24));
+        cycleDay = daysSinceStart < 0 ? 1 : (daysSinceStart % 28) + 1;
+      }
+      
+      return cycleDay;
+    };
+    
+    const newCycleDay = calculateCycleDay();
+    setCycleDay(newCycleDay);
+    setCurrentPhase(getCurrentPhase(newCycleDay));
+  }, [userData]); // Re-calculate wenn userData sich ändert
   
   // Check if onboarding is complete
   useEffect(() => {
@@ -38,60 +101,31 @@ function App() {
     setShowOnboarding(false);
   };
   
-  // Berechne den aktuellen Zyklustag basierend auf periodStartDate oder Eisprung
-  const getCurrentCycleDay = () => {
-    if (!userData?.periodStartDate) return 1;
-    
-    // Lade Eisprung-Daten
-    const ovulationDatesStr = localStorage.getItem('ovulationDates');
-    const ovulationDates = ovulationDatesStr ? JSON.parse(ovulationDatesStr) : {};
-    
-    // Finde neuesten markierten Eisprung
-    const ovDates = Object.keys(ovulationDates).filter(key => ovulationDates[key]);
-    if (ovDates.length > 0) {
-      const dates = ovDates.map(dateKey => {
-        const [y, m, d] = dateKey.split('-').map(Number);
-        return new Date(y, m - 1, d);
-      }).sort((a, b) => b - a);
-      
-      const latestOvulation = dates[0];
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      const daysSinceOvulation = Math.floor((today - latestOvulation) / (1000 * 60 * 60 * 24));
-      const cycleDay = 14 + daysSinceOvulation;
-      
-      if (cycleDay <= 0) {
-        return 28 + (cycleDay % 28);
-      } else if (cycleDay > 28) {
-        return ((cycleDay - 1) % 28) + 1;
-      }
-      return cycleDay;
-    }
-    
-    // Fallback auf Periodenstart
-    const periodStartDate = new Date(userData.periodStartDate);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const daysSinceStart = Math.floor((today - periodStartDate) / (1000 * 60 * 60 * 24));
-    
-    if (daysSinceStart < 0) {
-      return 1;
-    }
-    
-    const cycleDay = (daysSinceStart % 28) + 1;
-    return cycleDay;
-  };
-  
-  const cycleDay = getCurrentCycleDay();
-  
   const handleSaveTracking = (data) => {
     console.log('Tracking gespeichert:', data);
+    
+    // Wenn neue Periode gestartet wurde, update periodStartDate
+    if (data.isPeriodDay && data.date) {
+      const updatedUserData = {
+        ...userData,
+        periodStartDate: data.date
+      };
+      setUserData(updatedUserData);
+      localStorage.setItem('userData', JSON.stringify(updatedUserData));
+      
+      // WICHTIG: Lösche alte Eisprung-Daten bei neuem Zyklus
+      localStorage.removeItem('ovulationDates');
+      
+      // Force re-render
+      setTimeout(() => setUserData({...updatedUserData}), 100);
+    } else {
+      // Force re-render auch wenn nur Eisprung oder andere Daten gespeichert wurden
+      // indem wir userData "touchen"
+      setUserData({...userData});
+    }
+    
     alert(t('dataSaved'));
   };
-  
-  const currentPhase = getCurrentPhase(cycleDay);
 
   const handleUpdateUserData = (newData) => {
     setUserData(newData);
@@ -112,7 +146,7 @@ function App() {
     activity: <ActivityScreen userData={userData} />,
     profile: <ProfileScreen 
                userData={userData}
-               onEditProfile={handleUpdateUserData}
+               onEditProfile={() => setShowOnboarding(true)}
              />
   };
 

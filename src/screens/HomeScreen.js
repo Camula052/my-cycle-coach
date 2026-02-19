@@ -177,6 +177,8 @@ const HomeScreen = ({ currentPhase, cycleDay, onOpenTracking, onNavigate }) => {
         isOpen={isPhaseDetailsOpen}
         onClose={() => setIsPhaseDetailsOpen(false)}
         currentPhase={currentPhase}
+        onNavigateToNutrition={() => onNavigate('nutrition')}
+        onNavigateToActivity={() => onNavigate('activity')}
       />
 
       <style>{`

@@ -202,8 +202,9 @@
     },
     "editDay": "Tag bearbeiten",
     "markOvulation": "Eisprung markieren",
-    "ovulationMarked": "Eisprung wurde markiert",
-    "removeOvulation": "Eisprung entfernen"
+    "ovulationMarked": "Eisprung markiert!",
+    "removeOvulation": "Eisprung entfernen",
+    "ovulationRemoved": "Eisprung-Markierung entfernt!"
   },
   "nutrition": {
     "title": "Ernährung für deine Phase",

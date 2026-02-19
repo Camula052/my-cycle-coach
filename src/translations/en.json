@@ -202,8 +202,9 @@
     },
     "editDay": "Edit day",
     "markOvulation": "Mark ovulation",
-    "ovulationMarked": "Ovulation has been marked",
-    "removeOvulation": "Remove ovulation"
+    "ovulationMarked": "Ovulation marked!",
+    "removeOvulation": "Remove ovulation",
+    "ovulationRemoved": "Ovulation marking removed!"
   },
   "nutrition": {
     "title": "Nutrition for Your Phase",
