@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2 } from 'lucide-react';
+import { X, Plus, Minus, Clock } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
-import { COLORS } from '../utils/cycleHelpers';
+import { COLORS, getCurrentPhase } from '../utils/cycleHelpers';
 
 const DayDetailModal = ({ 
   isOpen, 
@@ -20,45 +20,33 @@ const DayDetailModal = ({
   isOvulationDay
 }) => {
   const { t } = useTranslation();
-  const [mood, setMood] = useState(3);
-  const [selectedSymptoms, setSelectedSymptoms] = useState([]);
-  const [showSymptomDropdown, setShowSymptomDropdown] = useState(false);
-  const [customSymptomInput, setCustomSymptomInput] = useState('');
-  const [showCustomInput, setShowCustomInput] = useState(false);
+  
+  // States
+  const [mood, setMood] = useState(50); // 0-100 Slider
+  const [symptoms, setSymptoms] = useState({});
+  const [sexTimes, setSexTimes] = useState([]); // Array von {time: "14:30"}
   const [weight, setWeight] = useState('');
   const [temperature, setTemperature] = useState('');
-  const [flowIntensity, setFlowIntensity] = useState(0);
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [flowIntensity, setFlowIntensity] = useState(0); // 0-5
+  const [newSexTime, setNewSexTime] = useState('');
 
-  // Lade custom Symptome aus localStorage
-  const [customSymptoms, setCustomSymptoms] = useState([]);
-  
-  useEffect(() => {
-    const saved = localStorage.getItem('customSymptoms');
-    if (saved) {
-      setCustomSymptoms(JSON.parse(saved));
-    }
-  }, []);
-
-  // Reset edit mode when modal opens
   useEffect(() => {
     if (isOpen) {
-      setIsEditMode(false);
+      // Reset bei öffnen
+      setMood(50);
+      setSymptoms({});
+      setSexTimes([]);
+      setWeight('');
+      setTemperature('');
+      setFlowIntensity(isPeriodDay ? 2 : 0);
+      setNewSexTime('');
     }
-  }, [isOpen]);
+  }, [isOpen, isPeriodDay]);
 
   if (!isOpen || !selectedDate) return null;
-  
-  const isPastDay = () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return selectedDate < today;
-  };
-  
-  const isPast = isPastDay();
-  const isToday = !isPast && !isFutureDay;
-  const canEdit = isToday || (isPast && isEditMode);
 
+  const currentPhase = getCurrentPhase(cycleDay);
+  
   const dateString = selectedDate.toLocaleDateString('de-DE', {
     weekday: 'long',
     year: 'numeric',
@@ -66,83 +54,60 @@ const DayDetailModal = ({
     day: 'numeric'
   });
 
-  const moodEmojis = [
-    { emoji: '😢', color: '#94A3B8', label: t('tracking.mood.veryBad') },
-    { emoji: '😟', color: '#CBD5E1', label: t('tracking.mood.bad') },
-    { emoji: '😐', color: '#FDE68A', label: t('tracking.mood.neutral') },
-    { emoji: '🙂', color: '#FCD34D', label: t('tracking.mood.good') },
-    { emoji: '😊', color: '#FDE047', label: t('tracking.mood.veryGood') }
-  ];
-
-  // Vordefinierte Symptome
-  const predefinedSymptoms = [
+  const symptomsList = [
     { key: 'headache', label: t('tracking.symptoms.headache') },
     { key: 'backPain', label: t('tracking.symptoms.backPain') },
-    { key: 'shoulderPain', label: t('tracking.symptoms.shoulderPain') },
     { key: 'abdominalPain', label: t('tracking.symptoms.abdominalPain') },
     { key: 'cramps', label: t('tracking.symptoms.cramps') },
-    { key: 'cold', label: t('tracking.symptoms.cold') },
-    { key: 'hot', label: t('tracking.symptoms.hot') },
-    { key: 'sweaty', label: t('tracking.symptoms.sweaty') },
     { key: 'bloated', label: t('tracking.symptoms.bloated') },
-    { key: 'listless', label: t('tracking.symptoms.listless') },
     { key: 'cravings', label: t('tracking.symptoms.cravings') }
   ];
 
-  // Alle verfügbaren Symptome (vordefiniert + custom)
-  const allSymptoms = [
-    ...predefinedSymptoms,
-    ...customSymptoms.map(s => ({ key: `custom_${s}`, label: s, isCustom: true }))
-  ];
-
-  // Verfügbare Symptome (noch nicht ausgewählt)
-  const availableSymptoms = allSymptoms.filter(
-    s => !selectedSymptoms.find(sel => sel.key === s.key)
-  );
-
-  const handleAddSymptom = (symptom) => {
-    setSelectedSymptoms([...selectedSymptoms, symptom]);
-    setShowSymptomDropdown(false);
+  const getMoodEmoji = (value) => {
+    if (value < 20) return '😢';
+    if (value < 40) return '😟';
+    if (value < 60) return '😐';
+    if (value < 80) return '🙂';
+    return '😊';
   };
 
-  const handleRemoveSymptom = (symptomKey) => {
-    setSelectedSymptoms(selectedSymptoms.filter(s => s.key !== symptomKey));
+  const getMoodColor = (value) => {
+    // Farbverlauf von rot/blau (traurig) zu gelb/grün (fröhlich)
+    const hue = (value / 100) * 120; // 0 (rot) bis 120 (grün)
+    return `hsl(${hue}, 70%, 60%)`;
   };
 
-  const handleAddCustomSymptom = () => {
-    if (!customSymptomInput.trim()) return;
-    
-    const newSymptom = {
-      key: `custom_${customSymptomInput}`,
-      label: customSymptomInput,
-      isCustom: true
-    };
-    
-    // Füge zu selectedSymptoms hinzu
-    setSelectedSymptoms([...selectedSymptoms, newSymptom]);
-    
-    // Füge zu customSymptoms hinzu falls noch nicht vorhanden
-    if (!customSymptoms.includes(customSymptomInput)) {
-      const updated = [...customSymptoms, customSymptomInput];
-      setCustomSymptoms(updated);
-      localStorage.setItem('customSymptoms', JSON.stringify(updated));
+  const getFlowIcon = (intensity) => {
+    if (intensity === 0) return '';
+    if (intensity === 1) return '💧';
+    if (intensity === 2) return '🩸';
+    if (intensity === 3) return '🩸🩸';
+    if (intensity === 4) return '🩸🩸🩸';
+    return '🩸🩸🩸🩸';
+  };
+
+  const handleAddSexTime = () => {
+    if (newSexTime) {
+      setSexTimes([...sexTimes, { time: newSexTime }]);
+      setNewSexTime('');
     }
-    
-    setCustomSymptomInput('');
-    setShowCustomInput(false);
-    setShowSymptomDropdown(false);
+  };
+
+  const handleRemoveSexTime = (index) => {
+    setSexTimes(sexTimes.filter((_, i) => i !== index));
   };
 
   const handleSave = () => {
     onSaveTracking({
       date: selectedDate.toISOString(),
       mood,
-      symptoms: selectedSymptoms.map(s => s.label),
+      symptoms,
+      sexTimes,
       weight: weight ? parseFloat(weight) : null,
       temperature: temperature ? parseFloat(temperature) : null,
-      flowIntensity: isPeriodDay ? flowIntensity : null
+      flowIntensity: isPeriodDay ? flowIntensity : null,
+      isOvulationDay
     });
-    setIsEditMode(false);
     onClose();
   };
 
@@ -161,7 +126,7 @@ const DayDetailModal = ({
       padding: '20px'
     }}>
       <div style={{
-        backgroundColor: COLORS.background,
+        background: currentPhase?.gradient || COLORS.background,
         borderRadius: '24px',
         maxWidth: '600px',
         width: '100%',
@@ -178,536 +143,500 @@ const DayDetailModal = ({
             position: 'absolute',
             top: '20px',
             right: '20px',
-            background: 'transparent',
+            background: 'rgba(255, 255, 255, 0.8)',
             border: 'none',
+            borderRadius: '50%',
+            width: '36px',
+            height: '36px',
             cursor: 'pointer',
-            padding: '8px',
-            color: COLORS.textLight
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: COLORS.text,
+            zIndex: 10
           }}
         >
-          <X size={24} />
+          <X size={20} />
         </button>
 
         {/* Header */}
-        <h2 style={{ color: COLORS.text, marginBottom: '8px', fontSize: '24px', fontWeight: '600' }}>
-          {dateString}
-        </h2>
-        <p style={{ color: COLORS.textLight, marginBottom: '24px', fontSize: '14px' }}>
-          {phaseName} • {t('calendar.cycleDay', { day: cycleDay })}
-          {isPast && !isEditMode && ` • ${t('calendar.pastDay')}`}
-          {isPast && isEditMode && ' • Bearbeiten-Modus'}
-          {isFutureDay && ' • Zukunft (nicht bearbeitbar)'}
-        </p>
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <h2 style={{
+            color: COLORS.text,
+            fontSize: '24px',
+            fontWeight: '700',
+            marginBottom: '4px'
+          }}>
+            {dateString}
+          </h2>
+          <p style={{
+            color: COLORS.text,
+            fontSize: '14px',
+            opacity: 0.7
+          }}>
+            {phaseName} • Tag {cycleDay}
+          </p>
+        </div>
 
-        {/* Bearbeiten Button für vergangene Tage */}
-        {isPast && !isEditMode && (
-          <button
-            onClick={() => setIsEditMode(true)}
-            style={{
-              width: '100%',
-              padding: '12px',
-              marginBottom: '24px',
-              backgroundColor: COLORS.follicular,
-              border: 'none',
-              borderRadius: '12px',
-              cursor: 'pointer',
-              fontWeight: '600',
-              color: COLORS.text,
-              fontSize: '14px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              boxShadow: `0 0 15px ${COLORS.follicular}40`
-            }}
-          >
-            <span>✏️</span>
-            {t('calendar.editDay')}
-          </button>
-        )}
-
-        {/* Eisprung markieren/entfernen - nur für nicht-zukünftige Tage */}
+        {/* Periode Start/Ende + Flow Intensität */}
         {!isFutureDay && (
-          <div style={{ marginBottom: '24px' }}>
-            {isOvulationDay ? (
-              <button
-                onClick={() => {
-                  if (onRemoveOvulation) onRemoveOvulation(selectedDate);
-                  onClose();
-                }}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  backgroundColor: 'rgba(245, 194, 199, 0.3)',
-                  border: `2px solid ${COLORS.ovulation}`,
-                  borderRadius: '12px',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  color: COLORS.text,
-                  fontSize: '14px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px'
-                }}
-              >
-                ✓ {t('calendar.removeOvulation')}
-              </button>
-            ) : (
-              <button
-                onClick={() => {
-                  if (onMarkOvulation) onMarkOvulation(selectedDate);
-                  onClose();
-                }}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  backgroundColor: 'transparent',
-                  border: `2px solid ${COLORS.ovulation}`,
-                  borderRadius: '12px',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  color: COLORS.text,
-                  fontSize: '14px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px'
-                }}
-              >
-                🌸 {t('calendar.markOvulation')}
-              </button>
-            )}
-            <p style={{
-              fontSize: '12px',
-              color: COLORS.textLight,
-              textAlign: 'center',
-              marginTop: '8px',
-              fontStyle: 'italic'
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.3)',
+            borderRadius: '16px',
+            padding: '16px',
+            marginBottom: '16px',
+            backdropFilter: 'blur(10px)'
+          }}>
+            <h3 style={{
+              color: COLORS.text,
+              fontSize: '16px',
+              fontWeight: '600',
+              marginBottom: '12px'
             }}>
-              💡 {t('tracking.ovulationInfo')}
-            </p>
+              🩸 Periode
+            </h3>
+            
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+              {!hasActivePeriod && (
+                <button
+                  onClick={() => {
+                    onMarkPeriodStart(selectedDate);
+                  }}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: COLORS.menstruation,
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    color: COLORS.text,
+                    fontSize: '13px'
+                  }}
+                >
+                  Periode starten
+                </button>
+              )}
+              
+              {hasActivePeriod && (
+                <button
+                  onClick={() => {
+                    onMarkPeriodEnd(selectedDate);
+                  }}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: COLORS.follicular,
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    color: COLORS.text,
+                    fontSize: '13px'
+                  }}
+                >
+                  Periode beenden
+                </button>
+              )}
+            </div>
+
+            {/* Flow Intensität */}
+            {isPeriodDay && (
+              <div>
+                <p style={{
+                  color: COLORS.text,
+                  fontSize: '13px',
+                  marginBottom: '8px',
+                  fontWeight: '500'
+                }}>
+                  Intensität:
+                </p>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  {[1, 2, 3, 4, 5].map((level) => (
+                    <button
+                      key={level}
+                      onClick={() => setFlowIntensity(level)}
+                      style={{
+                        padding: '8px',
+                        backgroundColor: flowIntensity === level 
+                          ? 'rgba(255, 255, 255, 0.5)' 
+                          : 'transparent',
+                        border: '2px solid rgba(255, 255, 255, 0.3)',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        fontSize: '20px',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {getFlowIcon(level)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Periode Buttons - für heute und vergangene Tage */}
-        {!isFutureDay && !hasActivePeriod && (
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '32px' }}>
-            <button
-              onClick={() => {
-                onMarkPeriodStart(selectedDate);
-                onClose();
+        {/* Eisprung */}
+        {!isFutureDay && (
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.3)',
+            borderRadius: '16px',
+            padding: '16px',
+            marginBottom: '16px',
+            backdropFilter: 'blur(10px)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h3 style={{
+                color: COLORS.text,
+                fontSize: '16px',
+                fontWeight: '600',
+                margin: 0
+              }}>
+                🌸 Eisprung
+              </h3>
+              
+              {isOvulationDay ? (
+                <button
+                  onClick={() => {
+                    if (onRemoveOvulation) onRemoveOvulation(selectedDate);
+                  }}
+                  style={{
+                    padding: '6px 12px',
+                    backgroundColor: 'rgba(245, 194, 199, 0.5)',
+                    border: `2px solid ${COLORS.ovulation}`,
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    color: COLORS.text,
+                    fontSize: '12px'
+                  }}
+                >
+                  ✓ Markiert
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    if (onMarkOvulation) onMarkOvulation(selectedDate);
+                  }}
+                  style={{
+                    padding: '6px 12px',
+                    backgroundColor: 'transparent',
+                    border: `2px solid ${COLORS.ovulation}`,
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    color: COLORS.text,
+                    fontSize: '12px'
+                  }}
+                >
+                  Markieren
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Mood Rad/Slider */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.3)',
+          borderRadius: '16px',
+          padding: '16px',
+          marginBottom: '16px',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <h3 style={{
+            color: COLORS.text,
+            fontSize: '16px',
+            fontWeight: '600',
+            marginBottom: '12px'
+          }}>
+            Wie fühlst du dich heute?
+          </h3>
+          
+          <div style={{ textAlign: 'center', marginBottom: '12px' }}>
+            <div style={{ fontSize: '48px', marginBottom: '8px' }}>
+              {getMoodEmoji(mood)}
+            </div>
+          </div>
+
+          {/* Mood Slider */}
+          <div style={{ position: 'relative', padding: '0 10px' }}>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={mood}
+              onChange={(e) => setMood(parseInt(e.target.value))}
+              style={{
+                width: '100%',
+                height: '8px',
+                borderRadius: '4px',
+                outline: 'none',
+                appearance: 'none',
+                background: `linear-gradient(to right, 
+                  hsl(0, 70%, 60%) 0%, 
+                  hsl(30, 70%, 60%) 25%, 
+                  hsl(60, 70%, 60%) 50%, 
+                  hsl(90, 70%, 60%) 75%, 
+                  hsl(120, 70%, 60%) 100%)`,
+                cursor: 'pointer'
               }}
+            />
+            <style>{`
+              input[type="range"]::-webkit-slider-thumb {
+                appearance: none;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                background: ${getMoodColor(mood)};
+                cursor: pointer;
+                border: 3px solid white;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+              }
+              input[type="range"]::-moz-range-thumb {
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                background: ${getMoodColor(mood)};
+                cursor: pointer;
+                border: 3px solid white;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+              }
+            `}</style>
+          </div>
+
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginTop: '8px',
+            fontSize: '12px',
+            color: COLORS.text,
+            opacity: 0.7
+          }}>
+            <span>😢 Sehr schlecht</span>
+            <span>😊 Sehr gut</span>
+          </div>
+        </div>
+
+        {/* Geschlechtsverkehr */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.3)',
+          borderRadius: '16px',
+          padding: '16px',
+          marginBottom: '16px',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <h3 style={{
+            color: COLORS.text,
+            fontSize: '16px',
+            fontWeight: '600',
+            marginBottom: '12px'
+          }}>
+            💑 Geschlechtsverkehr
+          </h3>
+
+          {/* Vorhandene Zeiten */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+            {sexTimes.map((item, index) => (
+              <div
+                key={index}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 10px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  color: COLORS.text
+                }}
+              >
+                <Clock size={14} />
+                <span>{item.time}</span>
+                <button
+                  onClick={() => handleRemoveSexTime(index)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '2px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: COLORS.text
+                  }}
+                >
+                  <Minus size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Neue Zeit hinzufügen */}
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <input
+              type="time"
+              value={newSexTime}
+              onChange={(e) => setNewSexTime(e.target.value)}
               style={{
                 flex: 1,
-                padding: '12px',
-                backgroundColor: COLORS.menstruation,
-                border: 'none',
-                borderRadius: '12px',
-                cursor: 'pointer',
-                fontWeight: '600',
+                padding: '8px',
+                borderRadius: '8px',
+                border: '2px solid rgba(255, 255, 255, 0.3)',
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
                 color: COLORS.text,
                 fontSize: '14px'
               }}
-            >
-              🩸 {t('calendar.periodStart')}
-            </button>
-          </div>
-        )}
-        
-        {!isFutureDay && hasActivePeriod && (
-          <div style={{ marginBottom: '32px' }}>
+            />
             <button
-              onClick={() => {
-                onMarkPeriodEnd(selectedDate);
-                onClose();
-              }}
+              onClick={handleAddSexTime}
+              disabled={!newSexTime}
               style={{
-                width: '100%',
-                padding: '12px',
-                backgroundColor: COLORS.follicular,
+                padding: '8px 12px',
+                backgroundColor: newSexTime ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.2)',
                 border: 'none',
-                borderRadius: '12px',
-                cursor: 'pointer',
-                fontWeight: '600',
-                color: COLORS.text,
-                fontSize: '14px'
+                borderRadius: '8px',
+                cursor: newSexTime ? 'pointer' : 'not-allowed',
+                display: 'flex',
+                alignItems: 'center',
+                color: COLORS.text
               }}
             >
-              ✓ {t('calendar.periodEnd')}
+              <Plus size={18} />
             </button>
           </div>
-        )}
+        </div>
 
-        {/* Info für zukünftige Tage */}
-        {isFutureDay && (
-          <div style={{
-            padding: '16px',
-            backgroundColor: 'rgba(184, 230, 213, 0.2)',
-            borderRadius: '12px',
-            marginBottom: '24px',
-            textAlign: 'center'
+        {/* Symptome */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.3)',
+          borderRadius: '16px',
+          padding: '16px',
+          marginBottom: '16px',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <h3 style={{
+            color: COLORS.text,
+            fontSize: '16px',
+            fontWeight: '600',
+            marginBottom: '12px'
           }}>
-            <p style={{ color: COLORS.textLight, fontSize: '14px', margin: 0 }}>
-              📖 Zukünftige Tage können nicht bearbeitet werden
-            </p>
+            Symptome
+          </h3>
+          
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {symptomsList.map((symptom) => (
+              <button
+                key={symptom.key}
+                onClick={() => setSymptoms({
+                  ...symptoms,
+                  [symptom.key]: !symptoms[symptom.key]
+                })}
+                style={{
+                  padding: '8px 12px',
+                  backgroundColor: symptoms[symptom.key] 
+                    ? 'rgba(255, 255, 255, 0.6)' 
+                    : 'rgba(255, 255, 255, 0.2)',
+                  border: symptoms[symptom.key]
+                    ? '2px solid rgba(45, 55, 72, 0.3)'
+                    : '2px solid transparent',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  color: COLORS.text,
+                  fontWeight: symptoms[symptom.key] ? '600' : 'normal',
+                  transition: 'all 0.2s'
+                }}
+              >
+                {symptom.label}
+              </button>
+            ))}
           </div>
-        )}
+        </div>
 
-        {/* Tracking Section - für heute ODER vergangene Tage im Edit-Modus */}
-        {canEdit && (
-          <>
-            <h3 style={{ color: COLORS.text, marginBottom: '16px', fontSize: '18px', fontWeight: '600' }}>
-              {t('calendar.trackingTitle')}
-            </h3>
-
-            {/* Blutstärke */}
-            {isPeriodDay && (
-              <div style={{ marginBottom: '24px' }}>
-                <h4 style={{ color: COLORS.text, marginBottom: '12px', fontSize: '16px' }}>
-                  {t('calendar.flowIntensity')}
-                </h4>
-                <p style={{ color: COLORS.textLight, fontSize: '13px', marginBottom: '12px' }}>
-                  {t('calendar.selectFlow')}
-                </p>
-                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                  {[1, 2, 3, 4, 5].map((intensity) => (
-                    <button
-                      key={intensity}
-                      onClick={() => setFlowIntensity(intensity)}
-                      style={{
-                        padding: '16px 12px',
-                        fontSize: '20px',
-                        backgroundColor: flowIntensity >= intensity ? COLORS.menstruation : 'transparent',
-                        border: `2px solid ${flowIntensity >= intensity ? COLORS.menstruation : 'rgba(226, 232, 240, 0.5)'}`,
-                        borderRadius: '12px',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '4px',
-                        minWidth: '50px'
-                      }}
-                    >
-                      <div style={{ display: 'flex', gap: '1px' }}>
-                        {Array.from({ length: intensity }).map((_, i) => (
-                          <span key={i} style={{ fontSize: '12px' }}>🩸</span>
-                        ))}
-                      </div>
-                      <span style={{ fontSize: '10px', color: COLORS.textLight }}>{intensity}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Stimmung */}
-            <div style={{ marginBottom: '24px' }}>
-              <h4 style={{ color: COLORS.text, marginBottom: '12px', fontSize: '16px' }}>
-                {t('tracking.mood.title')}
-              </h4>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                {moodEmojis.map((m, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setMood(idx + 1)}
-                    title={m.label}
-                    style={{
-                      flex: 1,
-                      padding: '12px',
-                      fontSize: '24px',
-                      backgroundColor: mood === idx + 1 ? m.color : 'transparent',
-                      border: `2px solid ${mood === idx + 1 ? m.color : 'rgba(226, 232, 240, 0.5)'}`,
-                      borderRadius: '12px',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease'
-                    }}
-                  >
-                    {m.emoji}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Symptome - Neue Dropdown-Version */}
-            <div style={{ marginBottom: '24px' }}>
-              <h4 style={{ color: COLORS.text, marginBottom: '12px', fontSize: '16px' }}>
-                {t('tracking.symptoms.title')}
-              </h4>
-              
-              {/* Ausgewählte Symptome als Pills */}
-              {selectedSymptoms.length > 0 && (
-                <div style={{ 
-                  display: 'flex', 
-                  flexWrap: 'wrap', 
-                  gap: '8px',
-                  marginBottom: '12px'
-                }}>
-                  {selectedSymptoms.map(symptom => (
-                    <div
-                      key={symptom.key}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        padding: '8px 12px',
-                        backgroundColor: COLORS.follicular,
-                        borderRadius: '20px',
-                        fontSize: '14px',
-                        color: COLORS.text,
-                        fontWeight: '500'
-                      }}
-                    >
-                      {symptom.label}
-                      <button
-                        onClick={() => handleRemoveSymptom(symptom.key)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          padding: '2px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          color: COLORS.text
-                        }}
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {selectedSymptoms.length === 0 && (
-                <p style={{ 
-                  color: COLORS.textLight, 
-                  fontSize: '13px', 
-                  marginBottom: '12px',
-                  fontStyle: 'italic'
-                }}>
-                  {t('tracking.symptoms.noSymptoms')}
-                </p>
-              )}
-
-              {/* Custom Input anzeigen */}
-              {showCustomInput && (
-                <div style={{ marginBottom: '12px' }}>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <input
-                      type="text"
-                      value={customSymptomInput}
-                      onChange={(e) => setCustomSymptomInput(e.target.value)}
-                      placeholder={t('tracking.symptoms.enterCustom')}
-                      style={{
-                        flex: 1,
-                        padding: '10px',
-                        fontSize: '14px',
-                        border: '1.5px solid rgba(226, 232, 240, 0.5)',
-                        borderRadius: '8px',
-                        backgroundColor: 'transparent',
-                        color: COLORS.text
-                      }}
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') handleAddCustomSymptom();
-                      }}
-                      autoFocus
-                    />
-                    <button
-                      onClick={handleAddCustomSymptom}
-                      style={{
-                        padding: '10px 16px',
-                        backgroundColor: COLORS.follicular,
-                        border: 'none',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        fontWeight: '600',
-                        color: COLORS.text,
-                        fontSize: '14px'
-                      }}
-                    >
-                      ✓
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowCustomInput(false);
-                        setCustomSymptomInput('');
-                      }}
-                      style={{
-                        padding: '10px 16px',
-                        backgroundColor: 'transparent',
-                        border: '1.5px solid rgba(226, 232, 240, 0.5)',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        color: COLORS.text,
-                        fontSize: '14px'
-                      }}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Dropdown oder Button */}
-              {!showCustomInput && (
-                <div style={{ position: 'relative' }}>
-                  <button
-                    onClick={() => setShowSymptomDropdown(!showSymptomDropdown)}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      backgroundColor: 'transparent',
-                      border: '1.5px solid rgba(226, 232, 240, 0.5)',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      fontWeight: '500',
-                      color: COLORS.text,
-                      fontSize: '14px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px'
-                    }}
-                  >
-                    <Plus size={18} />
-                    {t('tracking.symptoms.add')}
-                  </button>
-
-                  {/* Dropdown */}
-                  {showSymptomDropdown && (
-                    <div style={{
-                      position: 'absolute',
-                      top: '100%',
-                      left: 0,
-                      right: 0,
-                      marginTop: '4px',
-                      backgroundColor: COLORS.cardBg,
-                      border: '1.5px solid rgba(226, 232, 240, 0.5)',
-                      borderRadius: '8px',
-                      maxHeight: '200px',
-                      overflowY: 'auto',
-                      zIndex: 10,
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                    }}>
-                      {availableSymptoms.map(symptom => (
-                        <button
-                          key={symptom.key}
-                          onClick={() => handleAddSymptom(symptom)}
-                          style={{
-                            width: '100%',
-                            padding: '12px',
-                            textAlign: 'left',
-                            backgroundColor: 'transparent',
-                            border: 'none',
-                            borderBottom: '1px solid rgba(226, 232, 240, 0.3)',
-                            cursor: 'pointer',
-                            fontSize: '14px',
-                            color: COLORS.text,
-                            transition: 'background-color 0.2s'
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(184, 230, 213, 0.2)'}
-                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                        >
-                          {symptom.label}
-                        </button>
-                      ))}
-                      
-                      {/* "Andere..." Option */}
-                      <button
-                        onClick={() => {
-                          setShowCustomInput(true);
-                          setShowSymptomDropdown(false);
-                        }}
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          textAlign: 'left',
-                          backgroundColor: 'transparent',
-                          border: 'none',
-                          cursor: 'pointer',
-                          fontSize: '14px',
-                          color: COLORS.follicular,
-                          fontWeight: '600',
-                          transition: 'background-color 0.2s'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(184, 230, 213, 0.2)'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                      >
-                        + {t('tracking.symptoms.other')}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Gewicht & Temperatur */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-              <div>
-                <label style={{ display: 'block', color: COLORS.text, fontSize: '14px', marginBottom: '8px', fontWeight: '500' }}>
-                  {t('tracking.weight.title')}
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  placeholder={t('tracking.weight.placeholder')}
-                  value={weight}
-                  onChange={(e) => setWeight(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    fontSize: '14px',
-                    border: '1.5px solid rgba(226, 232, 240, 0.5)',
-                    borderRadius: '8px',
-                    backgroundColor: 'transparent',
-                    color: COLORS.text
-                  }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', color: COLORS.text, fontSize: '14px', marginBottom: '8px', fontWeight: '500' }}>
-                  {t('tracking.temperature.title')}
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  placeholder={t('tracking.temperature.placeholder')}
-                  value={temperature}
-                  onChange={(e) => setTemperature(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    fontSize: '14px',
-                    border: '1.5px solid rgba(226, 232, 240, 0.5)',
-                    borderRadius: '8px',
-                    backgroundColor: 'transparent',
-                    color: COLORS.text
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Save Button */}
-            <button
-              onClick={handleSave}
-              style={{
-                width: '100%',
-                padding: '16px',
-                backgroundColor: COLORS.follicular,
-                border: 'none',
-                borderRadius: '12px',
-                cursor: 'pointer',
-                fontWeight: '600',
-                fontSize: '16px',
+        {/* Gewicht & Temperatur */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.3)',
+          borderRadius: '16px',
+          padding: '16px',
+          marginBottom: '24px',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div>
+              <label style={{
                 color: COLORS.text,
-                boxShadow: `0 0 25px ${COLORS.follicular}60`
-              }}
-            >
-              {t('tracking.buttons.save')}
-            </button>
-          </>
-        )}
+                fontSize: '13px',
+                fontWeight: '500',
+                display: 'block',
+                marginBottom: '6px'
+              }}>
+                ⚖️ Gewicht (kg)
+              </label>
+              <input
+                type="number"
+                step="0.1"
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                placeholder="z.B. 65.5"
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  borderRadius: '8px',
+                  border: '2px solid rgba(255, 255, 255, 0.3)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  color: COLORS.text,
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+            
+            <div>
+              <label style={{
+                color: COLORS.text,
+                fontSize: '13px',
+                fontWeight: '500',
+                display: 'block',
+                marginBottom: '6px'
+              }}>
+                🌡️ Temperatur (°C)
+              </label>
+              <input
+                type="number"
+                step="0.1"
+                value={temperature}
+                onChange={(e) => setTemperature(e.target.value)}
+                placeholder="z.B. 36.5"
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  borderRadius: '8px',
+                  border: '2px solid rgba(255, 255, 255, 0.3)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  color: COLORS.text,
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Speichern Button */}
+        <button
+          onClick={handleSave}
+          style={{
+            width: '100%',
+            padding: '14px',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            border: 'none',
+            borderRadius: '12px',
+            cursor: 'pointer',
+            fontWeight: '700',
+            fontSize: '16px',
+            color: COLORS.text,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+          }}
+        >
+          Speichern
+        </button>
       </div>
     </div>
   );

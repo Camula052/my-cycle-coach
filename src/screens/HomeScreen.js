@@ -3,6 +3,7 @@ import { Info } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import FloatingButton from '../components/FloatingButton';
 import PhaseDetailsModal from '../components/PhaseDetailsModal';
+import DayDetailModal from '../components/DayDetailModal';
 import OrganicBackground from '../components/OrganicBackground';
 
 const COLORS = {
@@ -13,6 +14,7 @@ const COLORS = {
 const HomeScreen = ({ currentPhase, cycleDay, onOpenTracking, onNavigate }) => {
   const { t } = useTranslation();
   const [isPhaseDetailsOpen, setIsPhaseDetailsOpen] = useState(false);
+  const [isDayDetailOpen, setIsDayDetailOpen] = useState(false);
   
   return (
     <div style={{
@@ -170,7 +172,7 @@ const HomeScreen = ({ currentPhase, cycleDay, onOpenTracking, onNavigate }) => {
       </div>
 
       {/* Floating Action Button */}
-      <FloatingButton onClick={onOpenTracking} />
+      <FloatingButton onClick={() => setIsDayDetailOpen(true)} />
 
       {/* Phase Details Modal */}
       <PhaseDetailsModal
@@ -179,6 +181,40 @@ const HomeScreen = ({ currentPhase, cycleDay, onOpenTracking, onNavigate }) => {
         currentPhase={currentPhase}
         onNavigateToNutrition={() => onNavigate('nutrition')}
         onNavigateToActivity={() => onNavigate('activity')}
+      />
+
+      {/* Day Detail Modal für heute */}
+      <DayDetailModal
+        isOpen={isDayDetailOpen}
+        onClose={() => setIsDayDetailOpen(false)}
+        selectedDate={new Date()}
+        cycleDay={cycleDay}
+        phaseName={t(`phases.${currentPhase.key}.name`)}
+        isPeriodDay={cycleDay >= 1 && cycleDay <= 5}
+        isFutureDay={false}
+        hasActivePeriod={false}
+        onSaveTracking={(data) => {
+          console.log('Tracking gespeichert:', data);
+          // TODO: Speichern in localStorage
+          setIsDayDetailOpen(false);
+        }}
+        onMarkPeriodStart={(date) => {
+          console.log('Periode gestartet:', date);
+          // TODO: Handler aufrufen
+        }}
+        onMarkPeriodEnd={(date) => {
+          console.log('Periode beendet:', date);
+          // TODO: Handler aufrufen
+        }}
+        onMarkOvulation={(date) => {
+          console.log('Eisprung markiert:', date);
+          // TODO: Handler aufrufen
+        }}
+        onRemoveOvulation={(date) => {
+          console.log('Eisprung entfernt:', date);
+          // TODO: Handler aufrufen
+        }}
+        isOvulationDay={cycleDay === 14}
       />
 
       <style>{`
