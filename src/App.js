@@ -135,6 +135,8 @@ function App() {
     home: <HomeScreen 
             currentPhase={currentPhase} 
             cycleDay={cycleDay} 
+            userData={userData}
+            onUpdateUserData={handleUpdateUserData}
             onOpenTracking={() => setIsTrackingModalOpen(true)}
             onNavigate={setCurrentScreen}
           />,

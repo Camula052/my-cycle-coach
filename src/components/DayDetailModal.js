@@ -30,18 +30,21 @@ const DayDetailModal = ({
   const [flowIntensity, setFlowIntensity] = useState(0); // 0-5
   const [newSexTime, setNewSexTime] = useState('');
 
+  // Lade gespeicherte Daten für diesen Tag
   useEffect(() => {
-    if (isOpen) {
-      // Reset bei öffnen
-      setMood(50);
-      setSymptoms({});
-      setSexTimes([]);
-      setWeight('');
-      setTemperature('');
-      setFlowIntensity(isPeriodDay ? 2 : 0);
-      setNewSexTime('');
+    if (isOpen && selectedDate) {
+      const dateKey = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+      
+      // Lade Flow-Intensität
+      const savedFlowData = localStorage.getItem('flowData');
+      if (savedFlowData) {
+        const flowData = JSON.parse(savedFlowData);
+        setFlowIntensity(flowData[dateKey] || 0);
+      }
+      
+      // TODO: Lade andere gespeicherte Daten (mood, symptoms, etc.)
     }
-  }, [isOpen, isPeriodDay]);
+  }, [isOpen, selectedDate]);
 
   if (!isOpen || !selectedDate) return null;
 
@@ -86,6 +89,20 @@ const DayDetailModal = ({
     return '🩸🩸🩸🩸';
   };
 
+  const handleFlowIntensityChange = (level) => {
+    setFlowIntensity(level);
+    
+    // Sofort speichern
+    const dateKey = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+    const savedFlowData = localStorage.getItem('flowData');
+    const flowData = savedFlowData ? JSON.parse(savedFlowData) : {};
+    flowData[dateKey] = level;
+    localStorage.setItem('flowData', JSON.stringify(flowData));
+    
+    // Trigger onSaveTracking für Updates
+    onSaveTracking({ flowIntensity: level });
+  };
+
   const handleAddSexTime = () => {
     if (newSexTime) {
       setSexTimes([...sexTimes, { time: newSexTime }]);
@@ -95,20 +112,6 @@ const DayDetailModal = ({
 
   const handleRemoveSexTime = (index) => {
     setSexTimes(sexTimes.filter((_, i) => i !== index));
-  };
-
-  const handleSave = () => {
-    onSaveTracking({
-      date: selectedDate.toISOString(),
-      mood,
-      symptoms,
-      sexTimes,
-      weight: weight ? parseFloat(weight) : null,
-      temperature: temperature ? parseFloat(temperature) : null,
-      flowIntensity: isPeriodDay ? flowIntensity : null,
-      isOvulationDay
-    });
-    onClose();
   };
 
   return (
@@ -238,8 +241,8 @@ const DayDetailModal = ({
               )}
             </div>
 
-            {/* Flow Intensität */}
-            {isPeriodDay && (
+            {/* Flow Intensität - nur wenn aktive Periode UND Perioden-Tag */}
+            {hasActivePeriod && isPeriodDay && (
               <div>
                 <p style={{
                   color: COLORS.text,
@@ -253,7 +256,7 @@ const DayDetailModal = ({
                   {[1, 2, 3, 4, 5].map((level) => (
                     <button
                       key={level}
-                      onClick={() => setFlowIntensity(level)}
+                      onClick={() => handleFlowIntensityChange(level)}
                       style={{
                         padding: '8px',
                         backgroundColor: flowIntensity === level 
@@ -272,6 +275,35 @@ const DayDetailModal = ({
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Zukünftige Tage - Hinweis */}
+        {isFutureDay && (
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.3)',
+            borderRadius: '16px',
+            padding: '20px',
+            marginBottom: '16px',
+            backdropFilter: 'blur(10px)',
+            textAlign: 'center'
+          }}>
+            <p style={{
+              color: COLORS.text,
+              fontSize: '16px',
+              margin: 0,
+              opacity: 0.8
+            }}>
+              ⏳ Dieser Tag liegt in der Zukunft
+            </p>
+            <p style={{
+              color: COLORS.text,
+              fontSize: '14px',
+              margin: '8px 0 0 0',
+              opacity: 0.6
+            }}>
+              Du kannst hier noch nichts eintragen
+            </p>
           </div>
         )}
 
@@ -336,89 +368,92 @@ const DayDetailModal = ({
         )}
 
         {/* Mood Rad/Slider */}
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.3)',
-          borderRadius: '16px',
-          padding: '16px',
-          marginBottom: '16px',
-          backdropFilter: 'blur(10px)'
-        }}>
-          <h3 style={{
-            color: COLORS.text,
-            fontSize: '16px',
-            fontWeight: '600',
-            marginBottom: '12px'
+        {!isFutureDay && (
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.3)',
+            borderRadius: '16px',
+            padding: '16px',
+            marginBottom: '16px',
+            backdropFilter: 'blur(10px)'
           }}>
-            Wie fühlst du dich heute?
-          </h3>
+            <h3 style={{
+              color: COLORS.text,
+              fontSize: '16px',
+              fontWeight: '600',
+              marginBottom: '12px'
+            }}>
+              Wie fühlst du dich heute?
+            </h3>
           
-          <div style={{ textAlign: 'center', marginBottom: '12px' }}>
-            <div style={{ fontSize: '48px', marginBottom: '8px' }}>
-              {getMoodEmoji(mood)}
+            <div style={{ textAlign: 'center', marginBottom: '12px' }}>
+              <div style={{ fontSize: '48px', marginBottom: '8px' }}>
+                {getMoodEmoji(mood)}
+              </div>
+            </div>
+
+            {/* Mood Slider */}
+            <div style={{ position: 'relative', padding: '0 10px' }}>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={mood}
+                onChange={(e) => setMood(parseInt(e.target.value))}
+                style={{
+                  width: '100%',
+                  height: '8px',
+                  borderRadius: '4px',
+                  outline: 'none',
+                  appearance: 'none',
+                  background: `linear-gradient(to right, 
+                    hsl(0, 70%, 60%) 0%, 
+                    hsl(30, 70%, 60%) 25%, 
+                    hsl(60, 70%, 60%) 50%, 
+                    hsl(90, 70%, 60%) 75%, 
+                    hsl(120, 70%, 60%) 100%)`,
+                  cursor: 'pointer'
+                }}
+              />
+              <style>{`
+                input[type="range"]::-webkit-slider-thumb {
+                  appearance: none;
+                  width: 24px;
+                  height: 24px;
+                  border-radius: 50%;
+                  background: ${getMoodColor(mood)};
+                  cursor: pointer;
+                  border: 3px solid white;
+                  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                }
+                input[type="range"]::-moz-range-thumb {
+                  width: 24px;
+                  height: 24px;
+                  border-radius: 50%;
+                  background: ${getMoodColor(mood)};
+                  cursor: pointer;
+                  border: 3px solid white;
+                  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                }
+              `}</style>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              marginTop: '8px',
+              fontSize: '12px',
+              color: COLORS.text,
+              opacity: 0.7
+            }}>
+              <span>😢 Sehr schlecht</span>
+              <span>😊 Sehr gut</span>
             </div>
           </div>
-
-          {/* Mood Slider */}
-          <div style={{ position: 'relative', padding: '0 10px' }}>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={mood}
-              onChange={(e) => setMood(parseInt(e.target.value))}
-              style={{
-                width: '100%',
-                height: '8px',
-                borderRadius: '4px',
-                outline: 'none',
-                appearance: 'none',
-                background: `linear-gradient(to right, 
-                  hsl(0, 70%, 60%) 0%, 
-                  hsl(30, 70%, 60%) 25%, 
-                  hsl(60, 70%, 60%) 50%, 
-                  hsl(90, 70%, 60%) 75%, 
-                  hsl(120, 70%, 60%) 100%)`,
-                cursor: 'pointer'
-              }}
-            />
-            <style>{`
-              input[type="range"]::-webkit-slider-thumb {
-                appearance: none;
-                width: 24px;
-                height: 24px;
-                border-radius: 50%;
-                background: ${getMoodColor(mood)};
-                cursor: pointer;
-                border: 3px solid white;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-              }
-              input[type="range"]::-moz-range-thumb {
-                width: 24px;
-                height: 24px;
-                border-radius: 50%;
-                background: ${getMoodColor(mood)};
-                cursor: pointer;
-                border: 3px solid white;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-              }
-            `}</style>
-          </div>
-
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginTop: '8px',
-            fontSize: '12px',
-            color: COLORS.text,
-            opacity: 0.7
-          }}>
-            <span>😢 Sehr schlecht</span>
-            <span>😊 Sehr gut</span>
-          </div>
-        </div>
+        )}
 
         {/* Geschlechtsverkehr */}
-        <div style={{
+        {!isFutureDay && (
+          <div style={{
           background: 'rgba(255, 255, 255, 0.3)',
           borderRadius: '16px',
           padding: '16px',
@@ -504,9 +539,11 @@ const DayDetailModal = ({
             </button>
           </div>
         </div>
+        )}
 
         {/* Symptome */}
-        <div style={{
+        {!isFutureDay && (
+          <div style={{
           background: 'rgba(255, 255, 255, 0.3)',
           borderRadius: '16px',
           padding: '16px',
@@ -551,9 +588,11 @@ const DayDetailModal = ({
             ))}
           </div>
         </div>
+        )}
 
         {/* Gewicht & Temperatur */}
-        <div style={{
+        {!isFutureDay && (
+          <div style={{
           background: 'rgba(255, 255, 255, 0.3)',
           borderRadius: '16px',
           padding: '16px',
@@ -618,25 +657,28 @@ const DayDetailModal = ({
             </div>
           </div>
         </div>
+        )}
 
-        {/* Speichern Button */}
-        <button
-          onClick={handleSave}
-          style={{
-            width: '100%',
-            padding: '14px',
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-            border: 'none',
-            borderRadius: '12px',
-            cursor: 'pointer',
-            fontWeight: '700',
-            fontSize: '16px',
-            color: COLORS.text,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-          }}
-        >
-          Speichern
-        </button>
+        {/* Schließen Button - nur für nicht-zukünftige Tage */}
+        {!isFutureDay && (
+          <button
+            onClick={onClose}
+            style={{
+              width: '100%',
+              padding: '14px',
+              backgroundColor: 'rgba(255, 255, 255, 0.8)',
+              border: 'none',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              fontWeight: '700',
+              fontSize: '16px',
+              color: COLORS.text,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+            }}
+          >
+            Fertig
+          </button>
+        )}
       </div>
     </div>
   );

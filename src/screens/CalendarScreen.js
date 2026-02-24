@@ -154,7 +154,8 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
   };
   
   const hasActivePeriod = () => {
-    return Object.keys(flowData).length > 0;
+    // Check ob flowData existiert UND ob periodDuration NICHT gesetzt ist
+    return Object.keys(flowData).length > 0 && !userData?.periodDuration;
   };
   
   const isCurrentMonth = () => {
@@ -207,7 +208,8 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
   const handleMarkPeriodStart = (date) => {
     const newUserData = {
       ...userData,
-      periodStartDate: date.toISOString().split('T')[0]
+      periodStartDate: date.toISOString().split('T')[0],
+      periodDuration: null // Lösche alte Dauer
     };
     localStorage.setItem('userData', JSON.stringify(newUserData));
     
@@ -215,20 +217,25 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
     localStorage.removeItem('ovulationDates');
     
     if (onUpdateUserData) onUpdateUserData(newUserData);
-    alert(t('calendar.periodStart') + ' markiert!');
+    setForceUpdate(prev => prev + 1);
   };
   
   const handleMarkPeriodEnd = (date) => {
     const start = new Date(userData.periodStartDate);
     const duration = Math.floor((date - start) / (1000 * 60 * 60 * 24)) + 1;
     
+    // Berechne nächsten voraussichtlichen Periode-Start (28 Tage nach aktuellem Start)
+    const nextPeriodStart = new Date(start);
+    nextPeriodStart.setDate(nextPeriodStart.getDate() + 28);
+    
     const newUserData = {
       ...userData,
+      periodStartDate: nextPeriodStart.toISOString().split('T')[0],
       periodDuration: duration.toString()
     };
     localStorage.setItem('userData', JSON.stringify(newUserData));
     if (onUpdateUserData) onUpdateUserData(newUserData);
-    alert(t('calendar.periodEnd') + ` markiert! Dauer: ${duration} Tage`);
+    setForceUpdate(prev => prev + 1);
   };
   
   const handleMarkOvulation = (date) => {
