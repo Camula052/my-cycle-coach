@@ -50,6 +50,14 @@ const DayDetailModal = ({
 
   const currentPhase = getCurrentPhase(cycleDay);
   
+  // DEBUG
+  console.log('DayDetailModal Debug:', {
+    hasActivePeriod,
+    isPeriodDay,
+    selectedDate: selectedDate.toISOString(),
+    flowIntensity
+  });
+  
   const dateString = selectedDate.toLocaleDateString('de-DE', {
     weekday: 'long',
     year: 'numeric',
@@ -99,8 +107,11 @@ const DayDetailModal = ({
     flowData[dateKey] = level;
     localStorage.setItem('flowData', JSON.stringify(flowData));
     
-    // Trigger onSaveTracking für Updates
-    onSaveTracking({ flowIntensity: level });
+    // Trigger onSaveTracking für Updates - MIT Datum!
+    onSaveTracking({ 
+      flowIntensity: level,
+      date: selectedDate.toISOString()
+    });
   };
 
   const handleAddSexTime = () => {
@@ -241,8 +252,8 @@ const DayDetailModal = ({
               )}
             </div>
 
-            {/* Flow Intensität - nur wenn aktive Periode UND Perioden-Tag */}
-            {hasActivePeriod && isPeriodDay && (
+            {/* Flow Intensität - zeige wenn aktive Periode (unabhängig von isPeriodDay prop) */}
+            {hasActivePeriod && (
               <div>
                 <p style={{
                   color: COLORS.text,

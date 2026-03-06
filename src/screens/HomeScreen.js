@@ -26,62 +26,116 @@ const HomeScreen = ({ currentPhase, cycleDay, userData, onUpdateUserData, onOpen
     }
   }, []);
 
-  // Re-load flowData wenn forceUpdate sich ändert
+  // Re-load flowData wenn forceUpdate sich ändert ODER userData
   useEffect(() => {
     const savedFlowData = localStorage.getItem('flowData');
     if (savedFlowData) {
       setFlowData(JSON.parse(savedFlowData));
     }
-  }, [forceUpdate]);
+  }, [forceUpdate, userData]);
 
   const hasActivePeriod = () => {
-    // Check ob flowData existiert UND ob periodDuration NICHT gesetzt ist
-    // Wenn periodDuration gesetzt ist, wurde die Periode beendet
-    return Object.keys(flowData).length > 0 && !userData?.periodDuration;
+    // Periode ist aktiv wenn periodStartDate gesetzt UND lastPeriodEndDate NICHT gesetzt
+    return userData?.periodStartDate && !userData?.lastPeriodEndDate;
   };
 
   const isPeriodEnded = () => {
-    // Periode wurde beendet wenn periodDuration gesetzt ist
-    return userData?.periodDuration && parseInt(userData.periodDuration) > 0;
+    // Periode wurde beendet wenn lastPeriodEndDate gesetzt ist
+    return userData?.lastPeriodEndDate;
+  };
+
+  const isPeriodDay = (date) => {
+    // Ein Tag ist Perioden-Tag wenn:
+    // 1. Periode läuft UND Tag <= heute UND innerhalb Prognose
+    // 2. ODER flowData existiert (tatsächlich eingetragen)
+    
+    const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    
+    // Hat flowData? Dann ist es definitiv ein Perioden-Tag
+    if (flowData[dateKey] > 0) {
+      return true;
+    }
+    
+    // Sonst: Checke Prognose nur wenn Periode aktiv
+    if (!hasActivePeriod()) {
+      return false;
+    }
+    
+    // Prognose: Tag innerhalb periodDuration ab periodStartDate
+    const targetDate = new Date(date);
+    targetDate.setHours(0, 0, 0, 0);
+    
+    const periodStart = new Date(userData.periodStartDate);
+    periodStart.setHours(0, 0, 0, 0);
+    
+    const daysDiff = Math.floor((targetDate - periodStart) / (1000 * 60 * 60 * 24));
+    const periodDuration = parseInt(userData?.periodDuration) || 5;
+    
+    console.log('isPeriodDay debug:', {
+      dateKey,
+      targetDate: targetDate.toISOString(),
+      periodStart: periodStart.toISOString(),
+      daysDiff,
+      periodDuration,
+      result: daysDiff >= 0 && daysDiff < periodDuration
+    });
+    
+    return daysDiff >= 0 && daysDiff < periodDuration;
   };
 
   const handleMarkPeriodStart = (date) => {
     const newUserData = {
       ...userData,
       periodStartDate: date.toISOString().split('T')[0],
-      periodDuration: null // Wichtig: Lösche alte Dauer
+      lastPeriodEndDate: null // Wichtig: Lösche "Ende"-Flag
     };
     localStorage.setItem('userData', JSON.stringify(newUserData));
     localStorage.removeItem('ovulationDates');
     
-    // Erstelle flowData Entry für den ersten Tag
-    const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    const newFlowData = { ...flowData, [dateKey]: 2 }; // Default: mittlere Intensität
-    setFlowData(newFlowData);
-    localStorage.setItem('flowData', JSON.stringify(newFlowData));
+    // KEIN flowData hier - das wird nur bei Intensitäts-Änderung gespeichert
     
     if (onUpdateUserData) onUpdateUserData(newUserData);
-    setForceUpdate(prev => prev + 1); // Trigger Re-Render
-    // Modal bleibt offen damit User Intensität einstellen kann
+    setForceUpdate(prev => prev + 1);
   };
 
   const handleMarkPeriodEnd = (date) => {
-    const start = new Date(userData.periodStartDate);
-    const duration = Math.floor((date - start) / (1000 * 60 * 60 * 24)) + 1;
+    const endDate = new Date(date);
+    const startDate = new Date(userData.periodStartDate);
     
-    // Berechne nächsten voraussichtlichen Periode-Start (28 Tage nach aktuellem Start)
-    const nextPeriodStart = new Date(start);
+    // Berechne wie viele Tage die Periode tatsächlich gedauert hat
+    const actualDuration = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+    
+    // Berechne nächsten Periode-Start (28 Tage nach DIESEM Start)
+    const nextPeriodStart = new Date(startDate);
     nextPeriodStart.setDate(nextPeriodStart.getDate() + 28);
     
     const newUserData = {
       ...userData,
       periodStartDate: nextPeriodStart.toISOString().split('T')[0],
-      periodDuration: duration.toString()
+      lastPeriodEndDate: date.toISOString().split('T')[0]
     };
     localStorage.setItem('userData', JSON.stringify(newUserData));
+    
+    // Lösche flowData für alle Tage NACH dem End-Datum
+    endDate.setHours(0, 0, 0, 0);
+    
+    const cleanedFlowData = {};
+    Object.keys(flowData).forEach(dateKey => {
+      const [y, m, d] = dateKey.split('-').map(Number);
+      const flowDate = new Date(y, m - 1, d);
+      flowDate.setHours(0, 0, 0, 0);
+      
+      // Behalte nur Tage <= End-Datum
+      if (flowDate <= endDate) {
+        cleanedFlowData[dateKey] = flowData[dateKey];
+      }
+    });
+    
+    setFlowData(cleanedFlowData);
+    localStorage.setItem('flowData', JSON.stringify(cleanedFlowData));
+    
     if (onUpdateUserData) onUpdateUserData(newUserData);
     setForceUpdate(prev => prev + 1);
-    // Modal bleibt offen
   };
 
   const handleMarkOvulation = (date) => {
@@ -318,7 +372,7 @@ const HomeScreen = ({ currentPhase, cycleDay, userData, onUpdateUserData, onOpen
         selectedDate={new Date()}
         cycleDay={cycleDay}
         phaseName={t(`phases.${currentPhase.key}.name`)}
-        isPeriodDay={cycleDay >= 1 && cycleDay <= 5}
+        isPeriodDay={isPeriodDay(new Date())}
         isFutureDay={false}
         hasActivePeriod={hasActivePeriod()}
         onSaveTracking={handleSaveTracking}
