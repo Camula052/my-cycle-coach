@@ -42,6 +42,15 @@ const DayDetailModal = ({
         setFlowIntensity(flowData[dateKey] || 0);
       }
       
+      // Lade Geschlechtsverkehr-Zeiten
+      const savedSexData = localStorage.getItem('sexData');
+      if (savedSexData) {
+        const sexData = JSON.parse(savedSexData);
+        setSexTimes(sexData[dateKey] || []);
+      } else {
+        setSexTimes([]);
+      }
+      
       // TODO: Lade andere gespeicherte Daten (mood, symptoms, etc.)
     }
   }, [isOpen, selectedDate]);
@@ -116,13 +125,29 @@ const DayDetailModal = ({
 
   const handleAddSexTime = () => {
     if (newSexTime) {
-      setSexTimes([...sexTimes, { time: newSexTime }]);
+      const newSexTimes = [...sexTimes, { time: newSexTime }];
+      setSexTimes(newSexTimes);
       setNewSexTime('');
+      
+      // Speichere in localStorage für diesen Tag
+      const dateKey = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+      const savedSexData = localStorage.getItem('sexData');
+      const sexData = savedSexData ? JSON.parse(savedSexData) : {};
+      sexData[dateKey] = newSexTimes;
+      localStorage.setItem('sexData', JSON.stringify(sexData));
     }
   };
 
   const handleRemoveSexTime = (index) => {
-    setSexTimes(sexTimes.filter((_, i) => i !== index));
+    const newSexTimes = sexTimes.filter((_, i) => i !== index);
+    setSexTimes(newSexTimes);
+    
+    // Speichere in localStorage für diesen Tag
+    const dateKey = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+    const savedSexData = localStorage.getItem('sexData');
+    const sexData = savedSexData ? JSON.parse(savedSexData) : {};
+    sexData[dateKey] = newSexTimes;
+    localStorage.setItem('sexData', JSON.stringify(sexData));
   };
 
   return (
