@@ -4,6 +4,9 @@ import { useTranslation } from '../hooks/useTranslation';
 import { getCurrentPhase, COLORS } from '../utils/cycleHelpers';
 import PremiumPurchaseModal from '../components/PremiumPurchaseModal';
 import { purchaseService } from '../services/premiumService';
+import RecipeSwiper from '../components/RecipeSwiper';
+import MealPlanGenerator from '../components/MealPlanGenerator';
+import SavedMealPlans from '../components/SavedMealPlans';
 
 const NutritionScreen = ({ userData }) => {
   const { t } = useTranslation();
@@ -13,6 +16,8 @@ const NutritionScreen = ({ userData }) => {
   const [currentPhase, setCurrentPhase] = useState(null);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [isPremium, setIsPremium] = useState(purchaseService.hasNutritionPremium());
+  const [activeTab, setActiveTab] = useState('tips'); // tips, recipes, mealplan
+  const [recipeCategory, setRecipeCategory] = useState('breakfast'); // breakfast, lunch, dinner, snack
 
   // Berechne aktuelle Phase mit Eisprung-Berücksichtigung
   useEffect(() => {
@@ -129,8 +134,54 @@ const NutritionScreen = ({ userData }) => {
           </p>
         </div>
 
-        {/* Info Box */}
-        <div style={{
+        {/* Tab Bar - nur wenn Premium */}
+        {isPremium && (
+          <div style={{
+            display: 'flex',
+            gap: '8px',
+            marginBottom: '24px',
+            background: 'rgba(255, 255, 255, 0.3)',
+            borderRadius: '16px',
+            padding: '6px',
+            backdropFilter: 'blur(10px)'
+          }}>
+            {[
+              { key: 'tips', icon: '💡', label: 'Tipps' },
+              { key: 'recipes', icon: '🍳', label: 'Rezepte' },
+              { key: 'mealplan', icon: '📅', label: 'Meal Plan' }
+            ].map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                style={{
+                  flex: 1,
+                  padding: '12px 16px',
+                  background: activeTab === tab.key 
+                    ? 'rgba(255, 255, 255, 0.9)' 
+                    : 'transparent',
+                  border: 'none',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  fontSize: '15px',
+                  fontWeight: activeTab === tab.key ? '600' : '500',
+                  color: COLORS.text,
+                  transition: 'all 0.2s ease',
+                  boxShadow: activeTab === tab.key 
+                    ? '0 2px 8px rgba(0,0,0,0.1)' 
+                    : 'none'
+                }}
+              >
+                {tab.icon} {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Tab Content */}
+        {(!isPremium || activeTab === 'tips') && (
+          <>
+            {/* Info Box */}
+            <div style={{
           background: 'rgba(255, 255, 255, 0.3)',
           borderRadius: '16px',
           padding: '20px',
@@ -360,8 +411,81 @@ const NutritionScreen = ({ userData }) => {
             ))}
           </div>
         </div>
+          </>
+        )}
 
-        {/* Premium CTA */}
+        {/* Rezepte Tab - Premium */}
+        {isPremium && activeTab === 'recipes' && (
+          <>
+            {/* Category Filter */}
+            <div style={{
+              display: 'flex',
+              gap: '8px',
+              marginBottom: '20px',
+              flexWrap: 'wrap',
+              justifyContent: 'center'
+            }}>
+              {[
+                { key: 'breakfast', icon: '🌅', label: 'Frühstück' },
+                { key: 'lunch', icon: '☀️', label: 'Mittag' },
+                { key: 'dinner', icon: '🌙', label: 'Abendessen' },
+                { key: 'snack', icon: '🍎', label: 'Snack' }
+              ].map(cat => (
+                <button
+                  key={cat.key}
+                  onClick={() => setRecipeCategory(cat.key)}
+                  style={{
+                    padding: '10px 20px',
+                    background: recipeCategory === cat.key 
+                      ? 'rgba(255, 255, 255, 0.9)' 
+                      : 'rgba(255, 255, 255, 0.4)',
+                    border: recipeCategory === cat.key 
+                      ? '2px solid rgba(232, 168, 136, 0.6)' 
+                      : '2px solid transparent',
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: recipeCategory === cat.key ? '600' : '500',
+                    color: COLORS.text,
+                    backdropFilter: 'blur(10px)',
+                    transition: 'all 0.2s ease',
+                    boxShadow: recipeCategory === cat.key 
+                      ? '0 2px 8px rgba(0,0,0,0.1)' 
+                      : 'none'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (recipeCategory !== cat.key) {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.6)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (recipeCategory !== cat.key) {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.4)';
+                    }
+                  }}
+                >
+                  {cat.icon} {cat.label}
+                </button>
+              ))}
+            </div>
+            
+            <RecipeSwiper 
+              currentPhase={currentPhase} 
+              category={recipeCategory}
+            />
+          </>
+        )}
+
+        {/* Meal Plan Tab - Premium */}
+        {isPremium && activeTab === 'mealplan' && (
+          <>
+            <MealPlanGenerator currentPhase={currentPhase} />
+            <SavedMealPlans />
+          </>
+        )}
+
+        {/* Premium CTA - nur wenn nicht Premium */}
+        {!isPremium && (
         <div style={{
           background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%)',
           borderRadius: '20px',
@@ -478,6 +602,7 @@ const NutritionScreen = ({ userData }) => {
             {t('nutrition.premium.subtitle')}
           </p>
         </div>
+        )}
 
       </div>
 

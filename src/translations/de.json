@@ -434,6 +434,13 @@
           ]
         }
       ]
+    },
+    "mealPlan": {
+      "noPlans": "Noch keine Meal Plans gespeichert",
+      "createFirst": "Erstelle deinen ersten personalisierten Wochenplan im Generator oben!",
+      "generatedOn": "Erstellt am",
+      "delete": "Löschen",
+      "confirmDelete": "Möchtest du diesen Meal Plan wirklich löschen?"
     }
   },
   "activity": {

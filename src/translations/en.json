@@ -434,6 +434,13 @@
           ]
         }
       ]
+    },
+    "mealPlan": {
+      "noPlans": "No meal plans saved yet",
+      "createFirst": "Create your first personalized weekly plan in the generator above!",
+      "generatedOn": "Generated on",
+      "delete": "Delete",
+      "confirmDelete": "Do you really want to delete this meal plan?"
     }
   },
   "activity": {

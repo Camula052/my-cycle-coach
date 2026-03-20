@@ -9,7 +9,7 @@ const COLORS = {
   primary: '#E8A888'
 };
 
-const SavedMealPlans = ({ plans, onDelete }) => {
+const SavedMealPlans = ({ plans = [], onDelete = () => {} }) => {
   const { t } = useTranslation();
   const [expandedPlan, setExpandedPlan] = useState(null);
 
@@ -43,7 +43,7 @@ const SavedMealPlans = ({ plans, onDelete }) => {
     return badges[diet] || null;
   };
 
-  if (plans.length === 0) {
+  if (!plans || plans.length === 0) {
     return (
       <div style={{
         textAlign: 'center',
