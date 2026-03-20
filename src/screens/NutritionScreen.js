@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { getCurrentPhase, COLORS } from '../utils/cycleHelpers';
+import PremiumPurchaseModal from '../components/PremiumPurchaseModal';
+import { purchaseService } from '../services/premiumService';
 
 const NutritionScreen = ({ userData }) => {
   const { t } = useTranslation();
@@ -9,6 +11,8 @@ const NutritionScreen = ({ userData }) => {
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const [currentPhase, setCurrentPhase] = useState(null);
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [isPremium, setIsPremium] = useState(purchaseService.hasNutritionPremium());
 
   // Berechne aktuelle Phase mit Eisprung-Berücksichtigung
   useEffect(() => {
@@ -459,7 +463,7 @@ const NutritionScreen = ({ userData }) => {
               e.currentTarget.style.transform = 'scale(1)';
               e.currentTarget.style.boxShadow = '0 4px 20px rgba(255, 215, 0, 0.4)';
             }}
-            onClick={() => alert('Premium-Feature kommt bald! 🚀')}
+            onClick={() => setShowPurchaseModal(true)}
           >
             <Sparkles size={18} />
             {t('nutrition.premium.cta')}
@@ -476,6 +480,17 @@ const NutritionScreen = ({ userData }) => {
         </div>
 
       </div>
+
+      {/* Purchase Modal */}
+      <PremiumPurchaseModal
+        isOpen={showPurchaseModal}
+        onClose={() => setShowPurchaseModal(false)}
+        productType="nutrition"
+        onPurchaseComplete={() => {
+          setIsPremium(purchaseService.hasNutritionPremium());
+          setShowPurchaseModal(false);
+        }}
+      />
     </div>
   );
 };

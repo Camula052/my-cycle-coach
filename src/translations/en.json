@@ -216,8 +216,8 @@
       "feature1": "AI-powered recipe suggestions",
       "feature2": "Personalized meal plans",
       "feature3": "Tailored to your needs",
-      "cta": "Coming Soon",
-      "subtitle": "AI-powered nutrition guidance ✨"
+      "cta": "Unlock Now",
+      "subtitle": "✨"
     },
     "menstruation": {
       "intro": "During menstruation, you lose blood and important nutrients. Your body needs extra support for regeneration now.",
@@ -510,8 +510,8 @@
       "feature1": "AI-powered exercise suggestions",
       "feature2": "Weekly training plans",
       "feature3": "Matched to your phase",
-      "cta": "Coming Soon",
-      "subtitle": "AI-powered training guidance ✨"
+      "cta": "Unlock Now",
+      "subtitle": "✨"
     }
   }
 }
