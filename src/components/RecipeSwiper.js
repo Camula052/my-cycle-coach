@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, X, RefreshCw, Clock, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getRecipesByCategory, formatRecipe } from '../services/spoonacularService';
+import RecipeDetailModal from './RecipeDetailModal';
 
 const COLORS = {
   text: '#2D3748',
@@ -22,6 +23,9 @@ const RecipeSwiper = ({
   const [translatedTitle, setTranslatedTitle] = useState('');
   const [translatedSummary, setTranslatedSummary] = useState('');
   const [translating, setTranslating] = useState(false);
+  const [showRecipeDetailModal, setShowRecipeDetailModal] = useState(false);
+  const [selectedRecipeId, setSelectedRecipeId] = useState(null);
+  const [offset, setOffset] = useState(0);
 
   // Mock Daten für Demo (später mit Spoonacular API ersetzen)
   const mockRecipes = {
@@ -134,31 +138,63 @@ const RecipeSwiper = ({
   }, [currentIndex]);
 
   useEffect(() => {
-    loadRecipes();
+    setOffset(0); // Reset offset when category changes
+    loadRecipes(0);
   }, [category]);
 
-  const loadRecipes = async () => {
+  const loadRecipes = async (refreshOffset = offset) => {
     setLoading(true);
     
     try {
-      // Versuche echte API
-      const data = await getRecipesByCategory(category, 10);
+      const typeMapping = {
+        breakfast: 'breakfast',
+        lunch: 'main course',
+        dinner: 'main course',
+        snack: 'snack'
+      };
+
+      console.log(`📡 Loading recipes with offset: ${refreshOffset}`);
+
+      // Versuche echte API mit offset
+      const response = await fetch(
+        `https://api.spoonacular.com/recipes/complexSearch?` +
+        `apiKey=${process.env.REACT_APP_SPOONACULAR_API_KEY || ''}` +
+        `&type=${typeMapping[category] || ''}` +
+        `&number=10` +
+        `&offset=${refreshOffset}` +
+        `&addRecipeInformation=true` +
+        `&fillIngredients=true`
+      );
       
-      if (data?.results && data.results.length > 0) {
-        const formatted = data.results.map(formatRecipe);
-        setRecipes(formatted);
-        setCurrentIndex(0);
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data?.results && data.results.length > 0) {
+          const formatted = data.results.map(formatRecipe);
+          setRecipes(formatted);
+          setCurrentIndex(0);
+          console.log(`✅ Loaded ${formatted.length} recipes`);
+        } else {
+          console.log('⚠️ No results, using mock data');
+          loadMockRecipes();
+        }
       } else {
-        // Fallback auf Mock-Daten
+        console.warn('API response not OK, using mock data');
         loadMockRecipes();
       }
     } catch (error) {
       console.warn('API nicht verfügbar, nutze Mock-Daten:', error);
-      // Fallback auf Mock-Daten
       loadMockRecipes();
     } finally {
       setLoading(false);
     }
+  };
+
+  const refreshRecipes = () => {
+    const newOffset = offset + 10;
+    console.log(`🔄 Refreshing with new offset: ${newOffset}`);
+    setOffset(newOffset);
+    loadRecipes(newOffset);
   };
 
   const loadMockRecipes = () => {
@@ -225,14 +261,23 @@ const RecipeSwiper = ({
         transition: 'all 0.3s ease'
       }}>
         {/* Image */}
-        <div style={{
-          width: '100%',
-          height: '300px',
-          backgroundImage: `url(${currentRecipe.image})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          position: 'relative'
-        }}>
+        <div 
+          onClick={() => {
+            if (currentRecipe.id) {
+              setSelectedRecipeId(currentRecipe.id);
+              setShowRecipeDetailModal(true);
+            }
+          }}
+          style={{
+            width: '100%',
+            height: '300px',
+            backgroundImage: `url(${currentRecipe.image})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            position: 'relative',
+            cursor: currentRecipe.id ? 'pointer' : 'default'
+          }}
+        >
           {/* Favorite Badge */}
           {isFavorited && (
             <div style={{
@@ -291,10 +336,19 @@ const RecipeSwiper = ({
         </div>
 
         {/* Content */}
-        <div style={{
-          background: 'white',
-          padding: '24px'
-        }}>
+        <div 
+          onClick={() => {
+            if (currentRecipe.id) {
+              setSelectedRecipeId(currentRecipe.id);
+              setShowRecipeDetailModal(true);
+            }
+          }}
+          style={{
+            background: 'white',
+            padding: '24px',
+            cursor: currentRecipe.id ? 'pointer' : 'default'
+          }}
+        >
           <h3 style={{
             color: COLORS.text,
             fontSize: '24px',
@@ -392,6 +446,39 @@ const RecipeSwiper = ({
           <ChevronLeft size={24} color={COLORS.textLight} />
         </button>
 
+        {/* Refresh */}
+        <button
+          onClick={refreshRecipes}
+          disabled={loading}
+          style={{
+            width: '50px',
+            height: '50px',
+            borderRadius: '50%',
+            border: '2px solid',
+            borderColor: COLORS.primary,
+            background: 'white',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.2s',
+            opacity: loading ? 0.5 : 1
+          }}
+          onMouseEnter={(e) => {
+            if (!loading) {
+              e.currentTarget.style.transform = 'scale(1.1) rotate(90deg)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
+          }}
+          title="Neue Rezepte laden"
+        >
+          <RefreshCw size={24} color={COLORS.primary} style={{
+            animation: loading ? 'spin 1s linear infinite' : 'none'
+          }} />
+        </button>
+
         {/* Dislike */}
         <button
           onClick={() => handleSwipe('left')}
@@ -479,6 +566,24 @@ const RecipeSwiper = ({
       }}>
         {currentIndex + 1} / {recipes.length}
       </div>
+
+      {/* Recipe Detail Modal */}
+      {showRecipeDetailModal && selectedRecipeId && (
+        <RecipeDetailModal
+          recipeId={selectedRecipeId}
+          onClose={() => {
+            setShowRecipeDetailModal(false);
+            setSelectedRecipeId(null);
+          }}
+        />
+      )}
+
+      {/* Spin Animation for Refresh */}
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

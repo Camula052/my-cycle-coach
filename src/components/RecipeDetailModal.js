@@ -9,12 +9,19 @@ const COLORS = {
   primary: '#E8A888'
 };
 
-const RecipeDetailModal = ({ recipeId, onClose }) => {
-  const [recipe, setRecipe] = useState(null);
-  const [loading, setLoading] = useState(true);
+const RecipeDetailModal = ({ recipeId, recipe: providedRecipe, onClose }) => {
+  const [recipe, setRecipe] = useState(providedRecipe || null);
+  const [loading, setLoading] = useState(!providedRecipe);
 
   useEffect(() => {
     const loadRecipe = async () => {
+      // Wenn recipe bereits übergeben wurde, skip API call
+      if (providedRecipe) {
+        setRecipe(providedRecipe);
+        setLoading(false);
+        return;
+      }
+
       if (!recipeId) return;
       
       setLoading(true);
@@ -23,14 +30,18 @@ const RecipeDetailModal = ({ recipeId, onClose }) => {
         setRecipe(details);
       } catch (error) {
         console.error('Error loading recipe:', error);
-        alert('Fehler beim Laden des Rezepts');
+        if (error.message.includes('402')) {
+          alert('API Limit erreicht. Die kostenlose Version ist auf 150 Requests/Tag limitiert.');
+        } else {
+          alert('Fehler beim Laden des Rezepts');
+        }
       } finally {
         setLoading(false);
       }
     };
 
     loadRecipe();
-  }, [recipeId]);
+  }, [recipeId, providedRecipe]);
 
   if (!recipeId) return null;
 
@@ -217,9 +228,24 @@ const RecipeDetailModal = ({ recipeId, onClose }) => {
                     lineHeight: '1.8'
                   }}>
                     {recipe.extendedIngredients.map((ingredient, idx) => (
-                      <li key={idx}>{ingredient.original}</li>
+                      <li key={idx}>{ingredient.original || ingredient.name || ingredient}</li>
                     ))}
                   </ul>
+                </div>
+              )}
+
+              {/* Keine Zutaten verfügbar - zeige Hinweis */}
+              {(!recipe.extendedIngredients || recipe.extendedIngredients.length === 0) && (
+                <div style={{
+                  background: 'rgba(232, 168, 136, 0.05)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  marginBottom: '24px',
+                  textAlign: 'center',
+                  color: COLORS.textLight,
+                  fontSize: '14px'
+                }}>
+                  ℹ️ Detaillierte Zutaten sind nur mit dem vollständigen Rezept verfügbar.
                 </div>
               )}
 
