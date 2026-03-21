@@ -441,6 +441,14 @@
       "generatedOn": "Erstellt am",
       "delete": "Löschen",
       "confirmDelete": "Möchtest du diesen Meal Plan wirklich löschen?"
+    },
+    "recipes": {
+      "categories": {
+        "breakfast": "Frühstück",
+        "lunch": "Mittag",
+        "dinner": "Abendessen",
+        "snack": "Snack"
+      }
     }
   },
   "activity": {

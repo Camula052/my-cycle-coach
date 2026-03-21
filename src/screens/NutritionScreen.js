@@ -18,6 +18,23 @@ const NutritionScreen = ({ userData }) => {
   const [isPremium, setIsPremium] = useState(purchaseService.hasNutritionPremium());
   const [activeTab, setActiveTab] = useState('tips'); // tips, recipes, mealplan
   const [recipeCategory, setRecipeCategory] = useState('breakfast'); // breakfast, lunch, dinner, snack
+  const [savedPlans, setSavedPlans] = useState([]);
+
+  // Lade gespeicherte Meal Plans
+  useEffect(() => {
+    const loadSavedPlans = () => {
+      const plans = JSON.parse(localStorage.getItem('mealPlans') || '[]');
+      setSavedPlans(plans);
+    };
+    loadSavedPlans();
+  }, [isPremium, activeTab]);
+
+  const handleDeletePlan = (planId) => {
+    const plans = JSON.parse(localStorage.getItem('mealPlans') || '[]');
+    const updatedPlans = plans.filter(p => p.id !== planId);
+    localStorage.setItem('mealPlans', JSON.stringify(updatedPlans));
+    setSavedPlans(updatedPlans);
+  };
 
   // Berechne aktuelle Phase mit Eisprung-Berücksichtigung
   useEffect(() => {
@@ -426,10 +443,10 @@ const NutritionScreen = ({ userData }) => {
               justifyContent: 'center'
             }}>
               {[
-                { key: 'breakfast', icon: '🌅', label: 'Frühstück' },
-                { key: 'lunch', icon: '☀️', label: 'Mittag' },
-                { key: 'dinner', icon: '🌙', label: 'Abendessen' },
-                { key: 'snack', icon: '🍎', label: 'Snack' }
+                { key: 'breakfast', icon: '🌅', label: t('nutrition.recipes.categories.breakfast') },
+                { key: 'lunch', icon: '☀️', label: t('nutrition.recipes.categories.lunch') },
+                { key: 'dinner', icon: '🌙', label: t('nutrition.recipes.categories.dinner') },
+                { key: 'snack', icon: '🍎', label: t('nutrition.recipes.categories.snack') }
               ].map(cat => (
                 <button
                   key={cat.key}
@@ -479,8 +496,15 @@ const NutritionScreen = ({ userData }) => {
         {/* Meal Plan Tab - Premium */}
         {isPremium && activeTab === 'mealplan' && (
           <>
-            <MealPlanGenerator currentPhase={currentPhase} />
-            <SavedMealPlans />
+            <MealPlanGenerator 
+              currentPhase={currentPhase} 
+              userData={{ currentPhase }}
+              onSave={(newPlan) => setSavedPlans([...savedPlans, newPlan])}
+            />
+            <SavedMealPlans 
+              plans={savedPlans}
+              onDelete={handleDeletePlan}
+            />
           </>
         )}
 

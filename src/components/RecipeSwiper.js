@@ -18,6 +18,10 @@ const RecipeSwiper = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [swipeDirection, setSwipeDirection] = useState(null);
+  const [isTranslated, setIsTranslated] = useState(false);
+  const [translatedTitle, setTranslatedTitle] = useState('');
+  const [translatedSummary, setTranslatedSummary] = useState('');
+  const [translating, setTranslating] = useState(false);
 
   // Mock Daten für Demo (später mit Spoonacular API ersetzen)
   const mockRecipes = {
@@ -84,6 +88,50 @@ const RecipeSwiper = ({
       }
     ]
   };
+
+  // Simple Translation via Google Translate (kostenlos)
+  const translateRecipe = async () => {
+    if (isTranslated) {
+      // Toggle zurück zu Original
+      setIsTranslated(false);
+      setTranslatedTitle('');
+      setTranslatedSummary('');
+      return;
+    }
+
+    setTranslating(true);
+    try {
+      const currentRecipe = recipes[currentIndex];
+      
+      // Nutze Google Translate API (kostenlos via MyMemory API)
+      const translateText = async (text) => {
+        const response = await fetch(
+          `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|de`
+        );
+        const data = await response.json();
+        return data.responseData.translatedText;
+      };
+
+      const title = await translateText(currentRecipe.title);
+      const summary = await translateText(currentRecipe.summary);
+
+      setTranslatedTitle(title);
+      setTranslatedSummary(summary);
+      setIsTranslated(true);
+    } catch (error) {
+      console.error('Translation error:', error);
+      alert('Übersetzung fehlgeschlagen. Bitte später erneut versuchen.');
+    } finally {
+      setTranslating(false);
+    }
+  };
+
+  // Reset translation when recipe changes
+  useEffect(() => {
+    setIsTranslated(false);
+    setTranslatedTitle('');
+    setTranslatedSummary('');
+  }, [currentIndex]);
 
   useEffect(() => {
     loadRecipes();
@@ -254,7 +302,7 @@ const RecipeSwiper = ({
             marginBottom: '12px',
             margin: 0
           }}>
-            {currentRecipe.title}
+            {isTranslated ? translatedTitle : currentRecipe.title}
           </h3>
 
           {/* Tags */}
@@ -288,8 +336,30 @@ const RecipeSwiper = ({
             lineHeight: '1.6',
             margin: 0
           }}>
-            {currentRecipe.summary}
+            {isTranslated ? translatedSummary : currentRecipe.summary}
           </p>
+
+          {/* Translate Button */}
+          <button
+            onClick={translateRecipe}
+            disabled={translating}
+            style={{
+              marginTop: '16px',
+              padding: '8px 16px',
+              background: isTranslated ? '#4CAF50' : 'rgba(232, 168, 136, 0.1)',
+              border: '1px solid',
+              borderColor: isTranslated ? '#4CAF50' : COLORS.primary,
+              borderRadius: '8px',
+              color: isTranslated ? 'white' : COLORS.primary,
+              fontSize: '13px',
+              fontWeight: '600',
+              cursor: translating ? 'not-allowed' : 'pointer',
+              opacity: translating ? 0.6 : 1,
+              transition: 'all 0.2s ease'
+            }}
+          >
+            {translating ? '🔄 Übersetze...' : isTranslated ? '🇬🇧 Original' : '🇩🇪 Übersetzen'}
+          </button>
         </div>
       </div>
 

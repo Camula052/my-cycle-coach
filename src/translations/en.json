@@ -441,6 +441,14 @@
       "generatedOn": "Generated on",
       "delete": "Delete",
       "confirmDelete": "Do you really want to delete this meal plan?"
+    },
+    "recipes": {
+      "categories": {
+        "breakfast": "Breakfast",
+        "lunch": "Lunch",
+        "dinner": "Dinner",
+        "snack": "Snack"
+      }
     }
   },
   "activity": {
