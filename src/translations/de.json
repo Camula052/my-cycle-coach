@@ -210,14 +210,22 @@
     "title": "Ernährung für deine Phase",
     "whatYourBodyNeeds": "Was dein Körper jetzt braucht",
     "importantNutrients": "Wichtige Nährstoffe",
+    "recipes": {
+      "categories": {
+        "breakfast": "Frühstück",
+        "lunch": "Mittag",
+        "dinner": "Abendessen",
+        "snack": "Snack"
+      }
+    },
     "premium": {
       "title": "Deine KI-Ernährungsassistentin",
       "description": "Lass dir von KI helfen, die perfekten Mahlzeiten für deine aktuelle Zyklusphase zu finden.",
       "feature1": "KI-gestützte Rezeptvorschläge",
       "feature2": "Personalisierte Meal-Pläne",
       "feature3": "Auf dich zugeschnitten",
-      "cta": "Jetzt freischalten",
-      "subtitle": "✨"
+      "cta": "Bald verfügbar",
+      "subtitle": "Coming Soon ✨"
     },
     "menstruation": {
       "intro": "Während deiner Menstruation verlierst du Blut und damit wichtige Nährstoffe. Dein Körper braucht jetzt besonders viel Unterstützung zur Regeneration.",
@@ -434,21 +442,6 @@
           ]
         }
       ]
-    },
-    "mealPlan": {
-      "noPlans": "Noch keine Meal Plans gespeichert",
-      "createFirst": "Erstelle deinen ersten personalisierten Wochenplan im Generator oben!",
-      "generatedOn": "Erstellt am",
-      "delete": "Löschen",
-      "confirmDelete": "Möchtest du diesen Meal Plan wirklich löschen?"
-    },
-    "recipes": {
-      "categories": {
-        "breakfast": "Frühstück",
-        "lunch": "Mittag",
-        "dinner": "Abendessen",
-        "snack": "Snack"
-      }
     }
   },
   "activity": {
@@ -525,8 +518,94 @@
       "feature1": "KI-gestützte Übungsvorschläge",
       "feature2": "Wöchentliche Trainingspläne",
       "feature3": "Auf deine Phase abgestimmt",
-      "cta": "Jetzt freischalten",
-      "subtitle": "✨"
+      "cta": "Bald verfügbar",
+      "subtitle": "Coming Soon ✨"
+    }
+  },
+  "recipe": {
+    "components": {
+      "chicken_breast": "Hähnchenbrust",
+      "salmon": "Lachs",
+      "turkey": "Pute",
+      "eggs": "Eier",
+      "shrimp": "Garnelen",
+      "tofu": "Tofu",
+      "tempeh": "Tempeh",
+      "chickpeas": "Kichererbsen",
+      "lentils": "Linsen",
+      "black_beans": "Schwarze Bohnen",
+      "brown_rice": "Brauner Reis",
+      "quinoa": "Quinoa",
+      "sweet_potato": "Süßkartoffel",
+      "whole_wheat_pasta": "Vollkorn-Pasta",
+      "oats": "Haferflocken",
+      "bread": "Vollkornbrot",
+      "granola": "Granola",
+      "banana": "Banane",
+      "berries": "Beeren-Mix",
+      "broccoli": "Brokkoli",
+      "spinach": "Spinat",
+      "bell_pepper": "Paprika",
+      "asparagus": "Spargel",
+      "kale": "Grünkohl",
+      "zucchini": "Zucchini",
+      "carrots": "Karotten",
+      "tomatoes": "Tomaten",
+      "sesame_seeds": "Sesam",
+      "fresh_herbs": "Frische Kräuter",
+      "nuts": "Nüsse",
+      "lemon_wedge": "Zitronenspalte"
+    },
+    "cookingMethods": {
+      "grilled": "Gegrillt",
+      "baked": "Gebacken",
+      "sauteed": "Angebraten",
+      "steamed": "Gedämpft",
+      "roasted": "Geröstet",
+      "boiled": "Gekocht",
+      "raw": "Roh",
+      "pan_seared": "Scharf angebraten",
+      "poached": "Pochiert",
+      "scrambled": "Verrührt",
+      "fried": "Frittiert"
+    },
+    "cookingVerbs": {
+      "grilled": "grillen",
+      "baked": "im Ofen backen",
+      "sauteed": "in der Pfanne anbraten",
+      "steamed": "dämpfen",
+      "roasted": "rösten",
+      "boiled": "kochen",
+      "raw": "roh servieren",
+      "pan_seared": "scharf anbraten",
+      "poached": "pochieren",
+      "scrambled": "verrühren und braten",
+      "fried": "frittieren"
+    },
+    "phaseDescriptions": {
+      "menstruation": "Wärmend und nährstoffreich für die Menstruationsphase",
+      "follicular": "Energiereich und proteinreich für die Follikelphase",
+      "ovulation": "Leicht und antioxidantienreich für die Ovulationsphase",
+      "luteal": "Sättigend mit komplexen Kohlenhydraten für die Lutealphase"
+    },
+    "ui": {
+      "customize": "Anpassen",
+      "save": "Speichern",
+      "share": "Teilen",
+      "close": "Schließen",
+      "ingredients": "Zutaten",
+      "instructions": "Zubereitung",
+      "servings": "Portionen",
+      "minutes": "min",
+      "calories": "kcal",
+      "customRecipe": "Custom Rezept",
+      "phaseAppropriate": "Phasengerecht",
+      "myRecipes": "Meine Rezepte",
+      "randomRecipes": "Zufällige Rezepte",
+      "recipeDesigner": "Rezept Designer",
+      "clickToSwap": "Klick auf die Zutaten um sie auszutauschen!",
+      "copyCode": "Code kopieren",
+      "copied": "Kopiert!"
     }
   }
 }

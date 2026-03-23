@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, X, RefreshCw, Clock, Users, ChevronLeft, ChevronRight } from 'lucide-react';
-import { getRecipesByCategory, formatRecipe } from '../services/spoonacularService';
+import { Heart, X, RefreshCw, Clock, Users, ChevronLeft, ChevronRight, Wrench } from 'lucide-react';
+import { buildRecipe, getCustomRecipes } from '../services/recipeBuilder';
 import RecipeDetailModal from './RecipeDetailModal';
+import ComponentBuilder from './ComponentBuilder';
+import EmojiRecipeImage from './EmojiRecipeImage';
+import recipeComponents from '../services/recipeComponents';
 
 const COLORS = {
   text: '#2D3748',
@@ -11,7 +14,9 @@ const COLORS = {
 };
 
 const RecipeSwiper = ({ 
-  category = 'breakfast', // breakfast, lunch, dinner, snack
+  category = 'breakfast',
+  currentPhase = { key: 'follicular' },
+  preferences = {},
   onFavorite,
   favorites = []
 }) => {
@@ -24,79 +29,13 @@ const RecipeSwiper = ({
   const [translatedSummary, setTranslatedSummary] = useState('');
   const [translating, setTranslating] = useState(false);
   const [showRecipeDetailModal, setShowRecipeDetailModal] = useState(false);
-  const [selectedRecipeId, setSelectedRecipeId] = useState(null);
-  const [offset, setOffset] = useState(0);
+  const [showComponentBuilder, setShowComponentBuilder] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [isCustomMode, setIsCustomMode] = useState(false);
 
-  // Mock Daten für Demo (später mit Spoonacular API ersetzen)
-  const mockRecipes = {
-    breakfast: [
-      {
-        id: 1,
-        title: 'Overnight Oats mit Beeren',
-        image: 'https://images.unsplash.com/photo-1590137876181-8b7d4c46c5f2?w=400',
-        readyInMinutes: 10,
-        servings: 2,
-        tags: ['süß', 'vegan', 'schnell'],
-        summary: 'Gesunde Overnight Oats vollgepackt mit Antioxidantien aus frischen Beeren.'
-      },
-      {
-        id: 2,
-        title: 'Avocado Toast mit Ei',
-        image: 'https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?w=400',
-        readyInMinutes: 15,
-        servings: 1,
-        tags: ['herzhaft', 'protein', 'vegetarisch'],
-        summary: 'Klassisches Avocado Toast mit perfekt pochiertem Ei.'
-      },
-      {
-        id: 3,
-        title: 'Protein Pancakes',
-        image: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400',
-        readyInMinutes: 20,
-        servings: 2,
-        tags: ['süß', 'protein', 'vegetarisch'],
-        summary: 'Fluffige Pancakes mit extra Protein - perfekt nach dem Sport.'
-      }
-    ],
-    lunch: [
-      {
-        id: 4,
-        title: 'Buddha Bowl',
-        image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400',
-        readyInMinutes: 25,
-        servings: 2,
-        tags: ['herzhaft', 'vegan', 'gesund'],
-        summary: 'Bunte Bowl mit Quinoa, geröstetem Gemüse und Tahini-Dressing.'
-      }
-    ],
-    dinner: [
-      {
-        id: 5,
-        title: 'Lachs mit Spargel',
-        image: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400',
-        readyInMinutes: 30,
-        servings: 2,
-        tags: ['herzhaft', 'pescetarisch', 'protein'],
-        summary: 'Omega-3 reicher Lachs mit grünem Spargel und Zitrone.'
-      }
-    ],
-    snack: [
-      {
-        id: 6,
-        title: 'Energy Balls',
-        image: 'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=400',
-        readyInMinutes: 15,
-        servings: 12,
-        tags: ['süß', 'vegan', 'energieboost'],
-        summary: 'No-bake Energy Balls aus Datteln, Nüssen und Kakao.'
-      }
-    ]
-  };
-
-  // Simple Translation via Google Translate (kostenlos)
+  // Translation via MyMemory API
   const translateRecipe = async () => {
     if (isTranslated) {
-      // Toggle zurück zu Original
       setIsTranslated(false);
       setTranslatedTitle('');
       setTranslatedSummary('');
@@ -104,27 +43,24 @@ const RecipeSwiper = ({
     }
 
     setTranslating(true);
+    
     try {
-      const currentRecipe = recipes[currentIndex];
+      const titleResponse = await fetch(
+        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(currentRecipe.title)}&langpair=en|de`
+      );
+      const titleData = await titleResponse.json();
       
-      // Nutze Google Translate API (kostenlos via MyMemory API)
-      const translateText = async (text) => {
-        const response = await fetch(
-          `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|de`
-        );
-        const data = await response.json();
-        return data.responseData.translatedText;
-      };
-
-      const title = await translateText(currentRecipe.title);
-      const summary = await translateText(currentRecipe.summary);
-
-      setTranslatedTitle(title);
-      setTranslatedSummary(summary);
+      const summaryResponse = await fetch(
+        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(currentRecipe.summary)}&langpair=en|de`
+      );
+      const summaryData = await summaryResponse.json();
+      
+      setTranslatedTitle(titleData.responseData.translatedText);
+      setTranslatedSummary(summaryData.responseData.translatedText);
       setIsTranslated(true);
     } catch (error) {
       console.error('Translation error:', error);
-      alert('Übersetzung fehlgeschlagen. Bitte später erneut versuchen.');
+      alert('Übersetzung fehlgeschlagen');
     } finally {
       setTranslating(false);
     }
@@ -137,74 +73,169 @@ const RecipeSwiper = ({
     setTranslatedSummary('');
   }, [currentIndex]);
 
+  // Load recipes when category or phase changes
   useEffect(() => {
-    setOffset(0); // Reset offset when category changes
-    loadRecipes(0);
-  }, [category]);
+    loadRecipes();
+  }, [category, currentPhase.key, isCustomMode]);
 
-  const loadRecipes = async (refreshOffset = offset) => {
+  const loadRecipes = () => {
     setLoading(true);
     
     try {
-      const typeMapping = {
-        breakfast: 'breakfast',
-        lunch: 'main course',
-        dinner: 'main course',
-        snack: 'snack'
-      };
+      console.log('🔄 Loading recipes...');
+      console.log('Category:', category);
+      console.log('Phase:', currentPhase.key);
+      console.log('Custom Mode:', isCustomMode);
 
-      console.log(`📡 Loading recipes with offset: ${refreshOffset}`);
+      let generated = [];
 
-      // Versuche echte API mit offset
-      const response = await fetch(
-        `https://api.spoonacular.com/recipes/complexSearch?` +
-        `apiKey=${process.env.REACT_APP_SPOONACULAR_API_KEY || ''}` +
-        `&type=${typeMapping[category] || ''}` +
-        `&number=10` +
-        `&offset=${refreshOffset}` +
-        `&addRecipeInformation=true` +
-        `&fillIngredients=true`
-      );
-      
-      if (response.ok) {
-        const data = await response.json();
-        
-        if (data?.results && data.results.length > 0) {
-          const formatted = data.results.map(formatRecipe);
-          setRecipes(formatted);
-          setCurrentIndex(0);
-          console.log(`✅ Loaded ${formatted.length} recipes`);
-        } else {
-          console.log('⚠️ No results, using mock data');
-          loadMockRecipes();
-        }
+      if (isCustomMode) {
+        // Load custom recipes
+        const customRecipes = getCustomRecipes();
+        generated = customRecipes.filter(r => 
+          r.template === category || 
+          (category === 'breakfast' && r.template === 'bowl') ||
+          (category === 'lunch' && ['bowl', 'salad', 'wrap'].includes(r.template)) ||
+          (category === 'dinner' && ['bowl', 'plate'].includes(r.template))
+        );
+        console.log(`✅ Loaded ${generated.length} custom recipes`);
       } else {
-        console.warn('API response not OK, using mock data');
-        loadMockRecipes();
+        // Generate from components
+        generated = generateRecipesFromComponents(category, currentPhase.key, 10);
+        console.log(`✅ Generated ${generated.length} component recipes`);
       }
+
+      setRecipes(generated);
+      setCurrentIndex(0);
     } catch (error) {
-      console.warn('API nicht verfügbar, nutze Mock-Daten:', error);
-      loadMockRecipes();
+      console.error('Recipe loading error:', error);
+      alert('Fehler beim Laden der Rezepte');
     } finally {
       setLoading(false);
     }
   };
 
-  const refreshRecipes = () => {
-    const newOffset = offset + 10;
-    console.log(`🔄 Refreshing with new offset: ${newOffset}`);
-    setOffset(newOffset);
-    loadRecipes(newOffset);
+  const generateRecipesFromComponents = (mealType, phase, count) => {
+    const recipes = [];
+    const allProteins = [...recipeComponents.proteins.animal, ...recipeComponents.proteins.plant];
+    const allCarbs = recipeComponents.carbs;
+    const allVeggies = recipeComponents.vegetables;
+    const allSauces = recipeComponents.sauces.presets;
+
+    // Filter by phase
+    const phaseProteins = allProteins.filter(p => p.phase.includes(phase) || p.phase.includes('all'));
+    const phaseCarbs = allCarbs.filter(c => c.phase.includes(phase) || c.phase.includes('all'));
+    const phaseVeggies = allVeggies.filter(v => v.phase.includes(phase) || v.phase.includes('all'));
+
+    for (let i = 0; i < count; i++) {
+      let recipe;
+
+      if (mealType === 'breakfast') {
+        // FRÜHSTÜCK: NUR Frühstücks-Carbs!
+        const breakfastCarbs = phaseCarbs.filter(c => 
+          c.mealTypes && c.mealTypes.includes('breakfast')
+        );
+        
+        // Fallback falls keine breakfast-specific Carbs gefunden werden
+        const availableBreakfastCarbs = breakfastCarbs.length > 0 ? breakfastCarbs : 
+          phaseCarbs.filter(c => ['oats', 'bread', 'granola', 'banana', 'berries'].includes(c.id));
+        
+        const carb = availableBreakfastCarbs[Math.floor(Math.random() * availableBreakfastCarbs.length)];
+        
+        // Optional Protein - nur Frühstücks-geeignete
+        const protein = Math.random() > 0.5 ? null : phaseProteins.filter(p => 
+          ['eggs', 'tofu', 'tempeh'].includes(p.id)
+        )[Math.floor(Math.random() * 3)];
+        
+        // Keine Sauce beim Frühstück - oder sehr mild
+        const sauce = null;
+
+        recipe = buildRecipe({
+          template: 'bowl',
+          proteins: protein ? [protein.id] : [],
+          carbs: [carb.id],
+          vegetables: [], // KEIN Gemüse beim Frühstück!
+          sauce: sauce,
+          toppings: carb.id === 'oats' ? ['berries', 'nuts'] : ['fresh_herbs'],
+          cookingMethod: carb.cookingMethods[0] || 'raw',
+          phase: phase
+        });
+      } 
+      
+      else if (mealType === 'snack') {
+        // SNACK: Klein & einfach
+        const snackType = Math.random();
+        
+        if (snackType < 0.5) {
+          // Carb-basiert
+          const carb = phaseCarbs[Math.floor(Math.random() * phaseCarbs.length)];
+          recipe = buildRecipe({
+            template: 'bowl',
+            proteins: [],
+            carbs: [carb.id],
+            vegetables: [],
+            sauce: null,
+            toppings: ['nuts'],
+            cookingMethod: 'raw',
+            phase: phase
+          });
+        } else {
+          // Protein-basiert
+          const protein = phaseProteins.filter(p => 
+            ['eggs', 'tofu', 'chickpeas'].includes(p.id)
+          )[Math.floor(Math.random() * 3)] || phaseProteins[Math.floor(Math.random() * phaseProteins.length)];
+          
+          recipe = buildRecipe({
+            template: 'bowl',
+            proteins: [protein.id],
+            carbs: [],
+            vegetables: [],
+            sauce: null,
+            toppings: ['sesame_seeds'],
+            cookingMethod: 'raw',
+            phase: phase
+          });
+        }
+      } 
+      
+      else {
+        // LUNCH/DINNER: Vollwertig
+        const randomProtein = phaseProteins[Math.floor(Math.random() * phaseProteins.length)];
+        const randomCarb = phaseCarbs[Math.floor(Math.random() * phaseCarbs.length)];
+        const randomVeggie1 = phaseVeggies[Math.floor(Math.random() * phaseVeggies.length)];
+        const randomVeggie2 = phaseVeggies[Math.floor(Math.random() * phaseVeggies.length)];
+        const randomSauce = allSauces[Math.floor(Math.random() * allSauces.length)];
+
+        const cookingMethods = randomProtein.cookingMethods;
+        const randomMethod = cookingMethods[Math.floor(Math.random() * cookingMethods.length)];
+
+        recipe = buildRecipe({
+          template: mealType === 'lunch' ? 'bowl' : 'plate',
+          proteins: [randomProtein.id],
+          carbs: [randomCarb.id],
+          vegetables: [randomVeggie1.id, randomVeggie2.id],
+          sauce: randomSauce.id,
+          toppings: ['sesame_seeds'],
+          cookingMethod: randomMethod,
+          phase: phase
+        });
+      }
+
+      recipes.push(recipe);
+    }
+
+    return recipes;
   };
 
-  const loadMockRecipes = () => {
-    // Mock Daten als Fallback
-    setRecipes(mockRecipes[category] || mockRecipes.breakfast);
-    setCurrentIndex(0);
+  const loadMoreRecipes = () => {
+    console.log('🔄 Loading more recipes...');
+    const newRecipes = generateRecipesFromComponents(category, currentPhase.key, 10);
+    setRecipes([...recipes, ...newRecipes]);
+    console.log(`✅ Added ${newRecipes.length} more recipes`);
   };
 
   const currentRecipe = recipes[currentIndex];
-  const isFavorited = favorites.includes(currentRecipe?.id);
+  const isFavorited = favorites.some(fav => fav.id === currentRecipe?.id);
 
   const handleSwipe = (direction) => {
     setSwipeDirection(direction);
@@ -218,8 +249,9 @@ const RecipeSwiper = ({
       if (currentIndex < recipes.length - 1) {
         setCurrentIndex(currentIndex + 1);
       } else {
-        // Reload neue Rezepte
-        loadRecipes();
+        // Endless: Load more recipes and continue
+        loadMoreRecipes();
+        setCurrentIndex(currentIndex + 1);
       }
     }, 300);
   };
@@ -230,6 +262,38 @@ const RecipeSwiper = ({
     }
   };
 
+  const handleCustomize = () => {
+    setSelectedRecipe(currentRecipe);
+    setShowComponentBuilder(true);
+  };
+
+  if (loading && recipes.length === 0) {
+    return (
+      <div style={{
+        padding: '60px 40px',
+        textAlign: 'center',
+        color: COLORS.textLight
+      }}>
+        <div style={{
+          width: '60px',
+          height: '60px',
+          border: `4px solid ${COLORS.primary}`,
+          borderTopColor: 'transparent',
+          borderRadius: '50%',
+          margin: '0 auto 20px',
+          animation: 'spin 1s linear infinite'
+        }} />
+        <p style={{ fontSize: '16px', marginBottom: '8px' }}>🎨 Erstelle Rezepte...</p>
+        <p style={{ fontSize: '13px', opacity: 0.7 }}>Phasengerechte Kombinationen werden zusammengestellt</p>
+        <style>{`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
   if (!currentRecipe) {
     return (
       <div style={{
@@ -239,6 +303,22 @@ const RecipeSwiper = ({
       }}>
         <RefreshCw size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
         <p>Keine Rezepte verfügbar</p>
+        <button
+          onClick={loadRecipes}
+          style={{
+            marginTop: '16px',
+            padding: '12px 24px',
+            background: COLORS.primary,
+            border: 'none',
+            borderRadius: '12px',
+            color: 'white',
+            fontSize: '14px',
+            fontWeight: '600',
+            cursor: 'pointer'
+          }}
+        >
+          Neue Rezepte laden
+        </button>
       </div>
     );
   }
@@ -249,6 +329,53 @@ const RecipeSwiper = ({
       margin: '0 auto',
       padding: '20px'
     }}>
+      {/* Custom/Generated Toggle */}
+      <div style={{
+        display: 'flex',
+        gap: '8px',
+        marginBottom: '16px',
+        background: 'rgba(255,255,255,0.5)',
+        padding: '4px',
+        borderRadius: '12px'
+      }}>
+        <button
+          onClick={() => setIsCustomMode(false)}
+          style={{
+            flex: 1,
+            padding: '10px',
+            background: !isCustomMode ? 'white' : 'transparent',
+            border: 'none',
+            borderRadius: '8px',
+            color: COLORS.text,
+            fontSize: '13px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            boxShadow: !isCustomMode ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
+            transition: 'all 0.2s'
+          }}
+        >
+          🎲 Zufällige Rezepte
+        </button>
+        <button
+          onClick={() => setIsCustomMode(true)}
+          style={{
+            flex: 1,
+            padding: '10px',
+            background: isCustomMode ? 'white' : 'transparent',
+            border: 'none',
+            borderRadius: '8px',
+            color: COLORS.text,
+            fontSize: '13px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            boxShadow: isCustomMode ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
+            transition: 'all 0.2s'
+          }}
+        >
+          ✨ Meine Rezepte ({getCustomRecipes().length})
+        </button>
+      </div>
+
       {/* Recipe Card */}
       <div style={{
         position: 'relative',
@@ -263,21 +390,40 @@ const RecipeSwiper = ({
         {/* Image */}
         <div 
           onClick={() => {
-            if (currentRecipe.id) {
-              setSelectedRecipeId(currentRecipe.id);
-              setShowRecipeDetailModal(true);
-            }
+            setSelectedRecipe(currentRecipe);
+            setShowRecipeDetailModal(true);
           }}
           style={{
             width: '100%',
             height: '300px',
-            backgroundImage: `url(${currentRecipe.image})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
             position: 'relative',
-            cursor: currentRecipe.id ? 'pointer' : 'default'
+            cursor: 'pointer',
+            overflow: 'hidden'
           }}
         >
+          <EmojiRecipeImage recipe={currentRecipe} size="large" />
+
+          {/* Custom Recipe Badge */}
+          {currentRecipe.isCustom && (
+            <div style={{
+              position: 'absolute',
+              top: '16px',
+              left: '16px',
+              background: 'rgba(138, 43, 226, 0.9)',
+              backdropFilter: 'blur(10px)',
+              padding: '6px 12px',
+              borderRadius: '12px',
+              color: 'white',
+              fontSize: '12px',
+              fontWeight: '600',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              ✨ Custom Rezept
+            </div>
+          )}
+
           {/* Favorite Badge */}
           {isFavorited && (
             <div style={{
@@ -338,23 +484,22 @@ const RecipeSwiper = ({
         {/* Content */}
         <div 
           onClick={() => {
-            if (currentRecipe.id) {
-              setSelectedRecipeId(currentRecipe.id);
-              setShowRecipeDetailModal(true);
-            }
+            setSelectedRecipe(currentRecipe);
+            setShowRecipeDetailModal(true);
           }}
           style={{
             background: 'white',
             padding: '24px',
-            cursor: currentRecipe.id ? 'pointer' : 'default'
+            cursor: 'pointer'
           }}
         >
+          {/* Title */}
           <h3 style={{
             color: COLORS.text,
-            fontSize: '24px',
+            fontSize: '22px',
             fontWeight: '700',
-            marginBottom: '12px',
-            margin: 0
+            marginBottom: '8px',
+            lineHeight: '1.3'
           }}>
             {isTranslated ? translatedTitle : currentRecipe.title}
           </h3>
@@ -363,19 +508,18 @@ const RecipeSwiper = ({
           <div style={{
             display: 'flex',
             gap: '8px',
-            flexWrap: 'wrap',
-            marginBottom: '16px',
-            marginTop: '12px'
+            marginBottom: '12px',
+            flexWrap: 'wrap'
           }}>
-            {currentRecipe.tags.map((tag, idx) => (
+            {currentRecipe.tags?.map((tag, index) => (
               <span
-                key={idx}
+                key={index}
                 style={{
                   padding: '4px 12px',
-                  background: 'rgba(232, 168, 136, 0.2)',
+                  background: 'rgba(232, 168, 136, 0.1)',
                   borderRadius: '12px',
                   fontSize: '12px',
-                  color: COLORS.text,
+                  color: COLORS.primary,
                   fontWeight: '500'
                 }}
               >
@@ -384,36 +528,69 @@ const RecipeSwiper = ({
             ))}
           </div>
 
+          {/* Summary */}
           <p style={{
             color: COLORS.textLight,
             fontSize: '14px',
             lineHeight: '1.6',
-            margin: 0
+            marginBottom: '16px'
           }}>
             {isTranslated ? translatedSummary : currentRecipe.summary}
           </p>
 
-          {/* Translate Button */}
-          <button
-            onClick={translateRecipe}
-            disabled={translating}
-            style={{
-              marginTop: '16px',
-              padding: '8px 16px',
-              background: isTranslated ? '#4CAF50' : 'rgba(232, 168, 136, 0.1)',
-              border: '1px solid',
-              borderColor: isTranslated ? '#4CAF50' : COLORS.primary,
-              borderRadius: '8px',
-              color: isTranslated ? 'white' : COLORS.primary,
-              fontSize: '13px',
-              fontWeight: '600',
-              cursor: translating ? 'not-allowed' : 'pointer',
-              opacity: translating ? 0.6 : 1,
-              transition: 'all 0.2s ease'
-            }}
-          >
-            {translating ? '🔄 Übersetze...' : isTranslated ? '🇬🇧 Original' : '🇩🇪 Übersetzen'}
-          </button>
+          {/* Action Row */}
+          <div style={{ display: 'flex', gap: '8px' }}>
+            {/* Customize Button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCustomize();
+              }}
+              style={{
+                flex: 1,
+                padding: '10px 16px',
+                background: 'linear-gradient(135deg, #FF6B9D, #845EF7)',
+                border: 'none',
+                borderRadius: '8px',
+                color: 'white',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px'
+              }}
+            >
+              <Wrench size={16} />
+              Anpassen
+            </button>
+
+            {/* Translate Button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                translateRecipe();
+              }}
+              disabled={translating}
+              style={{
+                padding: '10px 16px',
+                background: isTranslated ? '#4CAF50' : 'rgba(232, 168, 136, 0.1)',
+                border: '1px solid',
+                borderColor: isTranslated ? '#4CAF50' : COLORS.primary,
+                borderRadius: '8px',
+                color: isTranslated ? 'white' : COLORS.primary,
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: translating ? 'not-allowed' : 'pointer',
+                opacity: translating ? 0.6 : 1,
+                transition: 'all 0.2s ease'
+              }}
+            >
+              {translating ? '🔄' : isTranslated ? '🇬🇧' : '🇩🇪'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -444,39 +621,6 @@ const RecipeSwiper = ({
           }}
         >
           <ChevronLeft size={24} color={COLORS.textLight} />
-        </button>
-
-        {/* Refresh */}
-        <button
-          onClick={refreshRecipes}
-          disabled={loading}
-          style={{
-            width: '50px',
-            height: '50px',
-            borderRadius: '50%',
-            border: '2px solid',
-            borderColor: COLORS.primary,
-            background: 'white',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'all 0.2s',
-            opacity: loading ? 0.5 : 1
-          }}
-          onMouseEnter={(e) => {
-            if (!loading) {
-              e.currentTarget.style.transform = 'scale(1.1) rotate(90deg)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
-          }}
-          title="Neue Rezepte laden"
-        >
-          <RefreshCw size={24} color={COLORS.primary} style={{
-            animation: loading ? 'spin 1s linear infinite' : 'none'
-          }} />
         </button>
 
         {/* Dislike */}
@@ -534,51 +678,39 @@ const RecipeSwiper = ({
         >
           <Heart size={32} color="#4ECDC4" />
         </button>
-
-        {/* Next */}
-        <button
-          onClick={() => setCurrentIndex(Math.min(currentIndex + 1, recipes.length - 1))}
-          disabled={currentIndex === recipes.length - 1}
-          style={{
-            width: '50px',
-            height: '50px',
-            borderRadius: '50%',
-            border: '2px solid #E0E0E0',
-            background: 'white',
-            cursor: currentIndex === recipes.length - 1 ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: currentIndex === recipes.length - 1 ? 0.3 : 1,
-            transition: 'all 0.2s'
-          }}
-        >
-          <ChevronRight size={24} color={COLORS.textLight} />
-        </button>
-      </div>
-
-      {/* Progress */}
-      <div style={{
-        textAlign: 'center',
-        marginTop: '16px',
-        color: COLORS.textLight,
-        fontSize: '14px'
-      }}>
-        {currentIndex + 1} / {recipes.length}
       </div>
 
       {/* Recipe Detail Modal */}
-      {showRecipeDetailModal && selectedRecipeId && (
+      {showRecipeDetailModal && selectedRecipe && (
         <RecipeDetailModal
-          recipeId={selectedRecipeId}
+          recipe={selectedRecipe}
           onClose={() => {
             setShowRecipeDetailModal(false);
-            setSelectedRecipeId(null);
+            setSelectedRecipe(null);
           }}
         />
       )}
 
-      {/* Spin Animation for Refresh */}
+      {/* Component Builder Modal */}
+      {showComponentBuilder && selectedRecipe && (
+        <ComponentBuilder
+          initialRecipe={selectedRecipe}
+          onSave={(recipe) => {
+            console.log('✅ Recipe saved:', recipe);
+            setShowComponentBuilder(false);
+            // Refresh if in custom mode
+            if (isCustomMode) {
+              loadRecipes();
+            }
+          }}
+          onClose={() => {
+            setShowComponentBuilder(false);
+            setSelectedRecipe(null);
+          }}
+        />
+      )}
+
+      {/* Spin Animation */}
       <style>{`
         @keyframes spin {
           to { transform: rotate(360deg); }

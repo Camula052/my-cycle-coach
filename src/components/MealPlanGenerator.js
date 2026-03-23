@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { RefreshCw, Save, Calendar, Check, Heart, Info, X } from 'lucide-react';
-import { searchRecipes } from '../services/spoonacularService';
+import { RefreshCw, Save, Calendar, Check, Heart, Info, X, Wrench } from 'lucide-react';
+import { buildRecipe } from '../services/recipeBuilder';
+import recipeComponents from '../services/recipeComponents';
 import RecipeDetailModal from './RecipeDetailModal';
+import ComponentBuilder from './ComponentBuilder';
 
 const COLORS = {
   text: '#2D3748',
@@ -24,11 +26,10 @@ const MealPlanGenerator = ({ onSave, userData }) => {
   const [mealPlan, setMealPlan] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showFavoritesOverlay, setShowFavoritesOverlay] = useState(false);
-  const [showRecipeInfoOverlay, setShowRecipeInfoOverlay] = useState(false);
   const [showRecipeDetailModal, setShowRecipeDetailModal] = useState(false);
+  const [showComponentBuilder, setShowComponentBuilder] = useState(false);
   const [selectedMealForSwap, setSelectedMealForSwap] = useState(null);
   const [selectedRecipeForInfo, setSelectedRecipeForInfo] = useState(null);
-  const [selectedRecipeIdForDetail, setSelectedRecipeIdForDetail] = useState(null);
 
   const dietOptions = [
     { value: '', label: 'Keine Einschränkung' },
@@ -47,135 +48,153 @@ const MealPlanGenerator = ({ onSave, userData }) => {
     'Nur Vollkorn', 'Bio bevorzugt', 'Regional', 'Schnell (<30min)', 'High Protein', 'Low Carb'
   ];
 
-  const generateMealPlan = async () => {
+  const generateMealPlan = () => {
     setLoading(true);
     
     try {
       const phaseKey = userData?.currentPhase?.key || 'follicular';
       
-      console.log('🔍 Generating meal plan for phase:', phaseKey);
-      console.log('🔍 Preferences:', preferences);
-      
-      // Einfachere Keywords die mehr Results liefern
-      const phaseKeywords = {
-        menstruation: 'healthy',
-        follicular: 'protein',
-        ovulation: 'salad',
-        luteal: 'comfort food'
-      };
+      console.log('🎨 Generating component-based meal plan...');
+      console.log('Phase:', phaseKey);
+      console.log('Preferences:', preferences);
 
-      const keyword = phaseKeywords[phaseKey] || '';
-      
-      console.log('🔍 Searching with keyword:', keyword);
+      // Get phase-appropriate components
+      const allProteins = [...recipeComponents.proteins.animal, ...recipeComponents.proteins.plant];
+      const allCarbs = recipeComponents.carbs;
+      const allVeggies = recipeComponents.vegetables;
+      const allSauces = recipeComponents.sauces.presets;
 
-      // Lade Rezepte für jeden Meal Type
-      console.log('📡 Fetching breakfast recipes...');
-      const breakfastRecipes = await searchRecipes({
-        query: keyword,
-        type: 'breakfast',
-        diet: preferences.diet || '',
-        number: 10
-      });
-      console.log('✅ Breakfast recipes:', breakfastRecipes);
+      // Filter by phase and preferences
+      let phaseProteins = allProteins.filter(p => p.phase.includes(phaseKey) || p.phase.includes('all'));
+      let phaseCarbs = allCarbs.filter(c => c.phase.includes(phaseKey) || c.phase.includes('all'));
+      let phaseVeggies = allVeggies.filter(v => v.phase.includes(phaseKey) || v.phase.includes('all'));
 
-      console.log('📡 Fetching lunch recipes...');
-      const lunchRecipes = await searchRecipes({
-        query: keyword,
-        type: 'main course',
-        diet: preferences.diet || '',
-        number: 10
-      });
-      console.log('✅ Lunch recipes:', lunchRecipes);
+      // Apply diet preferences
+      if (preferences.diet === 'vegetarian') {
+        phaseProteins = phaseProteins.filter(p => p.diet?.includes('vegetarian') || p.diet?.includes('vegan'));
+      } else if (preferences.diet === 'vegan') {
+        phaseProteins = phaseProteins.filter(p => p.diet?.includes('vegan'));
+      } else if (preferences.diet === 'pescetarian') {
+        phaseProteins = phaseProteins.filter(p => 
+          p.diet?.includes('pescetarian') || 
+          p.diet?.includes('vegetarian') || 
+          p.diet?.includes('vegan')
+        );
+      }
 
-      console.log('📡 Fetching dinner recipes...');
-      const dinnerRecipes = await searchRecipes({
-        query: keyword,
-        type: 'main course',
-        diet: preferences.diet || '',
-        number: 10
-      });
-      console.log('✅ Dinner recipes:', dinnerRecipes);
+      console.log(`✅ Available components: ${phaseProteins.length} proteins, ${phaseCarbs.length} carbs, ${phaseVeggies.length} veggies`);
 
-      console.log('📡 Fetching snack recipes...');
-      const snackRecipes = await searchRecipes({
-        query: '',  // Keine Query für Snacks = mehr Ergebnisse
-        type: 'snack',
-        diet: preferences.diet || '',
-        number: 10
-      });
-      console.log('✅ Snack recipes:', snackRecipes);
+      // Helper function to get random component
+      const getRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-      // Mock Fallback wenn API keine Results liefert
-      const mockMeals = {
-        menstruation: {
-          breakfast: { name: 'Haferbrei mit Zimt und Beeren', calories: 360, time: '10 min', ingredients: ['Haferflocken', 'Mandelmilch', 'Zimt', 'Beeren', 'Honig'] },
-          lunch: { name: 'Linsensuppe mit Ingwer', calories: 420, time: '25 min', ingredients: ['Rote Linsen', 'Ingwer', 'Zwiebeln', 'Gemüsebrühe', 'Kokosmilch'] },
-          dinner: { name: 'Lachs mit dunklem Blattgemüse', calories: 520, time: '30 min', ingredients: ['Lachs', 'Grünkohl', 'Knoblauch', 'Zitrone', 'Olivenöl'] },
-          snack: { name: 'Dunkle Schokolade mit Mandeln', calories: 180, time: '1 min', ingredients: ['Dunkle Schokolade', 'Mandeln'] }
-        },
-        follicular: {
-          breakfast: { name: 'Protein Pancakes', calories: 380, time: '15 min', ingredients: ['Proteinpulver', 'Eier', 'Banane', 'Beeren'] },
-          lunch: { name: 'Buddha Bowl mit Quinoa', calories: 450, time: '25 min', ingredients: ['Quinoa', 'Kichererbsen', 'Avocado', 'Rotkohl'] },
-          dinner: { name: 'Hähnchen mit Süßkartoffeln', calories: 520, time: '35 min', ingredients: ['Hähnchen', 'Süßkartoffeln', 'Brokkoli'] },
-          snack: { name: 'Protein Shake', calories: 200, time: '3 min', ingredients: ['Proteinpulver', 'Banane', 'Mandelmilch'] }
-        },
-        ovulation: {
-          breakfast: { name: 'Smoothie Bowl', calories: 340, time: '10 min', ingredients: ['Beeren', 'Banane', 'Leinsamen', 'Granola'] },
-          lunch: { name: 'Salat mit Lachs', calories: 460, time: '20 min', ingredients: ['Lachs', 'Spinat', 'Walnüsse', 'Balsamico'] },
-          dinner: { name: 'Lachs mit Brokkoli', calories: 510, time: '30 min', ingredients: ['Lachs', 'Brokkoli', 'Quinoa', 'Zitrone'] },
-          snack: { name: 'Walnüsse mit Heidelbeeren', calories: 170, time: '1 min', ingredients: ['Walnüsse', 'Heidelbeeren'] }
-        },
-        luteal: {
-          breakfast: { name: 'Vollkorn-Porridge', calories: 370, time: '12 min', ingredients: ['Haferflocken', 'Banane', 'Walnüsse', 'Zimt'] },
-          lunch: { name: 'Vollkorn-Pasta', calories: 480, time: '25 min', ingredients: ['Pasta', 'Brokkoli', 'Tomaten', 'Parmesan'] },
-          dinner: { name: 'Gefüllte Paprika', calories: 500, time: '40 min', ingredients: ['Paprika', 'Reis', 'Hackfleisch', 'Käse'] },
-          snack: { name: 'Griechischer Joghurt', calories: 190, time: '2 min', ingredients: ['Joghurt', 'Mandeln', 'Honig'] }
+      // Meal-type specific templates
+      const generateMealByType = (mealType) => {
+        if (mealType === 'breakfast') {
+          // Frühstück: Hauptsächlich Carbs, optional Protein, kein/wenig Gemüse
+          const carb = getRandom(phaseCarbs.filter(c => 
+            ['oats', 'bread', 'whole_wheat_pasta'].includes(c.id)
+          )) || getRandom(phaseCarbs);
+          const protein = Math.random() > 0.3 ? getRandom(phaseProteins.filter(p => 
+            ['eggs', 'tofu', 'tempeh'].includes(p.id)
+          )) : null;
+          const sauce = getRandom(allSauces.filter(s => 
+            ['tahini_dressing', 'tzatziki'].includes(s.id)
+          )) || getRandom(allSauces);
+
+          return buildRecipe({
+            template: 'bowl',
+            proteins: protein ? [protein.id] : [],
+            carbs: [carb.id],
+            vegetables: [], // Kein Gemüse beim Frühstück
+            sauce: sauce.id,
+            toppings: ['sesame_seeds', 'fresh_herbs'],
+            cookingMethod: 'boiled',
+            phase: phaseKey
+          });
+        } 
+        
+        else if (mealType === 'snack') {
+          // Snack: Klein und einfach
+          const snackType = Math.random();
+          
+          if (snackType < 0.5) {
+            // Carb-basiert (z.B. Obst)
+            const carb = getRandom(phaseCarbs);
+            return buildRecipe({
+              template: 'bowl',
+              proteins: [],
+              carbs: [carb.id],
+              vegetables: [],
+              sauce: null,
+              toppings: ['nuts'],
+              cookingMethod: 'raw',
+              phase: phaseKey
+            });
+          } else {
+            // Protein-basiert (z.B. Joghurt)
+            const protein = getRandom(phaseProteins.filter(p => 
+              ['eggs', 'tofu'].includes(p.id)
+            )) || getRandom(phaseProteins);
+            return buildRecipe({
+              template: 'bowl',
+              proteins: [protein.id],
+              carbs: [],
+              vegetables: [],
+              sauce: null,
+              toppings: ['fresh_herbs'],
+              cookingMethod: 'raw',
+              phase: phaseKey
+            });
+          }
+        } 
+        
+        else {
+          // Lunch/Dinner: Vollwertige Mahlzeit
+          const protein = getRandom(phaseProteins);
+          const carb = getRandom(phaseCarbs);
+          const veggie1 = getRandom(phaseVeggies);
+          const veggie2 = getRandom(phaseVeggies.filter(v => v.id !== veggie1.id));
+          const sauce = getRandom(allSauces);
+
+          const cookingMethods = protein.cookingMethods;
+          const method = getRandom(cookingMethods);
+
+          return buildRecipe({
+            template: mealType === 'lunch' ? 'bowl' : 'plate',
+            proteins: [protein.id],
+            carbs: [carb.id],
+            vegetables: [veggie1.id, veggie2?.id].filter(Boolean),
+            sauce: sauce.id,
+            toppings: ['sesame_seeds'],
+            cookingMethod: method,
+            phase: phaseKey
+          });
         }
       };
 
-      const phaseMocks = mockMeals[phaseKey] || mockMeals.follicular;
+      // Generate 7 days
+      const baseDays = WEEKDAYS.map((dayName) => {
+        const meals = {};
 
-      // Konvertiere Spoonacular Rezepte zu unserem Format ODER nutze Mock
-      const convertRecipe = (recipe, fallback) => {
-        if (!recipe || !recipe.id) {
-          console.log('⚠️ Using fallback recipe:', fallback.name);
-          return fallback;
-        }
-        console.log('🔄 Converting recipe:', recipe.title);
+        ['breakfast', 'lunch', 'dinner', 'snack'].forEach(mealType => {
+          const recipe = generateMealByType(mealType);
+
+          meals[mealType] = {
+            id: recipe.id,
+            name: recipe.title,
+            calories: recipe.calories,
+            time: `${recipe.readyInMinutes} min`,
+            ingredients: recipe.ingredients.slice(0, 5),
+            image: recipe.image,
+            fullRecipe: recipe // Store full recipe for customization
+          };
+        });
+
         return {
-          id: recipe.id,
-          name: recipe.title,
-          calories: Math.round(recipe.nutrition?.nutrients?.find(n => n.name === 'Calories')?.amount || 400),
-          time: `${recipe.readyInMinutes || 30} min`,
-          ingredients: recipe.extendedIngredients?.slice(0, 6).map(ing => ing.name) || [],
-          image: recipe.image,
-          sourceUrl: recipe.sourceUrl
+          day: dayName,
+          meals
         };
-      };
-
-      console.log('🔄 Converting recipes to meal plan format...');
-      const baseDays = WEEKDAYS.map((dayName, index) => ({
-        day: dayName,
-        meals: {
-          breakfast: convertRecipe(
-            breakfastRecipes.results[index % breakfastRecipes.results.length], 
-            phaseMocks.breakfast
-          ),
-          lunch: convertRecipe(
-            lunchRecipes.results[index % lunchRecipes.results.length], 
-            phaseMocks.lunch
-          ),
-          dinner: convertRecipe(
-            dinnerRecipes.results[index % dinnerRecipes.results.length], 
-            phaseMocks.dinner
-          ),
-          snack: convertRecipe(
-            snackRecipes.results[index % snackRecipes.results.length], 
-            phaseMocks.snack
-          )
-        }
-      }));
-      console.log('✅ Base days created:', baseDays);
+      });
 
       // Sortiere basierend auf startDay
       const sortedDays = [
@@ -660,8 +679,8 @@ const MealPlanGenerator = ({ onSave, userData }) => {
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button
                     onClick={() => {
-                      setSelectedRecipeForInfo({ ...meal, mealType });
-                      setShowRecipeInfoOverlay(true);
+                      setSelectedRecipeForInfo(meal);
+                      setShowRecipeDetailModal(true);
                     }}
                     style={{
                       padding: '8px',
@@ -673,9 +692,30 @@ const MealPlanGenerator = ({ onSave, userData }) => {
                       alignItems: 'center',
                       justifyContent: 'center'
                     }}
-                    title="Info anzeigen"
+                    title="Rezept anzeigen"
                   >
                     <Info size={18} color={COLORS.primary} />
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setSelectedRecipeForInfo(meal);
+                      setSelectedMealForSwap({ dayIndex, mealType, day: WEEKDAYS[dayIndex] });
+                      setShowComponentBuilder(true);
+                    }}
+                    style={{
+                      padding: '8px',
+                      background: 'rgba(138, 43, 226, 0.1)',
+                      border: '1px solid rgba(138, 43, 226, 0.3)',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                    title="Rezept anpassen"
+                  >
+                    <Wrench size={18} color="#8A2BE2" />
                   </button>
 
                   <button
@@ -835,216 +875,48 @@ const MealPlanGenerator = ({ onSave, userData }) => {
           </div>
         )}
 
-        {/* RECIPE INFO OVERLAY */}
-        {showRecipeInfoOverlay && selectedRecipeForInfo && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0,0,0,0.7)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: '20px'
-          }}>
-            <div style={{
-              background: 'white',
-              borderRadius: '20px',
-              padding: '24px',
-              maxWidth: '500px',
-              width: '100%',
-              maxHeight: '80vh',
-              overflowY: 'auto',
-              position: 'relative'
-            }}>
-              <button
-                onClick={() => {
-                  setShowRecipeInfoOverlay(false);
-                  setSelectedRecipeForInfo(null);
-                }}
-                style={{
-                  position: 'absolute',
-                  top: '16px',
-                  right: '16px',
-                  background: 'rgba(0,0,0,0.1)',
-                  border: 'none',
-                  borderRadius: '50%',
-                  width: '32px',
-                  height: '32px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer'
-                }}
-              >
-                <X size={20} />
-              </button>
-
-              <div style={{
-                fontSize: '48px',
-                textAlign: 'center',
-                marginBottom: '16px'
-              }}>
-                {getMealTypeIcon(selectedRecipeForInfo.mealType)}
-              </div>
-
-              <h3 style={{
-                color: COLORS.text,
-                fontSize: '22px',
-                fontWeight: '700',
-                marginBottom: '8px',
-                textAlign: 'center'
-              }}>
-                {selectedRecipeForInfo.name}
-              </h3>
-
-              <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                gap: '16px',
-                marginBottom: '24px'
-              }}>
-                <div style={{
-                  padding: '8px 16px',
-                  background: 'rgba(232, 168, 136, 0.1)',
-                  borderRadius: '20px',
-                  fontSize: '14px',
-                  color: COLORS.text
-                }}>
-                  🔥 {selectedRecipeForInfo.calories} kcal
-                </div>
-                <div style={{
-                  padding: '8px 16px',
-                  background: 'rgba(232, 168, 136, 0.1)',
-                  borderRadius: '20px',
-                  fontSize: '14px',
-                  color: COLORS.text
-                }}>
-                  ⏱️ {selectedRecipeForInfo.time}
-                </div>
-              </div>
-
-              <div style={{
-                background: 'rgba(232, 168, 136, 0.05)',
-                borderRadius: '12px',
-                padding: '16px',
-                marginBottom: '16px'
-              }}>
-                <h4 style={{
-                  color: COLORS.text,
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  marginBottom: '12px'
-                }}>
-                  🥘 Zutaten
-                </h4>
-                {selectedRecipeForInfo.ingredients && selectedRecipeForInfo.ingredients.length > 0 ? (
-                  <ul style={{
-                    margin: 0,
-                    paddingLeft: '20px',
-                    color: COLORS.text,
-                    fontSize: '14px',
-                    lineHeight: '1.8'
-                  }}>
-                    {selectedRecipeForInfo.ingredients.map((ingredient, idx) => (
-                      <li key={idx}>{ingredient}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p style={{
-                    color: COLORS.textLight,
-                    fontSize: '14px',
-                    margin: 0
-                  }}>
-                    Keine Zutatenliste verfügbar
-                  </p>
-                )}
-              </div>
-
-              <div style={{
-                background: 'rgba(232, 168, 136, 0.05)',
-                borderRadius: '12px',
-                padding: '16px',
-                marginBottom: '16px'
-              }}>
-                <h4 style={{
-                  color: COLORS.text,
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  marginBottom: '8px'
-                }}>
-                  ℹ️ Hinweis
-                </h4>
-                <p style={{
-                  color: COLORS.textLight,
-                  fontSize: '14px',
-                  lineHeight: '1.6',
-                  margin: 0
-                }}>
-                  Dies ist ein phasengerechter Vorschlag. Detaillierte Zubereitungsschritte findest du im Rezepte-Browser.
-                </p>
-              </div>
-
-              <button
-                onClick={() => {
-                  setShowRecipeInfoOverlay(false);
-                  setSelectedRecipeForInfo(null);
-                }}
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  background: COLORS.primary,
-                  border: 'none',
-                  borderRadius: '12px',
-                  color: 'white',
-                  fontSize: '15px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  marginBottom: selectedRecipeForInfo.id ? '12px' : '0'
-                }}
-              >
-                Verstanden
-              </button>
-
-              {selectedRecipeForInfo.id && (
-                <button
-                  onClick={() => {
-                    console.log('🔗 Rezept öffnen clicked!');
-                    console.log('Recipe ID:', selectedRecipeForInfo.id);
-                    setShowRecipeInfoOverlay(false);
-                    setSelectedRecipeIdForDetail(selectedRecipeForInfo.id);
-                    setShowRecipeDetailModal(true);
-                    console.log('State updated - should show modal now');
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '14px',
-                    background: 'white',
-                    border: `2px solid ${COLORS.primary}`,
-                    borderRadius: '12px',
-                    color: COLORS.primary,
-                    fontSize: '15px',
-                    fontWeight: '600',
-                    cursor: 'pointer'
-                  }}
-                >
-                  🔗 Rezept öffnen
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-        
         {/* RECIPE DETAIL MODAL */}
-        {showRecipeDetailModal && selectedRecipeIdForDetail && (
+        {showRecipeDetailModal && selectedRecipeForInfo && (
           <RecipeDetailModal
-            recipeId={selectedRecipeIdForDetail}
+            recipe={selectedRecipeForInfo.fullRecipe || selectedRecipeForInfo}
             onClose={() => {
               setShowRecipeDetailModal(false);
-              setSelectedRecipeIdForDetail(null);
+              setSelectedRecipeForInfo(null);
+            }}
+          />
+        )}
+
+        {/* COMPONENT BUILDER MODAL */}
+        {showComponentBuilder && selectedRecipeForInfo && (
+          <ComponentBuilder
+            initialRecipe={selectedRecipeForInfo.fullRecipe || selectedRecipeForInfo}
+            onSave={(customizedRecipe) => {
+              console.log('✅ Recipe customized:', customizedRecipe);
+              // Update meal plan with customized recipe
+              if (selectedMealForSwap) {
+                const updatedDays = [...mealPlan.days];
+                const dayIndex = updatedDays.findIndex(d => d.day === selectedMealForSwap.day);
+                if (dayIndex !== -1) {
+                  updatedDays[dayIndex].meals[selectedMealForSwap.mealType] = {
+                    id: customizedRecipe.id,
+                    name: customizedRecipe.title,
+                    calories: customizedRecipe.calories,
+                    time: `${customizedRecipe.readyInMinutes} min`,
+                    ingredients: customizedRecipe.ingredients.slice(0, 5),
+                    image: customizedRecipe.image,
+                    fullRecipe: customizedRecipe
+                  };
+                  setMealPlan({ ...mealPlan, days: updatedDays });
+                }
+              }
+              setShowComponentBuilder(false);
+              setSelectedRecipeForInfo(null);
+              setSelectedMealForSwap(null);
+            }}
+            onClose={() => {
+              setShowComponentBuilder(false);
+              setSelectedRecipeForInfo(null);
+              setSelectedMealForSwap(null);
             }}
           />
         )}

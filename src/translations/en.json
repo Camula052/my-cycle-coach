@@ -210,14 +210,22 @@
     "title": "Nutrition for Your Phase",
     "whatYourBodyNeeds": "What your body needs now",
     "importantNutrients": "Important Nutrients",
+    "recipes": {
+      "categories": {
+        "breakfast": "Breakfast",
+        "lunch": "Lunch",
+        "dinner": "Dinner",
+        "snack": "Snack"
+      }
+    },
     "premium": {
       "title": "Your AI Nutrition Assistant",
       "description": "Let AI help you find the perfect meals for your current cycle phase.",
       "feature1": "AI-powered recipe suggestions",
       "feature2": "Personalized meal plans",
       "feature3": "Tailored to your needs",
-      "cta": "Unlock Now",
-      "subtitle": "✨"
+      "cta": "Coming Soon",
+      "subtitle": "AI-powered nutrition guidance ✨"
     },
     "menstruation": {
       "intro": "During menstruation, you lose blood and important nutrients. Your body needs extra support for regeneration now.",
@@ -434,21 +442,6 @@
           ]
         }
       ]
-    },
-    "mealPlan": {
-      "noPlans": "No meal plans saved yet",
-      "createFirst": "Create your first personalized weekly plan in the generator above!",
-      "generatedOn": "Generated on",
-      "delete": "Delete",
-      "confirmDelete": "Do you really want to delete this meal plan?"
-    },
-    "recipes": {
-      "categories": {
-        "breakfast": "Breakfast",
-        "lunch": "Lunch",
-        "dinner": "Dinner",
-        "snack": "Snack"
-      }
     }
   },
   "activity": {
@@ -525,8 +518,94 @@
       "feature1": "AI-powered exercise suggestions",
       "feature2": "Weekly training plans",
       "feature3": "Matched to your phase",
-      "cta": "Unlock Now",
-      "subtitle": "✨"
+      "cta": "Coming Soon",
+      "subtitle": "AI-powered training guidance ✨"
+    }
+  },
+  "recipe": {
+    "components": {
+      "chicken_breast": "Chicken Breast",
+      "salmon": "Salmon",
+      "turkey": "Turkey",
+      "eggs": "Eggs",
+      "shrimp": "Shrimp",
+      "tofu": "Tofu",
+      "tempeh": "Tempeh",
+      "chickpeas": "Chickpeas",
+      "lentils": "Lentils",
+      "black_beans": "Black Beans",
+      "brown_rice": "Brown Rice",
+      "quinoa": "Quinoa",
+      "sweet_potato": "Sweet Potato",
+      "whole_wheat_pasta": "Whole Wheat Pasta",
+      "oats": "Oats",
+      "bread": "Whole Grain Bread",
+      "granola": "Granola",
+      "banana": "Banana",
+      "berries": "Mixed Berries",
+      "broccoli": "Broccoli",
+      "spinach": "Spinach",
+      "bell_pepper": "Bell Pepper",
+      "asparagus": "Asparagus",
+      "kale": "Kale",
+      "zucchini": "Zucchini",
+      "carrots": "Carrots",
+      "tomatoes": "Tomatoes",
+      "sesame_seeds": "Sesame Seeds",
+      "fresh_herbs": "Fresh Herbs",
+      "nuts": "Nuts",
+      "lemon_wedge": "Lemon Wedge"
+    },
+    "cookingMethods": {
+      "grilled": "Grilled",
+      "baked": "Baked",
+      "sauteed": "Sautéed",
+      "steamed": "Steamed",
+      "roasted": "Roasted",
+      "boiled": "Boiled",
+      "raw": "Raw",
+      "pan_seared": "Pan-Seared",
+      "poached": "Poached",
+      "scrambled": "Scrambled",
+      "fried": "Fried"
+    },
+    "cookingVerbs": {
+      "grilled": "grill",
+      "baked": "bake in the oven",
+      "sauteed": "sauté in the pan",
+      "steamed": "steam",
+      "roasted": "roast",
+      "boiled": "boil",
+      "raw": "serve raw",
+      "pan_seared": "sear",
+      "poached": "poach",
+      "scrambled": "scramble",
+      "fried": "fry"
+    },
+    "phaseDescriptions": {
+      "menstruation": "Warming and nutrient-rich for the menstruation phase",
+      "follicular": "Energy-rich and protein-packed for the follicular phase",
+      "ovulation": "Light and antioxidant-rich for the ovulation phase",
+      "luteal": "Satisfying with complex carbohydrates for the luteal phase"
+    },
+    "ui": {
+      "customize": "Customize",
+      "save": "Save",
+      "share": "Share",
+      "close": "Close",
+      "ingredients": "Ingredients",
+      "instructions": "Instructions",
+      "servings": "Servings",
+      "minutes": "min",
+      "calories": "kcal",
+      "customRecipe": "Custom Recipe",
+      "phaseAppropriate": "Phase-Appropriate",
+      "myRecipes": "My Recipes",
+      "randomRecipes": "Random Recipes",
+      "recipeDesigner": "Recipe Designer",
+      "clickToSwap": "Click on ingredients to swap them!",
+      "copyCode": "Copy Code",
+      "copied": "Copied!"
     }
   }
 }
