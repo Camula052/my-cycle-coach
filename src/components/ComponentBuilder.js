@@ -96,6 +96,7 @@ const ComponentBuilder = ({ initialRecipe, onSave, onClose }) => {
   const handleAdd = (componentType) => {
     const updatedComponents = { ...recipe.components };
     const currentArray = updatedComponents[componentType] || [];
+    const newIndex = currentArray.length;
     updatedComponents[componentType] = [...currentArray, null];
 
     const newRecipe = buildRecipe({
@@ -105,6 +106,11 @@ const ComponentBuilder = ({ initialRecipe, onSave, onClose }) => {
     });
 
     setRecipe(newRecipe);
+    
+    // Auto-open dropdown for new item
+    setTimeout(() => {
+      setExpandedSection(`${componentType}_${newIndex}`);
+    }, 100);
   };
 
   const handleRemove = (componentType, index) => {
@@ -199,8 +205,8 @@ const ComponentBuilder = ({ initialRecipe, onSave, onClose }) => {
           )}
         </div>
 
-        {/* Remove button */}
-        {Array.isArray(recipe.components[componentType]) && recipe.components[componentType].length > 1 && (
+        {/* Remove button - can remove if at least 1 item */}
+        {Array.isArray(recipe.components[componentType]) && (
           <button
             onClick={() => handleRemove(componentType, index)}
             style={{

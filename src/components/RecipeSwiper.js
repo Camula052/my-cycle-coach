@@ -5,6 +5,11 @@ import RecipeDetailModal from './RecipeDetailModal';
 import ComponentBuilder from './ComponentBuilder';
 import EmojiRecipeImage from './EmojiRecipeImage';
 import recipeComponents from '../services/recipeComponents';
+import breakfastTemplates, { generateBreakfastRecipe } from '../services/breakfastTemplates';
+import snackTemplates, { generateSnackRecipe } from '../services/snackTemplates';
+import smoothieTemplates, { generateSmoothieRecipe } from '../services/smoothieTemplates';
+import bowlTemplates, { generateBowlRecipe } from '../services/bowlTemplates';
+import { saladTemplates, dessertTemplates, generateSaladRecipe, generateDessertRecipe } from '../services/saladDessertTemplates';
 
 const COLORS = {
   text: '#2D3748',
@@ -131,94 +136,131 @@ const RecipeSwiper = ({
       let recipe;
 
       if (mealType === 'breakfast') {
-        // FRÜHSTÜCK: NUR Frühstücks-Carbs!
-        const breakfastCarbs = phaseCarbs.filter(c => 
-          c.mealTypes && c.mealTypes.includes('breakfast')
-        );
+        // FRÜHSTÜCK: 50% klassisch, 50% Smoothie
+        const useSmoothie = Math.random() > 0.5;
         
-        // Fallback falls keine breakfast-specific Carbs gefunden werden
-        const availableBreakfastCarbs = breakfastCarbs.length > 0 ? breakfastCarbs : 
-          phaseCarbs.filter(c => ['oats', 'bread', 'granola', 'banana', 'berries'].includes(c.id));
-        
-        const carb = availableBreakfastCarbs[Math.floor(Math.random() * availableBreakfastCarbs.length)];
-        
-        // Optional Protein - nur Frühstücks-geeignete
-        const protein = Math.random() > 0.5 ? null : phaseProteins.filter(p => 
-          ['eggs', 'tofu', 'tempeh'].includes(p.id)
-        )[Math.floor(Math.random() * 3)];
-        
-        // Keine Sauce beim Frühstück - oder sehr mild
-        const sauce = null;
-
-        recipe = buildRecipe({
-          template: 'bowl',
-          proteins: protein ? [protein.id] : [],
-          carbs: [carb.id],
-          vegetables: [], // KEIN Gemüse beim Frühstück!
-          sauce: sauce,
-          toppings: carb.id === 'oats' ? ['berries', 'nuts'] : ['fresh_herbs'],
-          cookingMethod: carb.cookingMethods[0] || 'raw',
-          phase: phase
-        });
-      } 
-      
-      else if (mealType === 'snack') {
-        // SNACK: Klein & einfach
-        const snackType = Math.random();
-        
-        if (snackType < 0.5) {
-          // Carb-basiert
-          const carb = phaseCarbs[Math.floor(Math.random() * phaseCarbs.length)];
-          recipe = buildRecipe({
-            template: 'bowl',
-            proteins: [],
-            carbs: [carb.id],
-            vegetables: [],
-            sauce: null,
-            toppings: ['nuts'],
-            cookingMethod: 'raw',
-            phase: phase
-          });
-        } else {
-          // Protein-basiert
-          const protein = phaseProteins.filter(p => 
-            ['eggs', 'tofu', 'chickpeas'].includes(p.id)
-          )[Math.floor(Math.random() * 3)] || phaseProteins[Math.floor(Math.random() * phaseProteins.length)];
+        if (useSmoothie) {
+          // SMOOTHIE
+          const template = smoothieTemplates[Math.floor(Math.random() * smoothieTemplates.length)];
+          const smoothieRecipe = generateSmoothieRecipe(template, phase);
           
-          recipe = buildRecipe({
-            template: 'bowl',
-            proteins: [protein.id],
-            carbs: [],
-            vegetables: [],
-            sauce: null,
-            toppings: ['sesame_seeds'],
-            cookingMethod: 'raw',
-            phase: phase
-          });
+          recipe = {
+            ...smoothieRecipe,
+            summary: `Frischer Smoothie für einen energiereichen Start`,
+            image: null,
+            components: {
+              proteins: [],
+              carbs: [],
+              vegetables: [],
+              sauce: null,
+              toppings: [],
+              cookingMethod: 'raw'
+            }
+          };
+        } else {
+          // KLASSISCHES FRÜHSTÜCK
+          const template = breakfastTemplates[Math.floor(Math.random() * breakfastTemplates.length)];
+          const breakfastRecipe = generateBreakfastRecipe(template, phase);
+          
+          recipe = {
+            ...breakfastRecipe,
+            summary: `Leckeres Frühstück für die ${phase}phase`,
+            image: null,
+            components: {
+              proteins: [],
+              carbs: template.base ? [template.base] : [],
+              vegetables: [],
+              sauce: null,
+              toppings: [],
+              cookingMethod: 'raw'
+            }
+          };
         }
       } 
       
+      else if (mealType === 'snack') {
+        // SNACK: Nutze echte Snack-Templates!
+        const template = snackTemplates[Math.floor(Math.random() * snackTemplates.length)];
+        const snackRecipe = generateSnackRecipe(template, phase);
+        
+        // Konvertiere zu unserem Recipe Format
+        recipe = {
+          ...snackRecipe,
+          summary: `Leckerer Snack für zwischendurch`,
+          image: null,
+          components: {
+            proteins: [],
+            carbs: [],
+            vegetables: [],
+            sauce: null,
+            toppings: [],
+            cookingMethod: 'raw'
+          }
+        };
+      } 
+      
       else {
-        // LUNCH/DINNER: Vollwertig
-        const randomProtein = phaseProteins[Math.floor(Math.random() * phaseProteins.length)];
-        const randomCarb = phaseCarbs[Math.floor(Math.random() * phaseCarbs.length)];
-        const randomVeggie1 = phaseVeggies[Math.floor(Math.random() * phaseVeggies.length)];
-        const randomVeggie2 = phaseVeggies[Math.floor(Math.random() * phaseVeggies.length)];
-        const randomSauce = allSauces[Math.floor(Math.random() * allSauces.length)];
+        // LUNCH/DINNER: Mix aus Bowls, Salads und vollwertigen Mahlzeiten
+        const mealStyle = Math.random();
+        
+        if (mealStyle < 0.4) {
+          // BOWL
+          const template = bowlTemplates[Math.floor(Math.random() * bowlTemplates.length)];
+          const bowlRecipe = generateBowlRecipe(template, phase);
+          
+          recipe = {
+            ...bowlRecipe,
+            summary: `Nährstoffreiche Bowl für ${mealType}`,
+            image: null,
+            components: {
+              proteins: template.protein ? [template.protein] : [],
+              carbs: template.grain ? [template.grain] : [],
+              vegetables: [],
+              sauce: template.sauce || null,
+              toppings: [],
+              cookingMethod: 'mixed'
+            }
+          };
+        } else if (mealStyle < 0.6) {
+          // SALAD
+          const template = saladTemplates[Math.floor(Math.random() * saladTemplates.length)];
+          const saladRecipe = generateSaladRecipe(template, phase);
+          
+          recipe = {
+            ...saladRecipe,
+            summary: `Frischer Salat perfekt für ${mealType}`,
+            image: null,
+            components: {
+              proteins: [],
+              carbs: [],
+              vegetables: [],
+              sauce: null,
+              toppings: [],
+              cookingMethod: 'raw'
+            }
+          };
+        } else {
+          // CLASSIC BUILD
+          const randomProtein = phaseProteins[Math.floor(Math.random() * phaseProteins.length)];
+          const randomCarb = phaseCarbs[Math.floor(Math.random() * phaseCarbs.length)];
+          const randomVeggie1 = phaseVeggies[Math.floor(Math.random() * phaseVeggies.length)];
+          const randomVeggie2 = phaseVeggies[Math.floor(Math.random() * phaseVeggies.length)];
+          const randomSauce = allSauces[Math.floor(Math.random() * allSauces.length)];
 
-        const cookingMethods = randomProtein.cookingMethods;
-        const randomMethod = cookingMethods[Math.floor(Math.random() * cookingMethods.length)];
+          const cookingMethods = randomProtein.cookingMethods;
+          const randomMethod = cookingMethods[Math.floor(Math.random() * cookingMethods.length)];
 
-        recipe = buildRecipe({
-          template: mealType === 'lunch' ? 'bowl' : 'plate',
-          proteins: [randomProtein.id],
-          carbs: [randomCarb.id],
-          vegetables: [randomVeggie1.id, randomVeggie2.id],
-          sauce: randomSauce.id,
-          toppings: ['sesame_seeds'],
-          cookingMethod: randomMethod,
-          phase: phase
-        });
+          recipe = buildRecipe({
+            template: mealType === 'lunch' ? 'bowl' : 'plate',
+            proteins: [randomProtein.id],
+            carbs: [randomCarb.id],
+            vegetables: [randomVeggie1.id, randomVeggie2.id],
+            sauce: randomSauce.id,
+            toppings: ['sesame_seeds'],
+            cookingMethod: randomMethod,
+            phase: phase
+          });
+        }
       }
 
       recipes.push(recipe);
@@ -259,6 +301,16 @@ const RecipeSwiper = ({
   const handlePrevious = () => {
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentIndex < recipes.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    } else {
+      // Load more if at end
+      loadMoreRecipes();
+      setCurrentIndex(currentIndex + 1);
     }
   };
 
@@ -677,6 +729,25 @@ const RecipeSwiper = ({
           }}
         >
           <Heart size={32} color="#4ECDC4" />
+        </button>
+
+        {/* Next */}
+        <button
+          onClick={handleNext}
+          style={{
+            width: '50px',
+            height: '50px',
+            borderRadius: '50%',
+            border: '2px solid #E0E0E0',
+            background: 'white',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.2s'
+          }}
+        >
+          <ChevronRight size={24} color={COLORS.textLight} />
         </button>
       </div>
 

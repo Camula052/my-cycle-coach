@@ -60,8 +60,15 @@ const RecipeDetailModal = ({ recipe, onClose }) => {
         </button>
 
         {/* Recipe Image */}
-        <div style={{ width: '100%', height: '250px' }}>
-          <EmojiRecipeImage recipe={recipe} size="large" />
+        <div style={{ 
+          width: '100%', 
+          display: 'flex', 
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '20px',
+          background: 'linear-gradient(135deg, #FFF5F0 0%, #FFE5D9 100%)'
+        }}>
+          <EmojiRecipeImage recipe={recipe} size="medium" />
         </div>
 
         <div style={{ padding: '24px' }}>
