@@ -70,10 +70,23 @@ const NutritionScreen = ({ userData }) => {
       } else if (cycleDay > 28) {
         cycleDay = ((cycleDay - 1) % 28) + 1;
       }
-    } else {
-      const daysSinceStart = Math.floor((today - periodStartDate) / (1000 * 60 * 60 * 24));
-      cycleDay = daysSinceStart < 0 ? 1 : (daysSinceStart % 28) + 1;
-    }
+    } else {      
+        // Normale Berechnung ohne Eisprung
+        const daysSinceStart = Math.floor((today - periodStartDate) / (1000 * 60 * 60 * 24));
+        
+        // Wenn periodStartDate in der Zukunft liegt, gehe 28 Tage zurück
+        if (daysSinceStart < 0) {
+          console.log('⚠️ Period start is in future, going back 28 days');
+          const adjustedStart = new Date(periodStartDate);
+          adjustedStart.setDate(adjustedStart.getDate() - 28);
+          const adjustedDays = Math.floor((today - adjustedStart) / (1000 * 60 * 60 * 24));
+          cycleDay = (adjustedDays % 28) + 1;
+          console.log(`📊 Adjusted calc: ${adjustedDays} days since adjusted start = cycle day ${cycleDay}`);
+        } else {
+          cycleDay = (daysSinceStart % 28) + 1;
+          console.log(`📊 Normal calc: ${daysSinceStart} days since start = cycle day ${cycleDay}`);
+        }
+      }
     
     setCurrentPhase(getCurrentPhase(cycleDay));
   }, [userData]);

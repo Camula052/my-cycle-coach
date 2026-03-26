@@ -11,7 +11,6 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
   const [selectedDay, setSelectedDay] = useState(null);
   const [isDayModalOpen, setIsDayModalOpen] = useState(false);
   const [flowData, setFlowData] = useState({});
-  const [forceUpdate, setForceUpdate] = useState(0);
   
   // Lade Flow-Daten aus localStorage
   useEffect(() => {
@@ -20,11 +19,6 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
       setFlowData(JSON.parse(savedFlowData));
     }
   }, []);
-  
-  // Force re-render wenn userData sich ändert
-  useEffect(() => {
-    setForceUpdate(prev => prev + 1);
-  }, [userData]);
   
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -41,41 +35,14 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
   
   const getCycleDayForDate = (day) => {
     const targetDate = new Date(year, month, day);
-    targetDate.setHours(0, 0, 0, 0);
+    const daysSinceStart = Math.floor((targetDate - periodStartDate) / (1000 * 60 * 60 * 24));
     
-    // Checke auf markierten Eisprung
-    const ovulationDatesStr = localStorage.getItem('ovulationDates');
-    const ovulationDates = ovulationDatesStr ? JSON.parse(ovulationDatesStr) : {};
-    const ovDates = Object.keys(ovulationDates).filter(key => ovulationDates[key]);
-    
-    let cycleDay;
-    
-    if (ovDates.length > 0) {
-      // Finde den neuesten Eisprung
-      const dates = ovDates.map(dateKey => {
-        const [y, m, d] = dateKey.split('-').map(Number);
-        return new Date(y, m - 1, d);
-      }).sort((a, b) => b - a);
-      
-      const latestOvulation = dates[0];
-      const daysSinceOvulation = Math.floor((targetDate - latestOvulation) / (1000 * 60 * 60 * 24));
-      cycleDay = 14 + daysSinceOvulation;
-      
-      if (cycleDay <= 0) {
-        cycleDay = 28 + (cycleDay % 28);
-      } else if (cycleDay > 28) {
-        cycleDay = ((cycleDay - 1) % 28) + 1;
-      }
-    } else {
-      const daysSinceStart = Math.floor((targetDate - periodStartDate) / (1000 * 60 * 60 * 24));
-      
-      if (daysSinceStart < 0) {
-        cycleDay = 28 + ((daysSinceStart % 28) + 1);
-      } else {
-        cycleDay = (daysSinceStart % 28) + 1;
-      }
+    if (daysSinceStart < 0) {
+      const cycleDay = 28 + ((daysSinceStart % 28) + 1);
+      return cycleDay;
     }
     
+    const cycleDay = (daysSinceStart % 28) + 1;
     return cycleDay;
   };
   
@@ -149,44 +116,12 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
   };
   
   const isPeriodDay = (day) => {
-    // Ein Tag ist Perioden-Tag wenn:
-    // 1. Periode läuft UND Tag innerhalb Prognose
-    // 2. ODER flowData existiert (tatsächlich eingetragen)
-    
-    const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    
-    // Hat flowData? Dann ist es definitiv ein Perioden-Tag
-    if (flowData[dateKey] > 0) {
-      return true;
-    }
-    
-    // Sonst: Checke Prognose nur wenn Periode aktiv
-    const active = hasActivePeriod();
-    
-    console.log(`isPeriodDay(${day}):`, {
-      dateKey,
-      hasFlowData: flowData[dateKey] > 0,
-      hasActivePeriod: active,
-      periodStartDate: userData?.periodStartDate,
-      lastPeriodEndDate: userData?.lastPeriodEndDate
-    });
-    
-    if (!active) {
-      return false;
-    }
-    
-    // Prognose: Tag innerhalb periodDuration ab periodStartDate
-    const targetDate = new Date(year, month, day);
-    const periodStart = new Date(userData.periodStartDate);
-    const daysDiff = Math.floor((targetDate - periodStart) / (1000 * 60 * 60 * 24));
-    const periodDuration = parseInt(userData?.periodDuration) || 5;
-    
-    return daysDiff >= 0 && daysDiff < periodDuration;
+    const cycleDay = getCycleDayForDate(day);
+    return cycleDay >= 1 && cycleDay <= periodDuration;
   };
   
   const hasActivePeriod = () => {
-    // Periode ist aktiv wenn periodStartDate gesetzt UND lastPeriodEndDate NICHT gesetzt
-    return userData?.periodStartDate && !userData?.lastPeriodEndDate;
+    return Object.keys(flowData).length > 0;
   };
   
   const isCurrentMonth = () => {
@@ -215,128 +150,39 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
   const handleSaveTracking = (data) => {
     console.log('Tracking gespeichert:', data);
     
-    if (data.flowIntensity !== undefined) {
+    if (data.flowIntensity) {
       // Verwende year/month/selectedDay statt data.date um Zeitzone-Probleme zu vermeiden
       const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
       console.log('Saving with dateKey:', dateKey);
       const newFlowData = { ...flowData, [dateKey]: data.flowIntensity };
       setFlowData(newFlowData);
       localStorage.setItem('flowData', JSON.stringify(newFlowData));
-      setForceUpdate(prev => prev + 1);
     }
     
-    // Wenn Eisprung markiert wurde, force re-render durch userData update
-    if (data.isOvulationDay !== undefined) {
-      // Touch userData um Re-Render zu triggern
-      if (onUpdateUserData) {
-        onUpdateUserData({...userData});
-      }
-      setForceUpdate(prev => prev + 1);
-    }
+    alert(t('dataSaved'));
   };
   
   const handleMarkPeriodStart = (date) => {
     const newUserData = {
       ...userData,
-      periodStartDate: date.toISOString().split('T')[0],
-      lastPeriodEndDate: null // Lösche "Ende"-Flag
+      periodStartDate: date.toISOString().split('T')[0]
     };
     localStorage.setItem('userData', JSON.stringify(newUserData));
-    
-    // WICHTIG: Lösche alte Eisprung-Daten bei neuem Zyklus
-    localStorage.removeItem('ovulationDates');
-    
-    // KEIN flowData hier - wird bei Intensitäts-Änderung gespeichert
-    
     if (onUpdateUserData) onUpdateUserData(newUserData);
-    setForceUpdate(prev => prev + 1);
+    alert(t('calendar.periodStart') + ' markiert!');
   };
   
   const handleMarkPeriodEnd = (date) => {
-    const endDate = new Date(date);
-    const startDate = new Date(userData.periodStartDate);
-    
-    // Berechne wie viele Tage die Periode tatsächlich gedauert hat
-    const actualDuration = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-    
-    // Berechne nächsten Periode-Start (28 Tage nach DIESEM Start)
-    const nextPeriodStart = new Date(startDate);
-    nextPeriodStart.setDate(nextPeriodStart.getDate() + 28);
+    const start = new Date(userData.periodStartDate);
+    const duration = Math.floor((date - start) / (1000 * 60 * 60 * 24)) + 1;
     
     const newUserData = {
       ...userData,
-      periodStartDate: nextPeriodStart.toISOString().split('T')[0],
-      lastPeriodEndDate: date.toISOString().split('T')[0]
+      periodDuration: duration.toString()
     };
     localStorage.setItem('userData', JSON.stringify(newUserData));
-    
-    // Lösche flowData für alle Tage NACH dem End-Datum
-    endDate.setHours(0, 0, 0, 0);
-    
-    const cleanedFlowData = {};
-    Object.keys(flowData).forEach(dateKey => {
-      const [y, m, d] = dateKey.split('-').map(Number);
-      const flowDate = new Date(y, m - 1, d);
-      flowDate.setHours(0, 0, 0, 0);
-      
-      // Behalte nur Tage <= End-Datum
-      if (flowDate <= endDate) {
-        cleanedFlowData[dateKey] = flowData[dateKey];
-      }
-    });
-    
-    setFlowData(cleanedFlowData);
-    localStorage.setItem('flowData', JSON.stringify(cleanedFlowData));
-    
     if (onUpdateUserData) onUpdateUserData(newUserData);
-    setForceUpdate(prev => prev + 1);
-  };
-  
-  const handleMarkOvulation = (date) => {
-    // Nutze lokales Datum statt UTC
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const dateKey = `${year}-${month}-${day}`;
-    
-    const ovulationDatesStr = localStorage.getItem('ovulationDates');
-    const ovulationDates = ovulationDatesStr ? JSON.parse(ovulationDatesStr) : {};
-    
-    ovulationDates[dateKey] = true;
-    localStorage.setItem('ovulationDates', JSON.stringify(ovulationDates));
-    
-    // Force re-render
-    if (onUpdateUserData) onUpdateUserData({...userData});
-    setForceUpdate(prev => prev + 1);
-    
-    alert(t('calendar.ovulationMarked'));
-  };
-  
-  const handleRemoveOvulation = (date) => {
-    // Nutze lokales Datum statt UTC
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const dateKey = `${year}-${month}-${day}`;
-    const ovulationDatesStr = localStorage.getItem('ovulationDates');
-    const ovulationDates = ovulationDatesStr ? JSON.parse(ovulationDatesStr) : {};
-    
-    delete ovulationDates[dateKey];
-    localStorage.setItem('ovulationDates', JSON.stringify(ovulationDates));
-    
-    // Force re-render
-    if (onUpdateUserData) onUpdateUserData({...userData});
-    setForceUpdate(prev => prev + 1);
-    
-    alert(t('calendar.ovulationRemoved'));
-  };
-  
-  const isOvulationMarked = (day) => {
-    if (!day) return false;
-    const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const ovulationDatesStr = localStorage.getItem('ovulationDates');
-    const ovulationDates = ovulationDatesStr ? JSON.parse(ovulationDatesStr) : {};
-    return ovulationDates[dateKey] === true;
+    alert(t('calendar.periodEnd') + ` markiert! Dauer: ${duration} Tage`);
   };
   
   const handleCancelPeriod = () => {
@@ -621,31 +467,6 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
             💡 {t('calendar.legend')} Dunklere Farbe = stärkere Blutung
           </p>
         </div>
-        
-        {Object.keys(flowData).length > 0 && (
-          <button
-            onClick={handleCancelPeriod}
-            style={{
-              padding: '12px',
-              backgroundColor: 'rgba(230, 184, 156, 0.3)',
-              border: '1.5px solid rgba(230, 184, 156, 0.5)',
-              borderRadius: '12px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '500',
-              color: COLORS.text,
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(230, 184, 156, 0.5)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(230, 184, 156, 0.3)';
-            }}
-          >
-            ❌ {t('calendar.periodCancel')}
-          </button>
-        )}
       </div>
       
       <DayDetailModal
@@ -660,9 +481,6 @@ const CalendarScreen = ({ userData, onUpdateUserData }) => {
         onSaveTracking={handleSaveTracking}
         onMarkPeriodStart={handleMarkPeriodStart}
         onMarkPeriodEnd={handleMarkPeriodEnd}
-        onMarkOvulation={handleMarkOvulation}
-        onRemoveOvulation={handleRemoveOvulation}
-        isOvulationDay={selectedDay ? isOvulationMarked(selectedDay) : false}
       />
     </div>
   );

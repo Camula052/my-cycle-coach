@@ -40,10 +40,15 @@ export const CYCLE_PHASES = {
 
 // Bestimmt die aktuelle Zyklusphase basierend auf dem Zyklustag
 export const getCurrentPhase = (cycleDay) => {
+  console.log('🔍 getCurrentPhase called with cycleDay:', cycleDay);
+  
   for (const [key, phase] of Object.entries(CYCLE_PHASES)) {
     if (phase.days.includes(cycleDay)) {
+      console.log(`✅ Phase found: ${key} for day ${cycleDay}`);
       return { key, ...phase };
     }
   }
+  
+  console.log(`⚠️ No phase found for day ${cycleDay}, defaulting to menstruation`);
   return { key: 'menstruation', ...CYCLE_PHASES.menstruation };
 };

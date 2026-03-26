@@ -174,8 +174,15 @@ const HomeScreen = ({ currentPhase, cycleDay, userData, onUpdateUserData, onOpen
     console.log('Tracking gespeichert:', data);
     
     if (data.flowIntensity !== undefined) {
-      const today = new Date();
-      const dateKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      // Nutze das Datum aus data, falls vorhanden, sonst heute
+      let targetDate;
+      if (data.date) {
+        targetDate = new Date(data.date);
+      } else {
+        targetDate = new Date();
+      }
+      
+      const dateKey = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`;
       const newFlowData = { ...flowData, [dateKey]: data.flowIntensity };
       setFlowData(newFlowData);
       localStorage.setItem('flowData', JSON.stringify(newFlowData));

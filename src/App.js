@@ -37,19 +37,29 @@ function App() {
   
   // Berechne cycleDay und currentPhase wenn userData sich ändert
   useEffect(() => {
+    console.log('🔄 userData changed:', userData);
+    
     const calculateCycleDay = () => {
       if (!userData || !userData.periodStartDate) {
+        console.log('⚠️ No userData or periodStartDate, returning default 14');
         return 14; // Default fallback
       }
+      
+      console.log('📅 periodStartDate:', userData.periodStartDate);
       
       const periodStartDate = new Date(userData.periodStartDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
+      console.log('📅 Period start:', periodStartDate.toISOString());
+      console.log('📅 Today:', today.toISOString());
+      
       // Checke auf markierten Eisprung
       const ovulationDatesStr = localStorage.getItem('ovulationDates');
       const ovulationDates = ovulationDatesStr ? JSON.parse(ovulationDatesStr) : {};
       const ovDates = Object.keys(ovulationDates).filter(key => ovulationDates[key]);
+      
+      console.log('🥚 Ovulation dates:', ovDates);
       
       let cycleDay;
       
@@ -64,6 +74,8 @@ function App() {
         const daysSinceOvulation = Math.floor((today - latestOvulation) / (1000 * 60 * 60 * 24));
         cycleDay = 14 + daysSinceOvulation;
         
+        console.log(`🥚 Using ovulation: day 14 + ${daysSinceOvulation} = ${cycleDay}`);
+        
         // Handle negative days und wrap around
         if (cycleDay <= 0) {
           cycleDay = 28 + (cycleDay % 28);
@@ -73,9 +85,22 @@ function App() {
       } else {
         // Normale Berechnung ohne Eisprung
         const daysSinceStart = Math.floor((today - periodStartDate) / (1000 * 60 * 60 * 24));
-        cycleDay = daysSinceStart < 0 ? 1 : (daysSinceStart % 28) + 1;
+        
+        // Wenn periodStartDate in der Zukunft liegt, gehe 28 Tage zurück
+        if (daysSinceStart < 0) {
+          console.log('⚠️ Period start is in future, going back 28 days');
+          const adjustedStart = new Date(periodStartDate);
+          adjustedStart.setDate(adjustedStart.getDate() - 28);
+          const adjustedDays = Math.floor((today - adjustedStart) / (1000 * 60 * 60 * 24));
+          cycleDay = (adjustedDays % 28) + 1;
+          console.log(`📊 Adjusted calc: ${adjustedDays} days since adjusted start = cycle day ${cycleDay}`);
+        } else {
+          cycleDay = (daysSinceStart % 28) + 1;
+          console.log(`📊 Normal calc: ${daysSinceStart} days since start = cycle day ${cycleDay}`);
+        }
       }
       
+      console.log('✅ Final cycleDay:', cycleDay);
       return cycleDay;
     };
     

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Info, AlertTriangle, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { COLORS, getCurrentPhase } from '../utils/cycleHelpers';
-import PremiumPurchaseModal from '../components/PremiumPurchaseModal';
 
 const ActivityScreen = ({ userData }) => {
   const { t } = useTranslation();
@@ -14,7 +13,6 @@ const ActivityScreen = ({ userData }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
-  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
 
   useEffect(() => {
     if (userData?.height && userData?.weight) {
@@ -65,9 +63,22 @@ const ActivityScreen = ({ userData }) => {
         } else if (cycleDay > 28) {
           cycleDay = ((cycleDay - 1) % 28) + 1;
         }
-      } else {
+      } else {      
+        // Normale Berechnung ohne Eisprung
         const daysSinceStart = Math.floor((today - periodStartDate) / (1000 * 60 * 60 * 24));
-        cycleDay = daysSinceStart < 0 ? 1 : (daysSinceStart % 28) + 1;
+        
+        // Wenn periodStartDate in der Zukunft liegt, gehe 28 Tage zurück
+        if (daysSinceStart < 0) {
+          console.log('⚠️ Period start is in future, going back 28 days');
+          const adjustedStart = new Date(periodStartDate);
+          adjustedStart.setDate(adjustedStart.getDate() - 28);
+          const adjustedDays = Math.floor((today - adjustedStart) / (1000 * 60 * 60 * 24));
+          cycleDay = (adjustedDays % 28) + 1;
+          console.log(`📊 Adjusted calc: ${adjustedDays} days since adjusted start = cycle day ${cycleDay}`);
+        } else {
+          cycleDay = (daysSinceStart % 28) + 1;
+          console.log(`📊 Normal calc: ${daysSinceStart} days since start = cycle day ${cycleDay}`);
+        }
       }
       
       setCurrentPhase(getCurrentPhase(cycleDay));
@@ -460,7 +471,7 @@ const ActivityScreen = ({ userData }) => {
             e.currentTarget.style.transform = 'scale(1)';
             e.currentTarget.style.boxShadow = '0 4px 20px rgba(255, 215, 0, 0.4)';
           }}
-          onClick={() => setShowPurchaseModal(true)}
+          onClick={() => alert('Premium-Feature kommt bald! 🚀')}
         >
           <Sparkles size={18} />
           {t('activity.premium.cta')}
@@ -520,14 +531,6 @@ const ActivityScreen = ({ userData }) => {
         {/* Premium CTA */}
         {renderPremiumCTA()}
       </div>
-
-      {/* Purchase Modal */}
-      <PremiumPurchaseModal
-        isOpen={showPurchaseModal}
-        onClose={() => setShowPurchaseModal(false)}
-        productType="activity"
-        onPurchaseComplete={() => setShowPurchaseModal(false)}
-      />
       </div>
     );
   }
@@ -791,14 +794,6 @@ const ActivityScreen = ({ userData }) => {
         </div>
       )}
       </div>
-
-      {/* Purchase Modal */}
-      <PremiumPurchaseModal
-        isOpen={showPurchaseModal}
-        onClose={() => setShowPurchaseModal(false)}
-        productType="activity"
-        onPurchaseComplete={() => setShowPurchaseModal(false)}
-      />
     </div>
   );
 };
