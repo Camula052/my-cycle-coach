@@ -60,43 +60,23 @@ const EmojiRecipeImage = ({ recipe, size = 'medium' }) => {
   // Collect all items with colors
   const items = [];
   
-  proteins.forEach(id => {
+  // Helper to add component (handles both string IDs and objects)
+  const addComponent = (comp, color) => {
+    const id = typeof comp === 'string' ? comp : comp?.id;
+    if (!id) return;
+    
     const emoji = COMPONENT_EMOJIS[id];
     items.push({ 
       content: emoji || '●', 
-      color: '#FF6B9D',
+      color: color,
       isEmoji: !!emoji
     });
-  });
+  };
   
-  carbs.forEach(id => {
-    const emoji = COMPONENT_EMOJIS[id];
-    items.push({ 
-      content: emoji || '●', 
-      color: '#FFA94D',
-      isEmoji: !!emoji
-    });
-  });
-  
-  vegetables.forEach(id => {
-    const emoji = COMPONENT_EMOJIS[id];
-    items.push({ 
-      content: emoji || '●', 
-      color: '#51CF66',
-      isEmoji: !!emoji
-    });
-  });
-  
-  toppings.forEach(id => {
-    const emoji = COMPONENT_EMOJIS[id];
-    if (emoji) {
-      items.push({ 
-        content: emoji, 
-        color: '#FFD43B',
-        isEmoji: true
-      });
-    }
-  });
+  proteins.forEach(p => addComponent(p, '#FF6B9D'));
+  carbs.forEach(c => addComponent(c, '#FFA94D'));
+  vegetables.forEach(v => addComponent(v, '#51CF66'));
+  toppings.forEach(t => addComponent(t, '#FFD43B'));
 
   // Fallback: colored dots if no items
   if (items.length === 0) {
@@ -119,7 +99,7 @@ const EmojiRecipeImage = ({ recipe, size = 'medium' }) => {
   return (
     <div style={{
       position: 'relative',
-      width: `${dimensions.container}px`,
+      width: '100%',//`${dimensions.container}px`,
       height: `${dimensions.container}px`,
       background: 'linear-gradient(135deg, #FFF5F0 0%, #FFE5D9 100%)',
       borderRadius: '20px',

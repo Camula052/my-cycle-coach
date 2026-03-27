@@ -61,14 +61,18 @@ const RecipeDetailModal = ({ recipe, onClose }) => {
 
         {/* Recipe Image */}
         <div style={{ 
-          width: '100%', 
+          width: '100%',
+          maxWidth: '100%',
           display: 'flex', 
           justifyContent: 'center',
           alignItems: 'center',
           padding: '20px',
-          background: 'linear-gradient(135deg, #FFF5F0 0%, #FFE5D9 100%)'
+          background: 'linear-gradient(135deg, #FFF5F0 0%, #FFE5D9 100%)',
+          overflow: 'hidden'
         }}>
-          <EmojiRecipeImage recipe={recipe} size="medium" />
+          <div style={{ maxWidth: '250px', width: '100%' }}>
+            <EmojiRecipeImage recipe={recipe} size="small" />
+          </div>
         </div>
 
         <div style={{ padding: '24px' }}>
@@ -232,7 +236,7 @@ const RecipeDetailModal = ({ recipe, onClose }) => {
                 fontWeight: '600',
                 marginBottom: '8px'
               }}>
-                🌙 Phasengerecht
+                {getPhaseEmoji(recipe.phase)} {getPhaseName(recipe.phase)}
               </h4>
               <p style={{
                 color: COLORS.textLight,
@@ -251,13 +255,34 @@ const RecipeDetailModal = ({ recipe, onClose }) => {
 };
 
 const getPhaseName = (phase) => {
+  if (!phase) return '';
+  
+  // Normalize phase string (remove -phase suffix, lowercase)
+  const normalized = phase.toLowerCase().replace('-phase', '');
+  
   const names = {
     menstruation: 'Menstruationsphase',
     follicular: 'Follikelphase',
     ovulation: 'Ovulationsphase',
     luteal: 'Lutealphase'
   };
-  return names[phase] || phase;
+  
+  return names[normalized] || phase;
+};
+
+const getPhaseEmoji = (phase) => {
+  if (!phase) return '✅';
+  
+  const normalized = phase.toLowerCase().replace('-phase', '');
+  
+  const emojis = {
+    menstruation: '🌙',
+    follicular: '🌱',
+    ovulation: '🌸',
+    luteal: '🍂'
+  };
+  
+  return emojis[normalized] || '✅';
 };
 
 export default RecipeDetailModal;

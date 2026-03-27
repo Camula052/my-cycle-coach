@@ -8,6 +8,7 @@ export const breakfastTemplates = [
     name: 'Classic Overnight Oats',
     base: 'oats',
     liquids: ['Mandelmilch'],
+    extras: ['Chiasamen', 'Zimt', 'Vanille'],
     toppings: ['Beeren', 'Banane', 'Nüsse', 'Honig'],
     prepTime: 5,
     soakTime: 480,
@@ -260,6 +261,20 @@ export const generateBreakfastRecipe = (template, phase) => {
   const baseIngredients = [];
   const instructions = [...template.instructions];
   
+  // Translation map for common ingredients
+  const translations = {
+    'oats': 'Haferflocken',
+    'bread': 'Vollkornbrot',
+    'granola': 'Granola',
+    'banana': 'Banane',
+    'berries': 'Beeren',
+    'eggs': 'Eier',
+    'cottage_cheese': 'Hüttenkäse',
+    'greek_yogurt': 'Griechischer Joghurt',
+    'chia_seeds': 'Chiasamen',
+    'rice_cakes': 'Reiswaffeln'
+  };
+  
   // Add base ingredient
   if (template.base) {
     const amounts = {
@@ -269,13 +284,14 @@ export const generateBreakfastRecipe = (template, phase) => {
       'chia_seeds': '3 EL',
       'greek_yogurt': '200g'
     };
-    baseIngredients.push(`${amounts[template.base]} ${template.base}`);
+    const name = translations[template.base] || template.base;
+    baseIngredients.push(`${amounts[template.base]} ${name}`);
   }
   
   // Add liquid if present
   if (template.liquids) {
     const liquid = template.liquids[Math.floor(Math.random() * template.liquids.length)];
-    baseIngredients.push(`200ml ${liquid}`);
+    baseIngredients.push(`150-200ml ${liquid}`);
   }
   
   // Add protein if present
@@ -284,7 +300,15 @@ export const generateBreakfastRecipe = (template, phase) => {
       'eggs': '2',
       'cottage_cheese': '100g'
     };
-    baseIngredients.push(`${amounts[template.protein]} ${template.protein}`);
+    const name = translations[template.protein] || template.protein;
+    baseIngredients.push(`${amounts[template.protein]} ${name}`);
+  }
+  
+  // Add extras if present
+  if (template.extras) {
+    template.extras.forEach(extra => {
+      baseIngredients.push(extra); // Already in German
+    });
   }
   
   // Add random toppings (2-3)
@@ -295,7 +319,7 @@ export const generateBreakfastRecipe = (template, phase) => {
       const topping = template.toppings[Math.floor(Math.random() * template.toppings.length)];
       if (!selectedToppings.includes(topping)) {
         selectedToppings.push(topping);
-        baseIngredients.push(topping);
+        baseIngredients.push(topping); // Already in German
       }
     }
   }
